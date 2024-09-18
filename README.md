@@ -46,7 +46,7 @@ vscode-icons
 	Encryption: Optional
 	Trust Server Certificate: Yes
 	```
-	*Use the same password as defined in your .env file*
+	*Use the same password as defined in your docker-compose.yml file*
 
 ### Backend setup in Visual Studio
 
