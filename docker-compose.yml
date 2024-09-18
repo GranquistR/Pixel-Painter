@@ -16,8 +16,6 @@ services:
       - ./entrypoint.sh:/entrypoint.sh # Copies the entrypoint script to the container
       # - sqlserverdata:/var/opt/mssql # Uncomment this line and volumes to persist data
     command: ["sh", "/entrypoint.sh"] # Runs the entrypoint script on startup
-    env_file:
-          - .env
 
 # volumes: 
 #   sqlserverdata:
