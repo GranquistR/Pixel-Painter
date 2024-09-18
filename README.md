@@ -22,15 +22,17 @@ vscode-icons
 
 ## Setup for local development
 
-### Frontend setup
+### Frontend setup in VS Code
 
-1. Open the .Client project folder in VS Code
+1. Open the .Client project folder in VS Code by clicking 'File' -> 'Open Folder' and selecting the .Client inside the cloned repository folder
+1. Open terminal with 'ctrl+`' *The key left of 1*
 1. Run the following commands:
 	```
 	npm install
 	```
 
-### Database Setup
+### Database Setup in Visual Studio
+1. Open the .sln file in the root directory of the project in Visual Studio
 1. CD to return to the root directory and run the following commands:
 	```
 	docker-compose up -d
@@ -46,7 +48,7 @@ vscode-icons
 	```
 	*Use the same password as defined in your .env file*
 
-### Backend setup
+### Backend setup in Visual Studio
 
 1. Open the .sln file in the root directory of the project in Visual Studio
 1. Run the project with the Start button in Visual Studio
