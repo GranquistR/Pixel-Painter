@@ -8,6 +8,11 @@ const router = createRouter({
       name: "HelloWorld",
       component: () => import("../components/HelloWorld.vue"),
     },
+    {
+      path: "/paint",
+      name: "Painter View",
+      component: () => import("../views/painterview.vue"),
+    },
   ],
 });
 export default router;

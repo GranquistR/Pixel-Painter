@@ -31,6 +31,9 @@
     <div>
       <ThemeSwitcher></ThemeSwitcher>
     </div>
+    <div>
+      <RouterLink to="/paint">Paint!</RouterLink>
+    </div>
   </div>
 </template>
 
@@ -40,6 +43,7 @@ import ColorPicker from "primevue/colorpicker";
 import ThemeSwitcher from "./ThemeSwitcher.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import { RouterLink } from "vue-router";
 
 type Forecasts = {
   date: string;
