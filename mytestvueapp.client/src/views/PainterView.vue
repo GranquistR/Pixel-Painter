@@ -16,6 +16,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import { ref } from "vue";
 import Button from "primevue/button";
 
-const pixelGrid = ref<PixelGrid>(new PixelGrid(16, 16));
+const pixelGrid = ref<PixelGrid>(new PixelGrid(64, 64));
+pixelGrid.value.randomizeGrid();
 const canvas = ref();
 </script>

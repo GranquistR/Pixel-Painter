@@ -66,7 +66,7 @@ function fetchData() {
   post.value = null;
   loading.value = true;
 
-  fetch("weatherforecast")
+  fetch("weatherforecast/GetWeatherForecast")
     .then((r) => r.json())
     .then((json) => {
       post.value = json as Forecasts;
