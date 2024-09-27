@@ -7,6 +7,7 @@
       @click="pixelGrid.randomizeGrid()"
     />
     <Button label="Recenter" @click="canvas.recenter()" />
+    <Button label="Encode painting" @click="pixelGrid.Encode()"/>
   </div>
 </template>
 
