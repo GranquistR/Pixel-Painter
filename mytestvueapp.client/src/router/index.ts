@@ -11,8 +11,13 @@ const router = createRouter({
     {
       path: "/paint",
       name: "Painter View",
-      component: () => import("../views/painterview.vue"),
+      component: () => import("../views/PainterView.vue"),
     },
+    {
+      path: "/gallery",
+      name: "Gallery View",
+      component: () => import("../views/GalleryView.vue")
+    }
   ],
 });
 export default router;
