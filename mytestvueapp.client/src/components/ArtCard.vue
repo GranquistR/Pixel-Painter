@@ -4,11 +4,11 @@ const { art } = defineProps(['art'])
 </script>
 
 <template> 
-    <div class="art-card">
-        <img :src="art.image">
-        <div class="card-text">
-            <p>{{ art.title }}</p>
-            <p>{{ art.artistName }}</p>
+    <div class="art-card flex-shrink-0 w-13rem overflow-hidden border-round-sm mr-4 mb-4 cursor-pointer bg-white shadow-2">
+        <img class="w-full h-10rem" :src="art.image">
+        <div class="card-text flex flex-column flex-column justify-content-between flex-nowrap px-1 py-1">
+            <p class="text-base font-bold">{{ art.title }}</p>
+            <p class="text-sm">{{ art.artistName }}</p>
         </div>
     </div>
 </template>
@@ -19,35 +19,4 @@ const { art } = defineProps(['art'])
         padding: 0;
         box-sizing: border-box;
     }
-
-    .art-card {
-        width: 300px;
-        overflow: hidden;
-        border-radius: 5%;
-        margin-bottom: 20px;
-        margin-right: 20px;
-        cursor: pointer;
-
-        background-color: #FFFFFF;
-        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .art-card .card-text {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        padding: 0px 5px 0px 5px;
-    }
-
-    p {
-        font-size: 12px;
-    }
-
-    .art-card img {
-        height: 150px;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
 </style>
