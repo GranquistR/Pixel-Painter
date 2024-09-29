@@ -3,9 +3,9 @@
 </script>
 
 <template>
-    <div class="container">
+    <div class="container flex justify-content-between align-items-center p-2">
         <h1 class="page-name">Page Name</h1>
-        <div class="options">
+        <div class="options flex justify-content-center align-items-center flex-nowrap gap-3">
             <RouterLink active-class="active" to="/">Home</RouterLink>
             <RouterLink active-class="active" to="/paint">Painter</RouterLink>
             <RouterLink active-class="active" to="/gallery">Gallery</RouterLink>
@@ -17,25 +17,9 @@
 </template>
 
 <style scoped>
-    .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        padding: 5px;
-    }
-
     .active {
         border: 2px solid blue;
         font-weight: bolder;
-    }
-
-    .options {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 20px;
     }
 
     a {
@@ -44,5 +28,4 @@
         border: 2px solid black;
         padding: 5px;
     }
-
 </style>
