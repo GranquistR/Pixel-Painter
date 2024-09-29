@@ -32,7 +32,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             var painting = new ArtPainting
                             {
-
+                                ArtId = reader.GetInt32(0),
+                                ArtName = reader.GetString(1),
+                                ArtistId = reader.GetInt32(2),
+                                ArtHeight = reader.GetInt32(3),
+                                ArtWidth = reader.GetInt32(4),
                             };
                             paintings.Add(painting);
                         }
