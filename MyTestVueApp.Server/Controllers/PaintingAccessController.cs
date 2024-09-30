@@ -10,9 +10,9 @@ namespace MyTestVueApp.Server.Controllers
     public class PaintingAccessController : ControllerBase
     {
         private ILogger<PaintingAccessController> Logger { get; }
-        private IWeatherForecastService WeatherForecastService { get; }
+        private IPaintingAccessService PaintingAccessService { get; }
 
-        public PaintingAccessController(ILogger<PaintingAccessController> logger, PaintingAccessService paintingAccessService)
+        public PaintingAccessController(ILogger<PaintingAccessController> logger, IPaintingAccessService paintingAccessService)
         {
             Logger = logger;
             PaintingAccessService = paintingAccessService;
@@ -22,7 +22,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllPaintings")]
         public IEnumerable<WorkOfArt> GetAllArt()
         {
-           return WeatherForecastService.GetWeatherForecast();
+           return PaintingAccessService.GetAllPaintings();
         }
     }
 }
