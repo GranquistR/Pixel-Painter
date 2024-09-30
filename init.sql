@@ -15,11 +15,11 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Artist')
 BEGIN
 CREATE TABLE Artist (
     ID int IDENTITY(1,1) NOT NULL,
-    ArtistName varchar(20),
+    ArtistName varchar(20) NOT NULL,
     Token varchar(max),
     IsAdmin bit DEFAULT 0, -- this is a bool, 0 = false 1 = true
     CreationDate DATETIME DEFAULT GETDATE(),
-    CONSTRAINT PK_Artist PRIMARY KEY (ID),
+    CONSTRAINT PK_ArtistID PRIMARY KEY (ID,ArtistName),
 );
 END
 GO
@@ -29,13 +29,15 @@ CREATE TABLE Art (
     ID int IDENTITY(1,1) NOT NULL,
     ArtName varchar(255),
 	Artistid int,
+    ArtistName varchar(20),
     Width int,
     ArtLength int,
     Encode varchar(max),
     CreationDate DATETIME DEFAULT GETDATE(),
     isPublic bit DEFAULT 0,
     CONSTRAINT PK_Art PRIMARY KEY (ID),
-    CONSTRAINT FK_Art FOREIGN KEY (ArtistID) REFERENCES Artist(ID),
+    CONSTRAINT FK_Art FOREIGN KEY (ArtistID,ArtistName) REFERENCES Artist(ID,ArtistName),
+
 );
 END
 GO
@@ -44,9 +46,10 @@ BEGIN
 CREATE TABLE Likes (
     ID int IDENTITY(1,1) NOT NULL,
     ArtistID int,
+    ArtistName varchar(20),
     ArtID int,
     CONSTRAINT PK_Like PRIMARY KEY (ID),
-    CONSTRAINT FK_ArtistLike FOREIGN KEY (ArtistID) REFERENCES Artist(ID),
+    CONSTRAINT FK_ArtistLike FOREIGN KEY (ArtistID,ArtistName) REFERENCES Artist(ID,ArtistName),
     CONSTRAINT FK_ArtLike FOREIGN KEY (ArtID) REFERENCES Art(ID)
     
 );
@@ -57,11 +60,12 @@ BEGIN
 CREATE TABLE Comment (
     ID int IDENTITY(1,1) NOT NULL,
     ArtistID int,
+    ArtistName varchar(20),
     ArtID int,
     Comment varchar(2222),
     CommentTime DATETIME,
     CONSTRAINT PK_Comment PRIMARY KEY (ID),
-    CONSTRAINT FK_ArtistComment FOREIGN KEY (ArtistID) REFERENCES Artist(ID),
+    CONSTRAINT FK_ArtistComment FOREIGN KEY (ArtistID,ArtistName) REFERENCES Artist(ID,ArtistName),
     CONSTRAINT FK_ArtComment FOREIGN KEY (ArtID) REFERENCES Art(ID)
     
 );
