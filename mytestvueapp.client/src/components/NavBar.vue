@@ -3,15 +3,15 @@
 </script>
 
 <template>
-    <div class="container flex justify-content-between align-items-center p-2">
-        <h1 class="page-name">Page Name</h1>
-        <div class="options flex justify-content-center align-items-center flex-nowrap gap-3">
+    <div class="flex justify-content-between align-items-center py-0">
+        <h2 class="ml-3">Pixel Painter</h2>
+        <div class="flex justify-content-center align-items-center flex-nowrap gap-3">
             <RouterLink active-class="active" to="/">Home</RouterLink>
             <RouterLink active-class="active" to="/paint">Painter</RouterLink>
             <RouterLink active-class="active" to="/gallery">Gallery</RouterLink>
         </div>
         <div class="user-account-details">
-            <h2>User Account Stuff</h2>
+            <h2 class="mr-3">User Account</h2>
         </div>
     </div>
 </template>

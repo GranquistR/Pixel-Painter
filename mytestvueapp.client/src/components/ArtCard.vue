@@ -4,9 +4,9 @@ const { art } = defineProps(['art'])
 </script>
 
 <template> 
-    <div class="art-card flex-shrink-0 w-13rem overflow-hidden border-round-sm mr-4 mb-4 cursor-pointer bg-white shadow-2">
+    <div class="flex-shrink-0 w-13rem overflow-hidden border-round-sm mr-4 mb-4 cursor-pointer bg-white shadow-2">
         <img class="w-full h-10rem" :src="art.image">
-        <div class="card-text flex flex-column flex-column justify-content-between flex-nowrap px-1 py-1">
+        <div class="flex flex-column flex-column justify-content-between flex-nowrap px-1 py-1">
             <p class="text-base font-bold">{{ art.title }}</p>
             <p class="text-sm">{{ art.artistName }}</p>
         </div>
