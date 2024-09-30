@@ -1,6 +1,6 @@
 namespace MyTestVueApp.Server.Entities
-{
-    public class WorkOfArt
+{ // ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+    public class Art
     {
         public int ArtId {get; set;}
 

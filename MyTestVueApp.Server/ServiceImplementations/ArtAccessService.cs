@@ -14,9 +14,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             AppConfig = appConfig;
         }
-        public IEnumerable<WorkOfArt> GetAllArt()
+        public IEnumerable<Art> GetAllArt()
         {
-            var paintings = new List<WorkOfArt>();
+            var paintings = new List<Art>();
             var connectionString = AppConfig.Value.ConnectionString;
 
             using (var connection = new SqlConnection(connectionString))
@@ -31,7 +31,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
-                            var painting = new WorkOfArt
+                            var painting = new Art
                             { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
@@ -51,9 +51,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return paintings;
         }
 
-        public WorkOfArt GetArtById(int id)
+        public Art GetArtById(int id)
         {
-            return new WorkOfArt();
+            return new Art();
         }
     }
 }

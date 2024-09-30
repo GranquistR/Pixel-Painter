@@ -20,14 +20,14 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetAllArt")]
-        public IEnumerable<WorkOfArt> GetAllArt()
+        public IEnumerable<Art> GetAllArt()
         {
            return ArtAccessService.GetAllArt();
         }
 
         [HttpGet]
         [Route("GetArtById")]
-        public WorkOfArt GetArtById(int id)
+        public Art GetArtById(int id)
         {
             return ArtAccessService.GetArtById(id);
         }
