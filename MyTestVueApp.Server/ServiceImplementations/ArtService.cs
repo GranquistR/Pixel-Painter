@@ -22,7 +22,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                var query = "SELECT FROM ";
+                var query = "SELECT ID, ArtName, Artistid, Width, ArtLength, Encode, isPublic FROM Art";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -37,6 +37,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 ArtistId = reader.GetInt32(2),
                                 ArtHeight = reader.GetInt32(3),
                                 ArtWidth = reader.GetInt32(4),
+                                Encode = reader.GetString(5),
                             };
                             paintings.Add(painting);
                         }
