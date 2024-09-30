@@ -29,18 +29,4 @@ export class PixelGrid {
       }
     }
   }
-
-  Encode(): void{
-    let EncodedPicture: string ="";
-
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        EncodedPicture= EncodedPicture + this.grid[i][j];
-          
-      }
-    }
-    console.log(EncodedPicture);
-  }
-
 }
-
