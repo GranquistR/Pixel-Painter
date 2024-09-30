@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from "vue";
-    import artworkData from "../dummydata/DummyWorksOfArt"
+    import artworkData from "../dummydata/DummyArt"
     import ArtCard from "../components/ArtCard.vue"
 
     const artworks = ref(artworkData)

@@ -1,5 +1,5 @@
 
-export default class WorkOfArt {
+export default class Art {
   id: number
   title: string
   artistName: string
