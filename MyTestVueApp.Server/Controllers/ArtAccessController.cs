@@ -29,7 +29,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetArtById")]
         public WorkOfArt GetArtById(int id)
         {
-            return ArtAccessService.GetArtByID(id);
+            return ArtAccessService.GetArtById(id);
         }
     }
 }
