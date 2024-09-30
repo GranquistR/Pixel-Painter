@@ -1,6 +1,3 @@
-<script setup>
-
-</script>
 
 <template>
   <DrawingCanvas ref="canvas" :pixelGrid="pixelGrid" />
