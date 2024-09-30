@@ -50,5 +50,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             return paintings;
         }
+
+        public WorkOfArt GetArtById(int id)
+        {
+            return new WorkOfArt();
+        }
     }
 }
+

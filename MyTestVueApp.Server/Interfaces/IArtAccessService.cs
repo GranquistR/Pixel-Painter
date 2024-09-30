@@ -12,6 +12,6 @@ namespace MyTestVueApp.Server.Interfaces
         /// </summary>
         /// <returns>A list of all paintings</returns>
         public IEnumerable<WorkOfArt> GetAllArt();
-        public WorkOfArt GetArtByID(int id);
+        public WorkOfArt GetArtById(int id);
     }
 }
