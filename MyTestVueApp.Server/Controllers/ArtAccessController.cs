@@ -24,5 +24,12 @@ namespace MyTestVueApp.Server.Controllers
         {
            return ArtAccessService.GetAllArt();
         }
+
+        [HttpGet]
+        [Route("GetArtById")]
+        public WorkOfArt GetArtById(int id)
+        {
+            return ArtAccessService.GetArtByID(id);
+        }
     }
 }
