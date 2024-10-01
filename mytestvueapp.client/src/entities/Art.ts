@@ -1,14 +1,31 @@
 
-export default class Art {
-  id: number
-  title: string
-  artistName: string
-  image: string
+export default class Art { 
+  ArtId: number 
+  ArtName: string 
+  ArtistId: number
+  Width: number
+  ArtLength: number
+  Encode: string
+  CreationDate: string
+  IsPublic: boolean
 
-  constructor(id: number, title: string, artistName: string, image: string) {
-    this.id = id
-    this.title = title
-    this.artistName = artistName
-    this.image = image
+  constructor(
+    ArtId: number, 
+    ArtName: string, 
+    ArtistId: number, 
+    Width: number, 
+    ArtLength: number, 
+    Encode: string,
+    CreationDate: string,
+    IsPublic: boolean
+  ) {
+    this.ArtId = ArtId
+    this.ArtName = ArtName
+    this.ArtistId = ArtistId
+    this.Width = Width
+    this.ArtLength = ArtLength
+    this.Encode = Encode
+    this.CreationDate = CreationDate
+    this.IsPublic = IsPublic
   }
 }

@@ -3,18 +3,21 @@ import Art from "../entities/Art"
 
 export default class ArtAccessService {
 
-    public getAllArt(): Art[] {
-       let worksOfArt: Art[] = [];
+    public static getAllArt(): Art[] {
+       const worksOfArt: Art[] = [];
 
-        fetch("artaccess/GetAllArt")
-            .then((r) => r.json())
-            .then((json) => {
-                worksOfArt = json as Art[]
+       
+        fetch("artaccess/GetAllArt", {
+            headers: {
+              "Content-Type": "application/json",
+            }
+            }).then((r) => r.json()) // Convert Response Stream to json
+            .then((json) => { 
+                console.log(json[1].artName)
+                //worksOfArt = json as (Art[]);
                 return;
             })
-            .catch(() => {
-                console.log("Error Fetching Data");
-            });
+            .catch(console.error);
 
         return worksOfArt;
     }

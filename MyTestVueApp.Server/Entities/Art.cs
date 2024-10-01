@@ -1,5 +1,5 @@
 namespace MyTestVueApp.Server.Entities
-{ // ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+{ // ArtId, ArtName, ArtistId, Width, ArtLength, Encode, CreationDate, IsPublic
     public class Art
     {
         public int ArtId {get; set;}
@@ -14,14 +14,26 @@ namespace MyTestVueApp.Server.Entities
 
         public string? Encode { get; set;}
 
-        public DateTime Date { get; set; }
+        public DateTime CreationDate { get; set; }
 
-        public int IsPublic { get; set; }
+        public bool IsPublic { get; set; }
+
+        /*
+        public Art(int ArtId, string ArtName, int ArtistId, int Width, int ArtLength, string Encode, DateTime Date, bool IsPublic) {
+            this.ArtId = ArtId;
+            this.ArtName = ArtName;
+            this.ArtistId = ArtistId;
+            this.Width = Width;
+            this.ArtLength = ArtLength;
+            this.Encode = Encode;
+            this.Date = Date;
+            this.IsPublic = IsPublic;
+        }*/
     }
 }
 
 /* Based on this table:
-ID int IDENTITY(1,1) NOT NULL,
+    ID int IDENTITY(1,1) NOT NULL,
     ArtName varchar(255),
 	Artistid int,
     Width int,
