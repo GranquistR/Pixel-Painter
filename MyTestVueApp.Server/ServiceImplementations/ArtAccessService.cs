@@ -4,6 +4,7 @@ using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Reflection.PortableExecutable;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -53,7 +54,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public Art GetArtById(int id)
         {
-            return new Art();
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query = "SELECT ID, ArtName, Artistid, Width, ArtLength, Encode, CreationDate, isPublic FROM Art WHERE ID=" + id;
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        var painting = new Art
+                        { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            ArtId = reader.GetInt32(0),
+                            ArtName = reader.GetString(1),
+                            ArtistId = reader.GetInt32(2),
+                            Width = reader.GetInt32(3),
+                            ArtLength = reader.GetInt32(4),
+                            Encode = reader.GetString(5),
+                            Date = reader.GetDateTime(6),
+                            IsPublic = reader.GetInt32(7)
+                        };
+                        return painting;
+                    }
+                }
+             }
         }
     }
 }
