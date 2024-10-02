@@ -1,29 +1,16 @@
 <script setup>
     import { ref } from "vue";
-    import artworkData from "../dummydata/DummyWorksOfArt"
+    import artworkData from "../dummydata/DummyArt"
     import ArtCard from "../components/ArtCard.vue"
 
     const artworks = ref(artworkData)
-
-
 </script>
 
 
 <template>
-    <div class="container">
-        <div class="art-container">
+    <div class="w-8 mx-auto my-0">
+        <div class="flex">
             <ArtCard v-for="art in artworks" :key="art.id" :art="art"/>
         </div>
     </div>
 </template>
-
-<style scoped>
-    .container {
-        width: 70%;
-        margin: 0 auto;
-    }
-
-    .art-container {
-        display: flex;
-    }
-</style>

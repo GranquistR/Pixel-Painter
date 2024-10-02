@@ -59,14 +59,6 @@
         font-weight: bolder;
     }
 
-    .options {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 20px;
-    }
-
     a {
         text-decoration: none;
         border-radius: 10%;
