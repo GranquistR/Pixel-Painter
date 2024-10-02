@@ -39,8 +39,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 Width = reader.GetInt32(3),
                                 ArtLength = reader.GetInt32(4),
                                 Encode = reader.GetString(5),
-                                Date = reader.GetDateTime(6),
-                                IsPublic = reader.GetInt32(7)
+                                CreationDate = reader.GetDateTime(6),
+                                IsPublic = reader.GetBoolean(7)
                             };
                             paintings.Add(painting);
                         }

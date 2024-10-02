@@ -3,4 +3,7 @@
 GET {{MyTestVueApp.Server_HostAddress}}/weatherforecast/
 Accept: application/json
 
+GET {{MyTestVueApp.Server_HostAddress}}/artaccess/
+Accept: application/json
+
 ###
