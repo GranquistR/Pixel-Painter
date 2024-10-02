@@ -40,7 +40,7 @@
             <RouterLink active-class="active" to="/paint">Painter</RouterLink>
             <RouterLink active-class="active" to="/gallery">Gallery</RouterLink>
         </div>
-        <div class="user-account-details">
+        <div>
             <img class="login" src="..\assets\profileImage.jpg" @click="visible = true" /><br />
         </div>
     </div>
@@ -70,27 +70,6 @@
         height: 25%;
         width: 25%;
         border-radius: 25px;
-    }
-
-    .overlay {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.37);
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal {
-        width: 400px;
-        background-color: white;
-        border-radius: 10px;
-        padding: 30px;
-        position: relative;
-        display: flex;
-        flex-direction: column;
     }
 
 </style>
