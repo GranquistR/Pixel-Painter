@@ -23,7 +23,6 @@
             </div>
             <div class="flex items-center gap-4 mb-8">
                 <label for="password" class="font-semibold w-24">Password</label>
-                <!--<InputText id="password" class="flex-auto" autocomplete="off" />-->
                 <Password v-model="password" :feedback="false" id="password" class="flex-auto" autocomplete="off" toggleMask/>
             </div>
             <div class="flex justify-end gap-2">
@@ -33,43 +32,15 @@
         </Dialog>
     </div>
 
-    <div class="container">
+    <div class="flex p-1 container justify-content-between align-items-center">
         <h1 class="page-name">Page Name</h1>
-        <div class="options">
-            <RouterLink active-class="active" to="/">Home</RouterLink>
-            <RouterLink active-class="active" to="/paint">Painter</RouterLink>
-            <RouterLink active-class="active" to="/gallery">Gallery</RouterLink>
+        <div class="font-bold">
+            <RouterLink class="p-2" to="/"><Button label="Home"/></RouterLink>
+            <RouterLink class="p-2" to="/paint"><Button label="Painter" /></RouterLink>
+            <RouterLink class="p-2" to="/gallery"><Button label="Gallery" /></RouterLink>
         </div>
         <div>
-            <img class="login" src="..\assets\profileImage.jpg" @click="visible = true" /><br />
+            <img class="login h-4rem border-circle" src="..\assets\profileImage.jpg" @click="visible = true" /><br />
         </div>
     </div>
 </template>
-
-<style scoped>
-    .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px;
-    }
-
-    .active {
-        border: 2px solid blue;
-        font-weight: bolder;
-    }
-
-    a {
-        text-decoration: none;
-        border-radius: 10%;
-        border: 2px solid black;
-        padding: 5px;
-    }
-
-    .login {
-        height: 25%;
-        width: 25%;
-        border-radius: 25px;
-    }
-
-</style>
