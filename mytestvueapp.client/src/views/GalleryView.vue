@@ -5,22 +5,15 @@
     import Art from "@/entities/Art";
     import ArtAccessService from "@/utils/ArtAccessService";
 
-    type WorksOfArt = {
-        ArtId: number 
-        ArtName: string 
-        ArtistId: number
-        Width: number
-        ArtLength: number
-        Encode: string
-        CreationDate: string
-        IsPublic: boolean
-    }[];
+    const artworks = ref(artworkData) // Dummy Data
+    const stuff = ref<Art[] | null>(null); // Local call
+    const stuff2 = ref<Art[] | null>(null); // Service call
 
-
-    const stuff = ref<WorksOfArt | null>(null); 
+    //ArtAccessService.getAllArt().then((r) => stuff2.value = r);
 
     onMounted(() => {
         fetchData();
+        //ArtAccessService.getAllArt().then((promise) => stuff2.value = promise as Art[]);
     });
 
     function fetchData() {
@@ -29,24 +22,23 @@
         fetch("artaccess/GetAllArt")
             .then((r) => r.json())
             .then((json) => {
-                stuff.value = json as WorksOfArt;
+                stuff.value = json as Art[];
                 return;
             })
             .catch(console.error)
     }
-
-    const artworks = ref(artworkData)
-
 </script>
 
 
 <template>
-    <div class="w-8 mx-auto my-0">
-        <div class="flex">
-            <ArtCard v-for="art in artworks" :key="art.id" :art="art"/>
+    <div class="w-9 mx-auto my-0">
+        <div class="flex flex-wrap">
+            <ArtCard v-for="art in artworks" :key="art.artId" :art="art"/> 
+            <ArtCard v-for="art in stuff" :key="art.artId" :art="art" />
+            <ArtCard v-for="art in stuff2" :key="art.artId" :art="art" />
         </div>
         <div>
-            {{ stuff }}
+            {{ stuff2 }}
         </div>
     </div>
 </template>

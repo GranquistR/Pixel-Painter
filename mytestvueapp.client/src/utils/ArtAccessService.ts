@@ -3,28 +3,25 @@ import Art from "../entities/Art"
 
 export default class ArtAccessService {
 
-    public static async getAllArt(): Promise<Art[]> {
-       const worksOfArt: Art[] = [];
+    public static getAllArt(): Art[] {
+        console.log("Calling getAllArt()");
+        let worksOfArt: Art[] = [];
 
-       
-        const response = fetch("artaccess/GetAllArt", {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            })
-            /*
-            .then((r) => console.log(r)) // Convert Response Stream to json 
-           /* .then((json) => { 
-                console.log(json[0].artName)
-                //worksOfArt = json as (Art[]);
+        fetch("artaccess/GetAllArt")
+            .then((r) => r.json())
+            .then((json) => {
+                console.log("returning json", json)
+                worksOfArt = json as Art[];
+                console.log("worksOfArt", worksOfArt)
                 return;
             })
-            .catch(console.error);*/
+            .catch(() => {
+                console.error;
+            })
 
-        console.log(response);
-        console.log((await response).json());
-
-        return worksOfArt;
+        console.log("Tail log", worksOfArt);
+        return worksOfArt
     }
+
 }
 

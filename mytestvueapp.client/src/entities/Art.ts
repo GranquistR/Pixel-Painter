@@ -1,31 +1,31 @@
 
 export default class Art { 
-  ArtId: number 
-  ArtName: string 
-  ArtistId: number
-  Width: number
-  ArtLength: number
-  Encode: string
-  CreationDate: string
-  IsPublic: boolean
+  artId: number 
+  artName: string 
+  artistId: number
+  width: number
+  artLength: number
+  encode: string
+  creationDate: string
+  isPublic: boolean
 
   constructor(
-    ArtId: number, 
-    ArtName: string, 
-    ArtistId: number, 
-    Width: number, 
-    ArtLength: number, 
-    Encode: string,
-    CreationDate: string,
-    IsPublic: boolean
+    artId: number, 
+    artName: string, 
+    artistId: number, 
+    width: number, 
+    artLength: number, 
+    encode: string,
+    creationDate: string,
+    isPublic: boolean
   ) {
-    this.ArtId = ArtId
-    this.ArtName = ArtName
-    this.ArtistId = ArtistId
-    this.Width = Width
-    this.ArtLength = ArtLength
-    this.Encode = Encode
-    this.CreationDate = CreationDate
-    this.IsPublic = IsPublic
+    this.artId = artId
+    this.artName = artName
+    this.artistId = artistId
+    this.width = width
+    this.artLength = artLength
+    this.encode = encode
+    this.creationDate = creationDate
+    this.isPublic = isPublic
   }
 }
