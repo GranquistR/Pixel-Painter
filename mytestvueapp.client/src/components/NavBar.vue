@@ -27,8 +27,8 @@
                 <Password v-model="password" :feedback="false" id="password" class="flex-auto" autocomplete="off" toggleMask/>
             </div>
             <div class="flex justify-end gap-2">
-                <Button type="button" label="Cancel" severity="secondary" @click="visible = false; password = ref(null)"></Button>
-                <Button type="button" label="Log in" @click="visible = false; password = ref(null)"></Button>
+                <Button type="button" label="Cancel" severity="secondary" @click="visible = false; password = ''"></Button>
+                <Button type="button" label="Log in" @click="visible = false; password = ''"></Button>
             </div>
         </Dialog>
     </div>
