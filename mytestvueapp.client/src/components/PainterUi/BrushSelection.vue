@@ -6,11 +6,15 @@
     header="Tool Select"
     :style="{ width: '25rem' }"
   >
-    <div v-for="tool in tools" :key="tool.label" class="flex">
+    <div
+      v-for="tool in PainterTool.getDefaults()"
+      :key="tool.label"
+      class="flex"
+    >
       <Button
         class="w-full mb-2"
-        :severity="tool !== selectedTool ? 'secondary' : 'primary'"
-        @click="selectedTool = tool"
+        :severity="tool.label !== model.label ? 'secondary' : 'primary'"
+        @click="model = tool"
       >
         <span :class="tool.icon" class="mr-2"></span>
         <span>
@@ -22,17 +26,14 @@
     </div>
   </Dialog>
 </template>
+
 <script setup lang="ts">
-import { ref } from "vue";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";
+import PainterTool from "@/entities/PainterTool";
 
-const tools = ref([
-  { label: "Brush", icon: "pi pi-pencil", shortcut: "b" },
-  { label: "Pan", icon: "pi pi-arrows-alt", shortcut: "p" },
-  { label: "Eraser", icon: "pi pi-eraser", shortcut: "e" },
-]);
-
-var selectedTool = ref(tools.value[0]);
+const model = defineModel<PainterTool>({
+  default: PainterTool.getDefaults()[0],
+});
 </script>

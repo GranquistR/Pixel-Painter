@@ -20,13 +20,10 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import Button from "primevue/button";
-import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";
-import Avatar from "primevue/avatar";
 import ColorPicker from "primevue/colorpicker";
 
-const selectedColor = ref<string>("#000000");
+const selectedColor = defineModel<string>({ default: "#000000" });
 
 const defaultColors = ref<string[]>([
   "#000000",
