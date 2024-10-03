@@ -24,23 +24,12 @@
         <Column field="summary" header="summary"></Column>
       </DataTable>
     </div>
-    <div class="my-4">
-      <ColorPicker v-model="color"></ColorPicker>
-      Color: ({{ color }})
-    </div>
-    <div>
-      <ThemeSwitcher></ThemeSwitcher>
-    </div>
-    <div>
-      <RouterLink to="/paint">Paint!</RouterLink>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import ColorPicker from "primevue/colorpicker";
-import ThemeSwitcher from "./ThemeSwitcher.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { RouterLink } from "vue-router";

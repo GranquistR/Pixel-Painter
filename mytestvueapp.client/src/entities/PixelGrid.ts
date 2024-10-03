@@ -31,6 +31,9 @@ export class PixelGrid {
   }
 
 
+
+
+
     updateGrid(decodedGrid: PixelGrid): void{
       for (let i = 0; i < this.height; i++) {
         for (let j = 0; j < this.width; j++) {
@@ -39,4 +42,6 @@ export class PixelGrid {
       }
     }
 }
+}
+
 

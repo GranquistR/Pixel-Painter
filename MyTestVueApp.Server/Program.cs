@@ -18,6 +18,7 @@ builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSe
 
 //Custom Services
 builder.Services.AddTransient<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddTransient<IArtAccessService, ArtAccessService>();
 
 var app = builder.Build();
 
