@@ -59,7 +59,7 @@ var mouseButtonHeldDown = ref<boolean>(false);
 
 const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32));
 
-import { ref, Text } from "vue";
+
 
 import Textarea from 'primevue/textarea';
 
@@ -84,8 +84,8 @@ const printEncodedText = () => {
 
 const decodeToCanvas = () => {
   console.log(stringEncodedText.value);
-  let decodedPixelGrid = <PixelGrid>(new PixelGrid(64, 64));
-  decodedPixelGrid=codec.Decode(stringEncodedText.value,64,64);
+  let decodedPixelGrid = <PixelGrid>(new PixelGrid(32,32));
+  decodedPixelGrid=codec.Decode(stringEncodedText.value,32,32);
   pixelGrid.value.updateGrid(decodedPixelGrid);
  
 }
