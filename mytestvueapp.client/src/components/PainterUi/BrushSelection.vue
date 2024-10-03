@@ -1,11 +1,5 @@
 <template>
-  <Dialog
-    position="right"
-    :visible="true"
-    :closable="false"
-    header="Tool Select"
-    :style="{ width: '25rem' }"
-  >
+  <FloatingCard position="right" header="Tool Select" width="25rem">
     <div
       v-for="tool in PainterTool.getDefaults()"
       :key="tool.label"
@@ -24,13 +18,13 @@
         <Tag severity="secondary" :value="tool.shortcut"></Tag>
       </Button>
     </div>
-  </Dialog>
+  </FloatingCard>
 </template>
 
 <script setup lang="ts">
 import Button from "primevue/button";
 import Tag from "primevue/tag";
-import Dialog from "primevue/dialog";
+import FloatingCard from "./FloatingCard.vue";
 import PainterTool from "@/entities/PainterTool";
 
 const model = defineModel<PainterTool>({
