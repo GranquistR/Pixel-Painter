@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import DrawingCanvas from "@/components/DrawingCanvas.vue";
+import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
 import codec from "@/utils/codec";
 import { ref, watch } from "vue";
