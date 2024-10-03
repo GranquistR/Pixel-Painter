@@ -5,6 +5,11 @@ const router = createRouter({
   routes: [
     {
       path: "/",
+      name: "Landing",
+      component: () => import("../views/LandingPageView.vue"),
+    },
+    {
+      path: "/test",
       name: "HelloWorld",
       component: () => import("../components/HelloWorld.vue"),
     },
@@ -16,8 +21,8 @@ const router = createRouter({
     {
       path: "/gallery",
       name: "Gallery View",
-      component: () => import("../views/GalleryView.vue")
-    }
+      component: () => import("../views/GalleryView.vue"),
+    },
   ],
 });
 export default router;
