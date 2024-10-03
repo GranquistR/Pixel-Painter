@@ -1,11 +1,5 @@
 <template>
-  <Dialog
-    position="bottomright"
-    :visible="true"
-    :closable="false"
-    header="Color Select"
-    :style="{ width: '11rem' }"
-  >
+  <FloatingCard position="bottomright" header="Color Select" width="11rem">
     <div class="flex flex-wrap">
       <div v-for="color in defaultColors" :key="color">
         <div
@@ -16,11 +10,11 @@
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
     </div>
-  </Dialog>
+  </FloatingCard>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import Dialog from "primevue/dialog";
+import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
 
 const selectedColor = defineModel<string>({ default: "#000000" });
