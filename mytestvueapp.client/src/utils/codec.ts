@@ -1,35 +1,36 @@
 import { PixelGrid } from "@/entities/PixelGrid";
 
-export default class codec{
-  
-public static Encode(inputGrid: PixelGrid): string{
-    let EncodedPicture: string ="";
+export default class codec {
+  public static Encode(inputGrid: PixelGrid): string {
+    let EncodedPicture: string = "";
 
     for (let i = 0; i < inputGrid.height; i++) {
       for (let j = 0; j < inputGrid.width; j++) {
         EncodedPicture = EncodedPicture + inputGrid.grid[i][j].substring(1);
-          
       }
     }
-    console.log(EncodedPicture);
-    return(EncodedPicture);
+    return EncodedPicture;
   }
 
-  public static Decode(encodedString: String, height: number, width: number): PixelGrid{
+  public static Decode(
+    encodedString: String,
+    height: number,
+    width: number
+  ): PixelGrid {
     const decodedPicture: PixelGrid = new PixelGrid(height, width);
     decodedPicture.createGrid(height, width);
     let k = 0;
 
     if (encodedString === "") {
-        return decodedPicture;
+      return decodedPicture;
     }
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        decodedPicture.grid[i][j]="#" + encodedString.slice(k,k+6);
-         k= k+6;
+        decodedPicture.grid[i][j] = "#" + encodedString.slice(k, k + 6);
+        k = k + 6;
       }
     }
-    
+
     return decodedPicture;
   }
 }
