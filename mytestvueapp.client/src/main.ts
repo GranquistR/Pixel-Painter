@@ -10,6 +10,7 @@ import router from "./router";
 import PrimeVue from "primevue/config";
 import "primeicons/primeicons.css";
 import Aura from "@primevue/themes/aura";
+import ToastService from "primevue/toastservice";
 
 //PrimeFlex
 import "primeflex/primeflex.css";
@@ -24,10 +25,11 @@ createApp(App)
     },
   })
   .use(router)
+  .use(ToastService)
   .mount("#app");
 
+//Set the primary color of the theme
 import { updatePreset } from "@primevue/themes";
-
 updatePreset({
   semantic: {
     primary: {

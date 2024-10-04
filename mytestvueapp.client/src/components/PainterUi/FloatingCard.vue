@@ -11,7 +11,7 @@
 </template>
 <script setup lang="ts">
 import Dialog from "primevue/dialog";
-var props = defineProps<{
+defineProps<{
   position: string;
   header: string;
   width: string;

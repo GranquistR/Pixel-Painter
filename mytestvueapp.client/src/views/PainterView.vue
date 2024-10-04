@@ -17,26 +17,19 @@
       label="Give Me Color!"
       @click="pixelGrid.randomizeGrid()"
     />
+
     <Button class="mx-2" label="Recenter" @click="canvas?.recenter()" />
     <BrushSelection v-model="selectedTool" />
     <ColorSelection v-model="selectedColor" />
-    <Button
-      label="Encode painting"
-      class="mr-2"
-      @click="codec.Encode(pixelGrid)"
-    />
-    <Button
-      label="Decode Painting"
-      class="mr-2"
-      @click="codec.Decode('', 16, 16)"
-    />
+
+    <SaveAndLoad v-model="pixelGrid" />
   </div>
 </template>
 
 <script setup lang="ts">
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
-import codec from "@/utils/codec";
+import SaveAndLoad from "@/components/PainterUi/SaveAndLoad.vue";
 import { ref, watch } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";

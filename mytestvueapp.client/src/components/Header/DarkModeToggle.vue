@@ -21,8 +21,8 @@ watch(checked, () => {
   }
 });
 
-// onMounted(() => {
-//   const element = document.querySelector("html");
-//   element?.classList.toggle("dark-mode-toggle");
-// });
+onMounted(() => {
+  const element = document.querySelector("html");
+  element?.classList.toggle("dark-mode-toggle");
+});
 </script>
