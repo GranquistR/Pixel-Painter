@@ -1,26 +1,24 @@
 import Art from "../entities/Art"
 
-
 export default class ArtAccessService {
 
-    public static async getAllArt(): Promise<Art[]> {
-        console.log("Calling getAllArt()");
-        let worksOfArt: Art[] = [];
+    public static async getAllArt(): Promise<any> {
 
-        await fetch("artaccess/GetAllArt")
-            .then((r) => r.json())
-            .then((json) => {
-                console.log("returning json", json)
-                worksOfArt = json as Art[];
-                console.log("worksOfArt", worksOfArt)
-                return;
-            })
-            .catch(() => {
-                console.error;
-            })
+        const response = await fetch("artaccess/GetAllArt");
+        console.log("GetAll-Response: ",response);
+        const json = await response.json();
+        console.log("GetAll-JSONData: ", json);
 
-        console.log("Tail log", worksOfArt);
-        return worksOfArt
+        return json as Art[];
+    }
+
+    public static async getArtById(artId: number): Promise<any> {
+        const response = await fetch(`artaccess/GetArtById?id=${artId}`);
+        console.log("ArtById-Response: ",response);
+        const json = await response.json();
+        console.log("ArtById-JSONData: ", json);
+
+        return json as Art;
     }
 
 }
