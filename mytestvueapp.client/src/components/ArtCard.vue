@@ -1,5 +1,4 @@
 <script setup>
-
 const { art } = defineProps(['art'])
 </script>
 
