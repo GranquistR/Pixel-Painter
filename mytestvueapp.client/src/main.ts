@@ -46,4 +46,17 @@ updatePreset({
       950: "#500724",
     },
   },
+  components: {
+    card: {
+      body: {
+        padding: '0px',
+        margin: '0px',
+        gap: 0,
+      },
+      caption: {
+        gap: '0px'
+      }
+
+    }
+  }
 });

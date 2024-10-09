@@ -65,7 +65,7 @@ const password = ref(null);
     </Dialog>
   </div>
 
-  <div class="flex justify-content-between align-items-center px-6 py-4">
+  <div class="shrink-limit flex justify-content-between align-items-center px-6 py-4">
     <RouterLink class="router-link-unstyled" to="/">
       <h1 class="m-0 ml-2 font-bold">
         <span style="color: var(--p-primary-color)">Pixel</span>Painter
@@ -97,3 +97,9 @@ const password = ref(null);
     </div>
   </div>
 </template>
+
+<style scoped>
+  .shrink-limit {
+      width: max(900px, 100%);
+  }
+</style>

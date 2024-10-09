@@ -50,7 +50,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
-
             return paintings;
         }
 
@@ -90,7 +89,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
-
             return paintings;
         }
 
