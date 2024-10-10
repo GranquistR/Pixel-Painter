@@ -99,6 +99,7 @@ const password = ref(null);
 </template>
 
 <style scoped>
+  /* Prevents the UI from getting crushed. */
   .shrink-limit {
       width: max(900px, 100%);
   }
