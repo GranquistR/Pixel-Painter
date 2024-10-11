@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Application, Sprite, Texture } from "pixi.js";
 import { Viewport } from "pixi-viewport"; // create viewport
-import { onMounted, ref, watch } from "vue";
+import { onMounted, watch, ref } from "vue";
 import { PixelGrid } from "@/entities/PixelGrid";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
@@ -69,7 +69,7 @@ function drawCanvas() {
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;
-      sprite.on("pointerover", () => {
+      sprite.on("pointerover", async () => {
         cursorPosition.value.x = sprite.position.x / PIXEL_SIZE;
         cursorPosition.value.y = sprite.position.y / PIXEL_SIZE;
       });
@@ -80,10 +80,10 @@ function drawCanvas() {
 //centers the canvas
 function recenter() {
   viewport.fit();
-  viewport.setZoom(50 / props.pixelGrid.width);
+  viewport.setZoom(40 / props.pixelGrid.width);
   viewport.moveCenter(
     (props.pixelGrid.width * PIXEL_SIZE) / 2,
-    (props.pixelGrid.height * PIXEL_SIZE) / 2
+    (props.pixelGrid.height * PIXEL_SIZE) / 2 + 80
   );
 }
 
