@@ -2,35 +2,26 @@
 import { onMounted, ref } from "vue";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
-import GalleryArt from "@/entities/GalleryArt";
 import ArtAccessService from "@/utils/ArtAccessService";
 
-const allArt = ref<Art[] | null>(null); 
-const allGalleryArt = ref<GalleryArt[] | null>(null); 
-const particularArt = ref<Art | null>(null);
+const allArt = ref<Art[] | null>(null);
 
 onMounted(() => {
   ArtAccessService.getAllArt() // Get All Art
-  .then((promise) => allArt.value = promise as Art[]);
-  ArtAccessService.getAllGalleryArt()
-  .then((promise) => allGalleryArt.value = promise as GalleryArt[]);
-  ArtAccessService.getArtById(2) // Get a particular art
-  .then((promise) => particularArt.value = promise as Art);
+    .then((promise) => (allArt.value = promise as Art[]));
 });
-
 </script>
 
 <template>
   <div class="w-9 mx-auto my-0">
     <div class="shrink-limit flex flex-wrap">
       <ArtCard v-for="art in allArt" :key="art.artId" :art="art" />
-      <ArtCard v-if="particularArt" :key="particularArt.artId" :art="particularArt" />
     </div>
   </div>
 </template>
 
 <style scoped>
-  .shrink-limit {
-    width: max(900px, 100%);
-  }
+.shrink-limit {
+  width: max(900px, 100%);
+}
 </style>

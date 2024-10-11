@@ -17,7 +17,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSection("ApplicationConfiguration"));
 
 //Custom Services
-builder.Services.AddTransient<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddTransient<IArtAccessService, ArtAccessService>();
 
 var app = builder.Build();
