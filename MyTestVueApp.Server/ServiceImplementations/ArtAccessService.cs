@@ -3,9 +3,6 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
