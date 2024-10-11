@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="viewer-page-canvas"></canvas>
+    <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
   </div>
 </template>
 
