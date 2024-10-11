@@ -1,26 +1,45 @@
 import Art from "../entities/Art"
-
+import GalleryArt from "../entities/GalleryArt"
 
 export default class ArtAccessService {
 
-    public static getAllArt(): Art[] {
-        console.log("Calling getAllArt()");
-        let worksOfArt: Art[] = [];
+    public static async getAllArt(): Promise<any> {
+        try {
+            const response = await fetch("artaccess/GetAllArt");
+            console.log("GetAll-Response: ",response);
+            const json = await response.json();
+            console.log("GetAll-JSONData: ", json);
 
-        fetch("artaccess/GetAllArt")
-            .then((r) => r.json())
-            .then((json) => {
-                console.log("returning json", json)
-                worksOfArt = json as Art[];
-                console.log("worksOfArt", worksOfArt)
-                return;
-            })
-            .catch(() => {
-                console.error;
-            })
+            return json as Art[];
+        } catch (error) {
+            console.error
+        }
+    }
 
-        console.log("Tail log", worksOfArt);
-        return worksOfArt
+    public static async getAllGalleryArt(): Promise<any> {
+        try {
+            const response = await fetch("artaccess/GetAllGalleryArt");
+            console.log("GetAll-Response: ",response);
+            const json = await response.json();
+            console.log("GetAll-JSONData: ", json);
+
+            return json as GalleryArt[];
+        } catch (error) {
+            console.error
+        }
+    }
+
+    public static async getArtById(artId: number): Promise<any> {
+        try {
+            const response = await fetch(`artaccess/GetArtById?id=${artId}`);
+            console.log("ArtById-Response: ",response);
+            const json = await response.json();
+            console.log("ArtById-JSONData: ", json);
+
+            return json as Art;
+        } catch (error) {
+            console.error
+        }
     }
 
 }
