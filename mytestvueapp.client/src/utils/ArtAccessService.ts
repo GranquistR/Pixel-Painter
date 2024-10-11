@@ -1,4 +1,5 @@
 import Art from "../entities/Art"
+import GalleryArt from "../entities/GalleryArt"
 
 export default class ArtAccessService {
 
@@ -10,6 +11,19 @@ export default class ArtAccessService {
             console.log("GetAll-JSONData: ", json);
 
             return json as Art[];
+        } catch (error) {
+            console.error
+        }
+    }
+
+    public static async getAllGalleryArt(): Promise<any> {
+        try {
+            const response = await fetch("artaccess/GetAllGalleryArt");
+            console.log("GetAll-Response: ",response);
+            const json = await response.json();
+            console.log("GetAll-JSONData: ", json);
+
+            return json as GalleryArt[];
         } catch (error) {
             console.error
         }

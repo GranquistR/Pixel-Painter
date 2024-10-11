@@ -2,14 +2,18 @@
 import { onMounted, ref } from "vue";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
+import GalleryArt from "@/entities/GalleryArt";
 import ArtAccessService from "@/utils/ArtAccessService";
 
 const allArt = ref<Art[] | null>(null); 
+const allGalleryArt = ref<GalleryArt[] | null>(null); 
 const particularArt = ref<Art | null>(null);
 
 onMounted(() => {
   ArtAccessService.getAllArt() // Get All Art
   .then((promise) => allArt.value = promise as Art[]);
+  ArtAccessService.getAllGalleryArt()
+  .then((promise) => allGalleryArt.value = promise as GalleryArt[]);
   ArtAccessService.getArtById(2) // Get a particular art
   .then((promise) => particularArt.value = promise as Art);
 });
