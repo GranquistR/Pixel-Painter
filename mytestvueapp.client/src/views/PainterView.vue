@@ -127,23 +127,13 @@ function DrawAtCoords(coords: Vector2[]) {
         pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
       } else if (cursor.value.selectedTool.label === "Eraser") {
         pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
-      }
+      }else if (cursor.value.selectedTool.label === "Pipette"){
+        cursor.value.color = pixelGrid.value.grid[cursor.value.position.x][cursor.value.position.y];
+    }
     }
   });
 }
-watch(cursorPosition.value, async () => {
-  if (mouseButtonHeldDown.value) {
-    if (selectedTool.value.label === "Brush") {
-      pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y] =
-        selectedColor.value;
-    } else if (selectedTool.value.label === "Eraser") {
-      pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y] =
-        "#FFFFFF";
-    } else if (selectedTool.value.label === "Pipette"){
-      selectedColor = ref<string>(pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y]);
-    }
-  }
-});
+
 
 const canvas = ref();
 </script>
