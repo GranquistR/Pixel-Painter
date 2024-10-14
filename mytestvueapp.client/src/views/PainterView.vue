@@ -2,10 +2,8 @@
   <DrawingCanvas
     ref="canvas"
     :pixelGrid="pixelGrid"
-    :selectedColor="selectedColor"
-    :selectedTool="selectedTool"
-    :style="{ cursor: selectedTool.cursor }"
-    v-model="cursorPosition"
+    :style="{ cursor: cursor.selectedTool.cursor }"
+    v-model="cursor"
     @mousedown="mouseButtonHeldDown = true"
     @mouseup="mouseButtonHeldDown = false"
     @contextmenu.prevent
@@ -18,8 +16,8 @@
     </template>
 
     <template #center>
-      <BrushSelection v-model="selectedTool" />
-      <ColorSelection v-model="selectedColor" />
+      <BrushSelection v-model="cursor.selectedTool" />
+      <ColorSelection v-model="cursor.color" />
       <SaveAndLoad v-model="pixelGrid" />
     </template>
     <template #end>
@@ -51,10 +49,11 @@ import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
+import Cursor from "@/entities/Cursor";
 
-const selectedTool = ref<PainterTool>(PainterTool.getDefaults()[1]);
-const selectedColor = ref<string>("#000000");
-const cursorPosition = ref<Vector2>(new Vector2(-1, -1));
+const cursor = ref<Cursor>(
+  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
+);
 const mouseButtonHeldDown = ref<boolean>(false);
 const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32));
 
@@ -68,7 +67,7 @@ const cursorPositionComputed = computed(
   //this computed property will return a new object every time the cursor position changes
   //thus the watcher watching this value will trigger with the old and new values
   //vue likes to be funky like that :3
-  () => new Vector2(cursorPosition.value.x, cursorPosition.value.y)
+  () => new Vector2(cursor.value.position.x, cursor.value.position.y)
 );
 
 watch(
@@ -81,7 +80,7 @@ watch(
 );
 
 watch(mouseButtonHeldDown, async () => {
-  DrawAtCoords([cursorPosition.value]);
+  DrawAtCoords([cursor.value.position]);
 });
 
 function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
@@ -124,9 +123,9 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 function DrawAtCoords(coords: Vector2[]) {
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
-      if (selectedTool.value.label === "Brush") {
-        pixelGrid.value.grid[coord.x][coord.y] = selectedColor.value;
-      } else if (selectedTool.value.label === "Eraser") {
+      if (cursor.value.selectedTool.label === "Brush") {
+        pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
+      } else if (cursor.value.selectedTool.label === "Eraser") {
         pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
       }
     }
