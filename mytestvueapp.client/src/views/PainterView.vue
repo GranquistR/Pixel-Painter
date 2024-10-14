@@ -52,6 +52,8 @@ watch(cursorPosition.value, async () => {
     } else if (selectedTool.value.label === "Eraser") {
       pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y] =
         "#FFFFFF";
+    } else if (selectedTool.value.label === "Pipette"){
+      selectedColor = ref<string>(pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y]);
     }
   }
 });
