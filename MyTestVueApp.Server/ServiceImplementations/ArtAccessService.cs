@@ -3,7 +3,6 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -14,6 +13,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             AppConfig = appConfig;
         }
+
         public IEnumerable<Art> GetAllArt()
         {
             var paintings = new List<Art>();
@@ -23,7 +23,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = "SELECT ID, ArtName, Artistid, Width, ArtLength, Encode, CreationDate, isPublic FROM Art";
+                var query =
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "FROM ART " +
+                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
+                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
+                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -32,22 +37,24 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         while (reader.Read())
                         {
                             var painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            { //Art Table + NumLikes and NumComments
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
                                 ArtistId = reader.GetInt32(2),
-                                Width = reader.GetInt32(3),
-                                ArtLength = reader.GetInt32(4),
-                                Encode = reader.GetString(5),
-                                CreationDate = reader.GetDateTime(6),
-                                IsPublic = reader.GetBoolean(7)
+                                ArtistName = reader[3] as string ?? string.Empty,
+                                Width = reader.GetInt32(4),
+                                ArtLength = reader.GetInt32(5),
+                                Encode = reader.GetString(6),
+                                CreationDate = reader.GetDateTime(7),
+                                IsPublic = reader.GetBoolean(8),
+                                NumLikes = reader.GetInt32(9),
+                                NumComments = reader.GetInt32(10)
                             };
                             paintings.Add(painting);
                         }
                     }
                 }
             }
-
             return paintings;
         }
 
@@ -58,27 +65,27 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = "SELECT ID, ArtName, Artistid, Width, ArtLength, Encode, CreationDate, isPublic FROM Art WHERE ID=" + id;
+                var query = "SELECT ID, ArtName, Artistid, ArtistName, Width, ArtLength, Encode, CreationDate, isPublic FROM Art WHERE ID=" + id;
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
-                        if (reader.Read() != null)
-                        {
-                            var painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
-                                Width = reader.GetInt32(3),
-                                ArtLength = reader.GetInt32(4),
-                                Encode = reader.GetString(5),
-                                CreationDate = reader.GetDateTime(6),
-                                IsPublic = reader.GetBoolean(7)
-                            };
-                            return painting;
-                        }
-                        return null;
+
+                        var painting = new Art
+                        { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            ArtId = reader.GetInt32(0),
+                            ArtName = reader.GetString(1),
+                            ArtistId = reader.GetInt32(2),
+                            ArtistName = reader[3] as string ?? string.Empty,
+                            Width = reader.GetInt32(4),
+                            ArtLength = reader.GetInt32(5),
+                            Encode = reader.GetString(6),
+                            CreationDate = reader.GetDateTime(7),
+                            IsPublic = reader.GetBoolean(8)
+                        };
+                        return painting;
+
+
                     }
                 }
             }
