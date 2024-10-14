@@ -73,7 +73,6 @@ const cursorPositionComputed = computed(
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    console.log(`${start.x - end.x}, ${start.y - end.y}`);
     DrawAtCoords(GetLinePixels(start, end));
   },
   { deep: true }

@@ -81,6 +81,17 @@ function drawCanvas() {
       });
     }
   }
+
+  //draw cursor
+  const cursorBox = new Sprite(Texture.WHITE);
+  cursorBox.tint = "red";
+  cursorBox.width = cursor.value.size * PIXEL_SIZE;
+  cursorBox.height = cursor.value.size * PIXEL_SIZE;
+  cursorBox.position.set(
+    cursor.value.position.x * PIXEL_SIZE,
+    cursor.value.position.y * PIXEL_SIZE
+  );
+  viewport.addChild(cursorBox);
 }
 
 //centers the canvas
