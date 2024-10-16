@@ -78,7 +78,7 @@ const password = ref(null);
       <RouterLink class="p-2" to="/test"
         ><Button rounded label="Test" icon="pi pi-check"
       /></RouterLink>
-      <RouterLink class="p-2" to="/paint"
+      <RouterLink class="p-2" to="/prompt"
         ><Button rounded label="Painter" icon="pi pi-pencil"
       /></RouterLink>
       <RouterLink class="p-2" to="/gallery"

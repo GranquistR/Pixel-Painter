@@ -5,6 +5,7 @@ export class PixelGrid {
   height: number;
   grid: string[][];
 
+<<<<<<< Updated upstream
   constructor(width: number, height: number, encodedGrid?: string) {
     this.width = width;
     this.height = height;
@@ -13,14 +14,20 @@ export class PixelGrid {
     if (encodedGrid) {
       this.grid = codec.Decode(encodedGrid, height, width).grid;
     }
+=======
+  constructor(width: number, height: number, backgroundColor: string) {
+    this.width = width;
+    this.height = height;
+    this.grid = this.createGrid(width, height, backgroundColor);
+>>>>>>> Stashed changes
   }
 
-  createGrid(width: number, height: number): string[][] {
+  createGrid(width: number, height: number, backgroundColor: string): string[][] {
     const grid: string[][] = [];
     for (let i = 0; i < height; i++) {
       const row: string[] = [];
       for (let j = 0; j < width; j++) {
-        row.push("#ffffff");
+        row.push(backgroundColor);
       }
       grid.push(row);
     }

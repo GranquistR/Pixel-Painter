@@ -19,10 +19,16 @@ const router = createRouter({
       component: () => import("../views/PainterView.vue"),
     },
     {
+      path: "/prompt",
+      name: "Prompt Painter",
+      component: () => import("../views/PromptPainter.vue"),
+    },
+    {
       path: "/gallery",
       name: "Gallery View",
       component: () => import("../views/GalleryView.vue"),
     },
+
   ],
 });
 export default router;
