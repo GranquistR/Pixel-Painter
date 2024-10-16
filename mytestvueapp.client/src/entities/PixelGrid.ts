@@ -1,12 +1,18 @@
+import codec from "@/utils/codec";
+
 export class PixelGrid {
   width: number;
   height: number;
   grid: string[][];
 
-  constructor(width: number, height: number) {
+  constructor(width: number, height: number, encodedGrid?: string) {
     this.width = width;
     this.height = height;
     this.grid = this.createGrid(width, height);
+
+    if (encodedGrid) {
+      this.grid = codec.Decode(encodedGrid, height, width).grid;
+    }
   }
 
   createGrid(width: number, height: number): string[][] {
