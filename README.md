@@ -67,5 +67,5 @@ If there is an HTTPS certificate error when running 'npm run dev', manually crea
 4. Copy the directory of the 'https' folder
 5. Open terminal and run the following command:
 	'''
-	dotnet dev-certs https --export-path <your directory here>/mytestvueapp.client.pem 
+	dotnet dev-certs https --export-path 'your directory here'/mytestvueapp.client.pem 
 	'''
