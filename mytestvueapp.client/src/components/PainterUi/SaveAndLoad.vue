@@ -1,5 +1,12 @@
 <template>
-  <FloatingCard position="left" width="25rem" header="Save and Load">
+  <FloatingCard
+    position="left"
+    width="25rem"
+    header="Save and Load"
+    button-icon="pi pi-save"
+    button-label=""
+    button-severity="secondary"
+  >
     <div class="flex justify-content-around">
       <Button
         icon="pi pi-copy"

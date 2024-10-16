@@ -1,5 +1,12 @@
 <template>
-  <FloatingCard position="bottomright" header="Color Select" width="11rem">
+  <FloatingCard
+    position="bottomright"
+    header="Color Select"
+    width="11rem"
+    button-icon="pi pi-palette"
+    button-label=""
+    button-severity="secondary"
+  >
     <div class="flex flex-wrap">
       <div v-for="color in defaultColors" :key="color">
         <div

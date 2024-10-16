@@ -1,5 +1,12 @@
 <template>
-  <FloatingCard position="right" header="Tool Select" width="25rem">
+  <FloatingCard
+    position="right"
+    header="Tool Select"
+    width="13rem"
+    button-icon="pi pi-pencil"
+    button-label=""
+    button-severity="secondary"
+  >
     <div
       v-for="tool in PainterTool.getDefaults()"
       :key="tool.label"
