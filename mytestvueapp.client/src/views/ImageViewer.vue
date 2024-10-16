@@ -12,6 +12,19 @@
   <div class="flex justify-content-center align-items-center"></div>
   <div class="border-solid border-1">
     <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
+    <Comment></Comment>
   </div>
 </template>
 <script setup lang="ts">
