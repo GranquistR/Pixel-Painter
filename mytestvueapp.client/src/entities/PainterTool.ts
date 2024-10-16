@@ -20,4 +20,6 @@ export default class PainterTool {
       new PainterTool("Paint-Bucket", "pi pi-bucket", "f", "crosshair")
     ];
   }
+  
+  
 }
