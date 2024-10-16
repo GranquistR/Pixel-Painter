@@ -37,14 +37,19 @@ import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import PromptPainter from "@/views/PromptPainter.vue"
+import { getConstantValue } from "typescript";
 
 var selectedTool = ref<PainterTool>(PainterTool.getDefaults()[1]);
 var selectedColor = ref<string>("#000000");
 var cursorPosition = ref<Vector2>(new Vector2(0, 0));
 var mouseButtonHeldDown = ref<boolean>(false);
 
+var theColor = localStorage.getItem('backgroundColor');
+if(theColor===null){
+  theColor = '#ffffff'
+}
 
-const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32, '#777777'));
+const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32, theColor ));
   
 
 watch(cursorPosition.value, async () => {
@@ -52,9 +57,9 @@ watch(cursorPosition.value, async () => {
     if (selectedTool.value.label === "Brush") {
       pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y] =
         selectedColor.value;
-    } else if (selectedTool.value.label === "Eraser") {
+    } else if (selectedTool.value.label === "Eraser" && theColor !== null) {
       pixelGrid.value.grid[cursorPosition.value.x][cursorPosition.value.y] =
-        "#FFFFFF";
+        theColor;
     }
   }
 });

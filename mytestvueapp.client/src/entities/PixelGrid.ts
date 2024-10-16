@@ -5,21 +5,16 @@ export class PixelGrid {
   height: number;
   grid: string[][];
 
-<<<<<<< Updated upstream
-  constructor(width: number, height: number, encodedGrid?: string) {
+
+  constructor(width: number, height: number, backgroundColor: string, encodedGrid?: string) {
     this.width = width;
     this.height = height;
-    this.grid = this.createGrid(width, height);
+    this.grid = this.createGrid(width, height, backgroundColor);
 
     if (encodedGrid) {
       this.grid = codec.Decode(encodedGrid, height, width).grid;
     }
-=======
-  constructor(width: number, height: number, backgroundColor: string) {
-    this.width = width;
-    this.height = height;
-    this.grid = this.createGrid(width, height, backgroundColor);
->>>>>>> Stashed changes
+
   }
 
   createGrid(width: number, height: number, backgroundColor: string): string[][] {
