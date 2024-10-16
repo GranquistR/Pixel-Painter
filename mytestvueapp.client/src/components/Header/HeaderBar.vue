@@ -72,18 +72,21 @@ const password = ref(null);
       </h1>
     </RouterLink>
     <div>
-      <RouterLink class="p-2" to="/"
-        ><Button rounded label="Home" icon="pi pi-home"
-      /></RouterLink>
-      <RouterLink class="p-2" to="/test"
-        ><Button rounded label="Test" icon="pi pi-check"
-      /></RouterLink>
-      <RouterLink class="p-2" to="/paint"
-        ><Button rounded label="Painter" icon="pi pi-pencil"
-      /></RouterLink>
-      <RouterLink class="p-2" to="/gallery"
-        ><Button rounded label="Gallery" icon="pi pi-image"
-      /></RouterLink>
+        <RouterLink class="p-2" to="/">
+            <Button rounded label="Home" icon="pi pi-home" />
+        </RouterLink>
+        <RouterLink class="p-2" to="/test">
+            <Button rounded label="Test" icon="pi pi-check" />
+        </RouterLink>
+        <RouterLink class="p-2" to="/paint">
+            <Button rounded label="Painter" icon="pi pi-pencil" />
+        </RouterLink>
+        <RouterLink class="p-2" to="/gallery">
+            <Button rounded label="Gallery" icon="pi pi-image" />
+        </RouterLink>
+        <RouterLink class="p-2" to="/viewImage">
+            <Button rounded label="viewImage" icon="pi pi-camera" />
+        </RouterLink>
     </div>
     <div>
       <DarkModeSwitcher />
