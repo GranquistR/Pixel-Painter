@@ -84,8 +84,8 @@ const password = ref(null);
         <RouterLink class="p-2" to="/gallery">
             <Button rounded label="Gallery" icon="pi pi-image" />
         </RouterLink>
-        <RouterLink class="p-2" to="/imgtest">
-            <Button rounded label="Img Test" icon="pi pi-camera" />
+        <RouterLink class="p-2" to="/viewImage">
+            <Button rounded label="viewImage" icon="pi pi-camera" />
         </RouterLink>
     </div>
     <div>

@@ -9,8 +9,10 @@
       ></my-canvas>
     </div>
   </div>
+  <div class="flex justify-content-center align-items-center">
+  </div>
   <div class="border-solid border-1">
-    <h2>"this is some text"</h2>
+    <h2>this is some text</h2>
   </div>
 </template>
 <script setup lang="ts">
@@ -19,7 +21,6 @@ import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
 import ArtAccessService from "../utils/ArtAccessService";
-
 const allArt = ref<Art | null>(null);
 
 const MyImg = ref<Art>();

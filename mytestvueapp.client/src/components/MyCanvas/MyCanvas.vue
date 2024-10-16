@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
-  </div>
+    <div>
+        <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
+    </div>
+
 </template>
 
 <script setup lang="ts">
@@ -34,9 +35,9 @@ onMounted(() => {
 });
 function render() {
   if (context.value) {
-    const imageTest = props.art.encode;
-    var b = 0;
-    var e = 6;
+    const imageServe = props.art.encode;
+    var hexBegin = 0;
+    var hexEnd = 6;
     for (
       let column = 0;
       column < props.art.width * props.pixelSize;
@@ -48,10 +49,10 @@ function render() {
         row += props.pixelSize
       ) {
         //console.log(b);
-        context.value.fillStyle = "#" + imageTest.substring(b, e);
+        context.value.fillStyle = "#" + imageServe.substring(hexBegin, hexEnd);
         context.value.fillRect(column, row, props.pixelSize, props.pixelSize);
-        b += 6;
-        e += 6;
+        hexBegin += 6;
+        hexEnd += 6;
       }
     }
   }
