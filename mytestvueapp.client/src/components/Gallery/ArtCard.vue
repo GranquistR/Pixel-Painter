@@ -24,17 +24,17 @@ const likedClicked = () => {
     <Card
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
     >
-      <template #header
-        ><img class="w-full h-10rem m-0" :src="art.encode"
-      /></template>
-      <template #title
-        ><div class="text-base font-bold m-0 px-2">
+      <template #header>
+        <img class="w-full h-10rem m-0" :src="art.encode"/>
+      </template>
+      <template #title>
+        <div class="text-base font-bold m-0 px-2">
           {{ art.artName }}
-        </div></template
-      >
-      <template #subtitle
-        ><div class="text-sm m-0 px-2">@artisthandle</div></template
-      >
+        </div>
+      </template>
+      <template #subtitle>
+        <div class="text-sm m-0 px-2">@artisthandle</div>
+      </template>
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
           <Button
