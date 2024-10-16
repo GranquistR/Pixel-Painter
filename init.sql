@@ -164,6 +164,7 @@ BEGIN
 	INSERT INTO Comment(ArtID,ArtistID,ArtistName,Comment) VALUES
     (1,2,'Sampo','If you can see this message the comment function works'),
 	(2,1,'John','What do you mean your AT Soup'),
+
 	(3,2,'Sampo','If you can see this message the comment function works, on art 3 by Sampo'),
 	(2,2,'Sampo','If you can see this message the comment function works on art 2 by Sampo'),
     (1,2,'Sampo','Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum.'),

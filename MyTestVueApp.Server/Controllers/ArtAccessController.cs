@@ -26,13 +26,6 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllGalleryArt")]
-        public IEnumerable<GalleryArt> GetAllGalleryArt()
-        {
-           return ArtAccessService.GetAllGalleryArt();
-        }
-
-        [HttpGet]
         [Route("GetArtById")]
         public Art GetArtById(int id)
         {

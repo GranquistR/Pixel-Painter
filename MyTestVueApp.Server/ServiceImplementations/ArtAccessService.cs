@@ -13,6 +13,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             AppConfig = appConfig;
         }
+
         public IEnumerable<Art> GetAllArt()
         {
             var paintings = new List<Art>();
@@ -22,44 +23,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = "SELECT ID, ArtName, ArtistId, ArtistName, Width, ArtLength, Encode, CreationDate, isPublic FROM Art";
-
-                using (var command = new SqlCommand(query, connection))
-                {
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var painting = new Art
-                            { //ArtId, ArtName, ArtistId, ArtistName, Width, ArtLength, Encode, Date, IsPublic
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8)
-                            };
-                            paintings.Add(painting);
-                        }
-                    }
-                }
-            }
-            return paintings;
-        }
-
-        public IEnumerable<GalleryArt> GetAllGalleryArt()
-        {
-            var paintings = new List<GalleryArt>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = 
+                var query =
                     "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
@@ -72,7 +36,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
-                            var painting = new GalleryArt
+                            var painting = new Art
                             { //Art Table + NumLikes and NumComments
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
@@ -106,23 +70,22 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     using (var reader = command.ExecuteReader())
                     {
-                        if (reader.Read() != null)
-                        {
-                            var painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8)
-                            };
-                            return painting;
-                        }
-                        return null;
+
+                        var painting = new Art
+                        { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            ArtId = reader.GetInt32(0),
+                            ArtName = reader.GetString(1),
+                            ArtistId = reader.GetInt32(2),
+                            ArtistName = reader[3] as string ?? string.Empty,
+                            Width = reader.GetInt32(4),
+                            ArtLength = reader.GetInt32(5),
+                            Encode = reader.GetString(6),
+                            CreationDate = reader.GetDateTime(7),
+                            IsPublic = reader.GetBoolean(8)
+                        };
+                        return painting;
+
+
                     }
                 }
             }
