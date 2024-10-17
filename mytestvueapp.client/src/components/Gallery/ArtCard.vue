@@ -2,6 +2,7 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import { ref } from "vue";
+import MyCanvas from "../MyCanvas/MyCanvas.vue";
 
 const { art } = defineProps(["art"]);
 const liked = ref < Boolean > false;
@@ -11,6 +12,8 @@ const likedClicked = () => {
   liked.valueOf = !liked.valueOf;
   console.log(liked.valueOf);
 };
+
+
 </script>
 
 <template>
@@ -25,7 +28,8 @@ const likedClicked = () => {
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
     >
       <template #header>
-        <img class="w-full h-10rem m-0" :src="art.encode"/>
+        <MyCanvas :art="art" :pixelSize="6.5"/>
+        <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>
         <div class="text-base font-bold m-0 px-2">
@@ -33,7 +37,7 @@ const likedClicked = () => {
         </div>
       </template>
       <template #subtitle>
-        <div class="text-sm m-0 px-2">@artisthandle</div>
+        <div class="text-sm m-0 px-2">@{{ art.encode }}</div>
       </template>
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
@@ -41,10 +45,10 @@ const likedClicked = () => {
             :style="{}"
             class="w-full flex-grow p-1"
             icon="pi pi-heart"
-            label="Like"
+            label="Likes"
             @clicked="likedClicked()"
           />
-          <Button class="w-full flex-grow p-2" label="Comment" />
+          <Button class="w-full flex-grow p-2" label="Comments" />
         </div>
       </template>
     </Card>
