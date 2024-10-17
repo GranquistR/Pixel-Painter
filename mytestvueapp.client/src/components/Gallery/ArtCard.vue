@@ -5,7 +5,7 @@ import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 
 const { art } = defineProps(["art"]);
-const liked = ref < Boolean > false;
+const liked = ref(false);
 const hover = ref(false);
 
 const likes = ref("0");
@@ -18,8 +18,15 @@ if (art.numComments){
 }
 
 const likedClicked = () => {
-  liked.valueOf = !liked.valueOf;
-  console.log(liked.valueOf);
+  liked.value = !liked.value;
+
+  if (liked.value) {
+    likes.value = art.numLikes + 1
+  } else {
+    likes.value = art.numLikes;
+  }
+
+  console.log(liked.value);
 };
 
 
@@ -51,11 +58,11 @@ const likedClicked = () => {
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
           <Button
-            :style="{}"
+            :severity="liked ? 'danger' : ''"
             class="w-full flex-grow p-1"
             icon="pi pi-heart"
             :label="likes"
-            @clicked="likedClicked()"
+            @click="likedClicked()"
           />
           <Button 
           class="w-full flex-grow p-2" 
