@@ -8,6 +8,15 @@ const { art } = defineProps(["art"]);
 const liked = ref < Boolean > false;
 const hover = ref(false);
 
+const likes = ref("0");
+const comments = ref("0");
+console.log(art)
+
+likes.value = `${art.numLikes}`;
+if (art.numComments){
+  comments.value = `${art.numComments}`;
+}
+
 const likedClicked = () => {
   liked.valueOf = !liked.valueOf;
   console.log(liked.valueOf);
@@ -32,12 +41,12 @@ const likedClicked = () => {
         <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>
-        <div class="text-base font-bold m-0 px-2">
+        <div class="text-base font-bold m-0 px-2 pt-1">
           {{ art.artName }}
         </div>
       </template>
       <template #subtitle>
-        <div class="text-sm m-0 px-2">@{{ art.encode }}</div>
+        <div class="text-sm m-0 px-2">@{{ art.artistName }}</div>
       </template>
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
@@ -45,10 +54,13 @@ const likedClicked = () => {
             :style="{}"
             class="w-full flex-grow p-1"
             icon="pi pi-heart"
-            label="Likes"
+            :label="likes"
             @clicked="likedClicked()"
           />
-          <Button class="w-full flex-grow p-2" label="Comments" />
+          <Button 
+          class="w-full flex-grow p-2" 
+          icon="pi pi-comment" 
+          :label="comments" />
         </div>
       </template>
     </Card>

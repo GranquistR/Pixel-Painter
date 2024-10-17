@@ -21,7 +21,7 @@ export default class ArtAccessService {
           art.creationDate,
           art.isPublic,
           art.numLikes,
-          art.numcomments,
+          art.numComments,
         ))
       }
       console.log("AllArt", allArt);
@@ -53,7 +53,7 @@ export default class ArtAccessService {
         json.creationDate,
         json.isPublic,
         json.numLikes,
-        json.numcomments,
+        json.numComments,
       )
       console.log("ArtById-Pixelgrid", newArtPiece)
 

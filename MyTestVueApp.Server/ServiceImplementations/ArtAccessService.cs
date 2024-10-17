@@ -24,7 +24,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
@@ -67,7 +67,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query = 
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
