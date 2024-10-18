@@ -1,4 +1,5 @@
 import Art from "../entities/Art";
+import Comment from "../entities/Comment"
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<any> {
@@ -21,7 +22,7 @@ export default class ArtAccessService {
           art.creationDate,
           art.isPublic,
           art.numLikes,
-          art.numcomments,
+          art.numComments,
         ))
       }
       console.log("AllArt", allArt);
@@ -53,13 +54,32 @@ export default class ArtAccessService {
         json.creationDate,
         json.isPublic,
         json.numLikes,
-        json.numcomments,
+        json.numComments,
       )
       console.log("ArtById-Pixelgrid", newArtPiece)
 
       return newArtPiece;
     } catch (error) {
       console.error;
+    }
+  }
+
+  public static async getCommentsById(artId: number): Promise<any> {
+    try {
+    const response = await fetch(`artaccess/GetCommentsById?id=${artId}`);
+      console.log("GetComments-Response: ", response);
+      const json = await response.json();
+      console.log("GetComments-JSONData: ", json);
+
+      const allComments: Comment[] = [];
+      for (const comment of json) {
+        allComments.push(comment as Comment)
+      }
+
+      console.log(allComments)
+    return allComments;
+    } catch (error) {
+      console.error
     }
   }
 }
