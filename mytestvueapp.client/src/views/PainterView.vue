@@ -132,10 +132,52 @@ function DrawAtCoords(coords: Vector2[]) {
           pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
         } else if (cursor.value.selectedTool.label === "Eraser") {
           pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+        } else if (cursor.value.selectedTool.label === "Pipette") {
+          cursor.value.color =
+            pixelGrid.value.grid[cursor.value.position.x][
+              cursor.value.position.y
+            ];
+        } else if (cursor.value.selectedTool.label === "Paint-Bucket") {
+          if (pixelGrid.value.grid[coord.x][coord.y] != cursor.value.color) {
+            fill(cursor.value.position.x, cursor.value.position.y);
+          }
         }
       }
     }
   });
+}
+
+function fill(x: number, y: number) {
+  if (y >= 0 && y < pixelGrid.value.height) {
+    const oldColor = pixelGrid.value.grid[x][y];
+    pixelGrid.value.grid[x][y] = cursor.value.color;
+    if (oldColor != cursor.value.color) {
+      if (x + 1 < pixelGrid.value.width) {
+        if (pixelGrid.value.grid[x + 1][y] == oldColor) {
+          //alert(x+1 + ", " + y);
+          fill(x + 1, y);
+        }
+      }
+      if (y + 1 < pixelGrid.value.height) {
+        if (pixelGrid.value.grid[x][y + 1] == oldColor) {
+          //alert(x + ", " + y+1);
+          fill(x, y + 1);
+        }
+      }
+      if (x - 1 >= 0) {
+        if (pixelGrid.value.grid[x - 1][y] == oldColor) {
+          //alert(x-1 + ", " + y);
+          fill(x - 1, y);
+        }
+      }
+      if (y - 1 >= 0) {
+        if (pixelGrid.value.grid[x][y - 1] == oldColor) {
+          //alert(x + ", " + (y-1));
+          fill(x, y - 1);
+        }
+      }
+    }
+  }
 }
 
 const canvas = ref();
