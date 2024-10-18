@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ cursor.position }}
     <div id="canvas" style="position: fixed"></div>
   </div>
 </template>
