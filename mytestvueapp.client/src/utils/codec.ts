@@ -17,7 +17,7 @@ export default class codec {
     height: number,
     width: number
   ): PixelGrid {
-    const decodedPicture: PixelGrid = new PixelGrid(height, width);
+    const decodedPicture: PixelGrid = new PixelGrid(height, width,);
     decodedPicture.createGrid(height, width);
     let k = 0;
 
