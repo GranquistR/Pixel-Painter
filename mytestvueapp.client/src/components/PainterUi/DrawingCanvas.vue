@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ cursor.position }}
     <div id="canvas" style="position: fixed"></div>
   </div>
 </template>
@@ -75,23 +76,40 @@ function drawCanvas() {
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;
-      sprite.on("pointerover", async () => {
-        cursor.value.position.x = sprite.position.x / PIXEL_SIZE;
-        cursor.value.position.y = sprite.position.y / PIXEL_SIZE;
-      });
     }
   }
+}
 
-  //draw cursor
+viewport.on("pointermove", (e) => {
+  const pos = viewport.toWorld(e.globalX, e.globalY);
+
+  cursor.value.position.x = Math.floor(pos.x / PIXEL_SIZE);
+  cursor.value.position.y = Math.floor(pos.y / PIXEL_SIZE);
+  updateCursor();
+});
+
+//update cursor, not full canvas
+function updateCursor() {
+  // Remove the old cursor
+  viewport.children.forEach((child) => {
+    if (child.alpha == 0.9) {
+      viewport.removeChild(child);
+    }
+  });
+
+  // Add the new cursor
   const cursorBox = new Sprite(Texture.WHITE);
   cursorBox.tint = "red";
+  cursorBox.alpha = 0.9;
   cursorBox.width = cursor.value.size * PIXEL_SIZE;
   cursorBox.height = cursor.value.size * PIXEL_SIZE;
   cursorBox.position.set(
     cursor.value.position.x * PIXEL_SIZE,
     cursor.value.position.y * PIXEL_SIZE
   );
-  viewport.addChild(cursorBox);
+  if (cursor.value.position.x != -1 && cursor.value.position.y != -1) {
+    viewport.addChild(cursorBox);
+  }
 }
 
 //centers the canvas

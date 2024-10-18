@@ -121,11 +121,18 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function DrawAtCoords(coords: Vector2[]) {
   coords.forEach((coord: Vector2) => {
-    if (mouseButtonHeldDown.value) {
-      if (cursor.value.selectedTool.label === "Brush") {
-        pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
-      } else if (cursor.value.selectedTool.label === "Eraser") {
-        pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+    if (
+      coord.x >= 0 &&
+      coord.x < pixelGrid.value.width &&
+      coord.y >= 0 &&
+      coord.y < pixelGrid.value.height
+    ) {
+      if (mouseButtonHeldDown.value) {
+        if (cursor.value.selectedTool.label === "Brush") {
+          pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
+        } else if (cursor.value.selectedTool.label === "Eraser") {
+          pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+        }
       }
     }
   });
