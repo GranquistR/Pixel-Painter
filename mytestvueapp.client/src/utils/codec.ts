@@ -15,10 +15,17 @@ export default class codec {
   public static Decode(
     encodedString: String,
     height: number,
-    width: number
+    width: number,
+    backgroundColor: string
+
   ): PixelGrid {
-    const decodedPicture: PixelGrid = new PixelGrid(height, width,);
-    decodedPicture.createGrid(height, width);
+    if (localStorage.getItem('backgroundColor')===null){
+      backgroundColor = 'FFFFFF';
+    }
+    
+
+    const decodedPicture: PixelGrid = new PixelGrid(height, width, backgroundColor);
+    decodedPicture.createGrid(height, width, backgroundColor);
     let k = 0;
 
     if (encodedString === "") {

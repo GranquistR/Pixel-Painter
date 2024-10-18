@@ -19,7 +19,7 @@ const router = createRouter({
       component: () => import("../views/PainterView.vue"),
     },
     {
-      path: "/prompt",
+      path: "/new",
       name: "Prompt Painter",
       component: () => import("../views/PromptPainter.vue"),
     },

@@ -36,8 +36,7 @@ import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
-import PromptPainter from "@/views/PromptPainter.vue"
-import { getConstantValue } from "typescript";
+
 
 var selectedTool = ref<PainterTool>(PainterTool.getDefaults()[1]);
 var selectedColor = ref<string>("#000000");
