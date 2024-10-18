@@ -73,7 +73,6 @@ const cursorPositionComputed = computed(
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    console.log(`${start.x - end.x}, ${start.y - end.y}`);
     DrawAtCoords(GetLinePixels(start, end));
   },
   { deep: true }
@@ -122,6 +121,20 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function DrawAtCoords(coords: Vector2[]) {
   coords.forEach((coord: Vector2) => {
+    if (
+      coord.x >= 0 &&
+      coord.x < pixelGrid.value.width &&
+      coord.y >= 0 &&
+      coord.y < pixelGrid.value.height
+    ) {
+      if (mouseButtonHeldDown.value) {
+        if (cursor.value.selectedTool.label === "Brush") {
+          pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
+        } else if (cursor.value.selectedTool.label === "Eraser") {
+          pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+        }
+      }
+    }
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
         pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
