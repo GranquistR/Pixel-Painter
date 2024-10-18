@@ -1,8 +1,7 @@
 <template>
-    <div>
-        <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
-    </div>
-
+  <div>
+    <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
+  </div>
 </template>
 
 <script setup lang="ts">
