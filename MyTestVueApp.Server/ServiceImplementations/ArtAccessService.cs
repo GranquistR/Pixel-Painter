@@ -61,34 +61,43 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public Art GetArtById(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;
+            var painting = new Art();
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = "SELECT ID, ArtName, Artistid, ArtistName, Width, ArtLength, Encode, CreationDate, isPublic FROM Art WHERE ID=" + id;
+                var query = 
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "FROM ART " +
+                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
+                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
+                    "WHERE Art.ID=" + id + " " +
+                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic ";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
+                        while (reader.Read())
+                        {
 
-                        var painting = new Art
-                        { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
-                            ArtId = reader.GetInt32(0),
-                            ArtName = reader.GetString(1),
-                            ArtistId = reader.GetInt32(2),
-                            ArtistName = reader[3] as string ?? string.Empty,
-                            Width = reader.GetInt32(4),
-                            ArtLength = reader.GetInt32(5),
-                            Encode = reader.GetString(6),
-                            CreationDate = reader.GetDateTime(7),
-                            IsPublic = reader.GetBoolean(8)
-                        };
-                        return painting;
-
-
+                            painting = new Art
+                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                                ArtId = reader.GetInt32(0),
+                                ArtName = reader.GetString(1),
+                                ArtistId = reader.GetInt32(2),
+                                ArtistName = reader[3] as string ?? string.Empty,
+                                Width = reader.GetInt32(4),
+                                ArtLength = reader.GetInt32(5),
+                                Encode = reader.GetString(6),
+                                CreationDate = reader.GetDateTime(7),
+                                IsPublic = reader.GetBoolean(8)
+                            };
+                            
+                        }
                     }
                 }
             }
+            return painting;
         }
     }
 }
