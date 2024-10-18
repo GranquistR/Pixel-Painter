@@ -31,5 +31,12 @@ namespace MyTestVueApp.Server.Controllers
         {
             return ArtAccessService.GetArtById(id);
         }
+
+        [HttpGet]
+        [Route("GetCommentsById")]
+        public IEnumerable<Comment> GetCommentsById(int id)
+        {
+            return ArtAccessService.GetCommentsById(id);
+        }
     }
 }
