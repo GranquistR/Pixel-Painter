@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
+    <canvas :id="canvasId" class="vertical-align-middle"></canvas>
   </div>
 </template>
 
@@ -13,19 +13,21 @@ const props = defineProps<{
   pixelSize: number;
 }>();
 
+const canvasId = `viewer-page-canavs-${props.art.artId}`
+
 const canvas = ref<HTMLCanvasElement>();
 const context = ref<CanvasRenderingContext2D>();
 //ctx.width =
 onMounted(() => {
   let canvasInit = document.getElementById(
-    "viewer-page-canvas",
+    canvasId,
   ) as HTMLCanvasElement;
   if (canvasInit) {
     canvas.value = canvasInit;
     let contextInit = canvasInit.getContext("2d");
     if (contextInit) {
       context.value = contextInit;
-      canvas.value.width = props.art.width * props.pixelSize;
+      canvas.value.width = props?.art?.width * props.pixelSize;
       canvas.value.height = props.art.artLength * props.pixelSize;
     }
   }
