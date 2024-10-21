@@ -55,7 +55,13 @@ const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
 );
 const mouseButtonHeldDown = ref<boolean>(false);
-const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32));
+
+var theColor = localStorage.getItem('backgroundColor');
+if(theColor===null){
+  theColor = '#ffffff'
+}
+
+const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32, theColor ));
 
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -96,6 +102,8 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   let currentX = start.x;
   let currentY = start.y;
 
+  
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     pixels.push(new Vector2(currentX, currentY));
@@ -127,11 +135,11 @@ function DrawAtCoords(coords: Vector2[]) {
       coord.y >= 0 &&
       coord.y < pixelGrid.value.height
     ) {
-      if (mouseButtonHeldDown.value) {
+      if (mouseButtonHeldDown.value && theColor != null) {
         if (cursor.value.selectedTool.label === "Brush") {
           pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
         } else if (cursor.value.selectedTool.label === "Eraser") {
-          pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+          pixelGrid.value.grid[coord.x][coord.y] = theColor;
         } else if (cursor.value.selectedTool.label === "Pipette") {
           cursor.value.color =
             pixelGrid.value.grid[cursor.value.position.x][
@@ -179,6 +187,8 @@ function fill(x: number, y: number) {
     }
   }
 }
+
+  
 
 const canvas = ref();
 </script>
