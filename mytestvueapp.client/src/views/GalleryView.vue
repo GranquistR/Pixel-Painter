@@ -3,7 +3,6 @@ import { onMounted, ref } from "vue";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
 import ArtAccessService from "@/utils/ArtAccessService";
-import { PixelGrid } from "@/entities/PixelGrid";
 
 const allArt = ref<Art[] | null>(null);
 
