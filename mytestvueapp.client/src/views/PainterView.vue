@@ -135,11 +135,11 @@ function DrawAtCoords(coords: Vector2[]) {
       coord.y >= 0 &&
       coord.y < pixelGrid.value.height
     ) {
-      if (mouseButtonHeldDown.value) {
+      if (mouseButtonHeldDown.value && theColor != null) {
         if (cursor.value.selectedTool.label === "Brush") {
           pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
         } else if (cursor.value.selectedTool.label === "Eraser") {
-          pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
+          pixelGrid.value.grid[coord.x][coord.y] = theColor;
         } else if (cursor.value.selectedTool.label === "Pipette") {
           cursor.value.color =
             pixelGrid.value.grid[cursor.value.position.x][
