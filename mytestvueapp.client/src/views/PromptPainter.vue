@@ -1,10 +1,14 @@
 <template>
-  <div class="fixed top-0  justify-content-between align-items-center">
-<FloatingCard class="justify-content-between align-items-center" position="center" header="Select Background Color" width="17rem">
-  
-    <ColorPicker class="w-7rem" v-model="backgroundColor" id="backgroundColorPick" format="hex" @change="updateLocalStorage()"></ColorPicker>
-    
-</FloatingCard>
+  <div class="absolute bottom-50 bg-primary flex align-items-center justify-content-center w-full h-10rem">
+
+  <Card >
+    <template #title>Select Background Color</template>
+    <template #content>
+      <ColorPicker class="w-7rem" v-model="backgroundColor" id="backgroundColorPick" format="hex" @change="updateLocalStorage()"></ColorPicker>
+    </template>
+</Card>
+
+
 </div>
 <div  class="absolute bottom-0 bg-primary flex align-items-center justify-content-center w-full h-10rem" >
 <RouterLink  to="/paint"
@@ -17,7 +21,8 @@
 import { RouterLink } from "vue-router";
 import Button from "primevue/button";
 import ColorPicker from "primevue/colorpicker";
-import FloatingCard from "./../components/PainterUi/FloatingCard.vue";
+import Card from 'primevue/card';
+
 
 localStorage.setItem('backgroundColor', '#ffffff');
 
