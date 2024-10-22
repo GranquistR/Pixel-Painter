@@ -18,14 +18,14 @@ import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
-import ArtAccessService from "../utils/ArtAccessService";
+import ArtAccessService from "../services/ArtAccessService";
 
 const allArt = ref<Art | null>(null);
 
 const MyImg = ref<Art>();
 onMounted(() => {
   ArtAccessService.getArtById(1).then(
-    (promise) => (allArt.value = promise as Art),
+    (promise) => (allArt.value = promise as Art)
   );
 });
 </script>

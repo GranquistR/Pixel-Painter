@@ -1,7 +1,7 @@
 <template>
   <div class="p-8">
     <div class="text-8xl font-bold">Pixel Painter</div>
-    <div class="text-5xl">A minimalist painting application</div>
+    <div class="text-5xl">A somewhat minimalist painting application</div>
     <Button class="mt-4 text-2xl" label="Get Started" />
 
     <img

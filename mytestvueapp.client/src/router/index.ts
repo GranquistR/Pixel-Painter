@@ -9,11 +9,6 @@ const router = createRouter({
       component: () => import("../views/LandingPageView.vue"),
     },
     {
-      path: "/test",
-      name: "HelloWorld",
-      component: () => import("../components/HelloWorld.vue"),
-    },
-    {
       path: "/paint",
       name: "Painter View",
       component: () => import("../views/PainterView.vue"),
@@ -22,11 +17,16 @@ const router = createRouter({
       path: "/gallery",
       name: "Gallery View",
       component: () => import("../views/GalleryView.vue"),
-      },
+    },
     {
       path: "/imgtest",
       name: "Image",
       component: () => import("../views/ImageViewer.vue"),
+    },
+    {
+      path: "/account",
+      name: "Account",
+      component: () => import("../views/AccountView.vue"),
     },
   ],
 });

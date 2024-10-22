@@ -17,7 +17,7 @@
 
     <template #center>
       <BrushSelection v-model="cursor.selectedTool" />
-      <ColorSelection v-model="cursor.color" />
+      <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
       <SaveAndLoad v-model="pixelGrid" />
     </template>
     <template #end>
@@ -121,18 +121,41 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function DrawAtCoords(coords: Vector2[]) {
   coords.forEach((coord: Vector2) => {
-    if (
-      coord.x >= 0 &&
-      coord.x < pixelGrid.value.width &&
-      coord.y >= 0 &&
-      coord.y < pixelGrid.value.height
-    ) {
-      if (mouseButtonHeldDown.value) {
-        if (cursor.value.selectedTool.label === "Brush") {
-          pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
-        } else if (cursor.value.selectedTool.label === "Eraser") {
-          pixelGrid.value.grid[coord.x][coord.y] = "#FFFFFF";
-        } else if (cursor.value.selectedTool.label === "Pipette") {
+    if (mouseButtonHeldDown.value) {
+      if (cursor.value.selectedTool.label === "Brush") {
+        for (let i = 0; i < cursor.value.size; i++) {
+          for (let j = 0; j < cursor.value.size; j++) {
+            if (
+              coord.x + i >= 0 &&
+              coord.x + i < pixelGrid.value.width &&
+              coord.y + j >= 0 &&
+              coord.y + j < pixelGrid.value.height
+            ) {
+              pixelGrid.value.grid[coord.x + i][coord.y + j] =
+                cursor.value.color;
+            }
+          }
+        }
+      } else if (cursor.value.selectedTool.label === "Eraser") {
+        for (let i = 0; i < cursor.value.size; i++) {
+          for (let j = 0; j < cursor.value.size; j++) {
+            if (
+              coord.x + i >= 0 &&
+              coord.x + i < pixelGrid.value.width &&
+              coord.y + j >= 0 &&
+              coord.y + j < pixelGrid.value.height
+            ) {
+              pixelGrid.value.grid[coord.x + i][coord.y + j] = "#FFFFFF";
+            }
+          }
+        }
+      } else if (
+        coord.x >= 0 &&
+        coord.x < pixelGrid.value.width &&
+        coord.y >= 0 &&
+        coord.y < pixelGrid.value.height
+      ) {
+        if (cursor.value.selectedTool.label === "Pipette") {
           cursor.value.color =
             pixelGrid.value.grid[cursor.value.position.x][
               cursor.value.position.y
