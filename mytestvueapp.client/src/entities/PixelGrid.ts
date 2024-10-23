@@ -12,7 +12,7 @@ export class PixelGrid {
     this.grid = this.createGrid(width, height, backgroundColor);
 
     if (encodedGrid) {
-      this.grid = codec.Decode(encodedGrid, height, width).grid;
+      this.grid = codec.Decode(encodedGrid, height, width, backgroundColor).grid;
     }
 
   }
