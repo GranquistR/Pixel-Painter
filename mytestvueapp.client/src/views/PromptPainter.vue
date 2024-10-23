@@ -5,9 +5,7 @@
     <template #title>Enter Title And Description Of Art</template>
     <template #content>
       <InputText class="mt-2 w-full" type="text" v-model="title" placeholder="Title"/>
-
       <Textarea class="mt-2 w-full" name="textArea" placeholder="Description" v-model="description"/>
-
     </template>
 </Card>
 
