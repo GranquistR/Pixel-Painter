@@ -117,7 +117,7 @@ function recenter() {
   viewport.setZoom(40 / props.pixelGrid.width);
   viewport.moveCenter(
     (props.pixelGrid.width * PIXEL_SIZE) / 2,
-    (props.pixelGrid.height * PIXEL_SIZE) / 2 + 80
+    (props.pixelGrid.height * PIXEL_SIZE) / 2 + (props.pixelGrid.height * 2.5)
   );
 }
 
