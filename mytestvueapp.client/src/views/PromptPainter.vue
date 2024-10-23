@@ -1,25 +1,25 @@
 <template>
-  <div class="absolute bottom-50 bg-primary flex align-items-center justify-content-center w-full h-10rem">
+  <div class="absolute bottom-50 bg-primary flex  align-items-center justify-content-center w-full h-10rem" >
 
 
-    <Card >
+    <Card class="flex  ml-auto mr-3 h-12rem align-items-center justify-content-start">
     <template #title>Enter Title And Description Of Art</template>
     <template #content>
       <InputText class="mt-2 w-full" type="text" v-model="title" placeholder="Title"/>
-      <Textarea class="mt-2 w-full" name="textArea" placeholder="Description" v-model="description"/>
+      <Textarea class="mt-2 w-full" name="textArea" placeholder="Description" style="resize: none" v-model="description"/>
     </template>
-</Card>
+    </Card>
 
 
-  <Card class="flex m-auto align-items-center justify-content-center" >
+  <Card class="flex mr-auto  ml-3  w-auto h-12rem align-items-center justify-content-start" >
     <template #title>Select Background Color And Canvas Resolution</template>
 
     <template #content>
       <label for="backgroundColorPick">Background Color:  </label>
-      <ColorPicker class="w-7rem p-2" v-model="backgroundColor" id="backgroundColorPick" format="hex" @change="updateLocalStorage()" ></ColorPicker>
+      <ColorPicker class="w-auto p-2" v-model="backgroundColor" id="backgroundColorPick" format="hex" @change="updateLocalStorage()" ></ColorPicker>
       <br>
       <label for="resolution">Resolution: </label>
-    <InputNumber class="p-2" id="resolution" v-model="resolution" showButtons buttonLayout="horizontal" suffix=" px" :min="1" :max="64" >
+    <InputNumber class="w-auto p-2" id="resolution" v-model="resolution" showButtons buttonLayout="horizontal" suffix=" px" :min="1" :max="64" >
     <template #incrementbuttonicon >
         <span class="pi pi-plus" />
     </template>
