@@ -38,11 +38,13 @@ import InputText from 'primevue/inputtext';
 
 
 localStorage.setItem('backgroundColor', '#ffffff');
-const title = defineModel<string>('title');
+const title = defineModel<string>('title', {default:""});
 const description = defineModel<string>('description',{default:""});
 const backgroundColor = defineModel<string>({ default: "#ffffff" });
 function updateLocalStorage(){
   localStorage.setItem('backgroundColor', backgroundColor.value);
+  localStorage.setItem('title', title.value);
+  localStorage.setItem('description', description.value);
 }
 </script>
 <style>
