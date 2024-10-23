@@ -10,7 +10,7 @@
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
-      <Button icon="pi pi-ban" label="quit" severity="secondary" class="mr-2">
+      <Button icon="pi pi-ban" label="Quit" severity="secondary" class="mr-2">
       </Button>
       <Button icon="pi pi-upload" label="Publish"> </Button>
     </template>
@@ -55,7 +55,16 @@ const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
 );
 const mouseButtonHeldDown = ref<boolean>(false);
-const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32));
+
+var backgroundColor = localStorage.getItem("backgroundColor");
+if (backgroundColor === null) {
+  backgroundColor = "#ffffff";
+}
+var resolution = Number(localStorage.getItem("resolution"));
+
+const pixelGrid = ref<PixelGrid>(
+  new PixelGrid(resolution, resolution, backgroundColor)
+);
 
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -145,7 +154,10 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j >= 0 &&
               coord.y + j < pixelGrid.value.height
             ) {
-              pixelGrid.value.grid[coord.x + i][coord.y + j] = "#FFFFFF";
+              if (backgroundColor != null) {
+                pixelGrid.value.grid[coord.x + i][coord.y + j] =
+                  backgroundColor;
+              }
             }
           }
         }

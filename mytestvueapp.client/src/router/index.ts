@@ -14,12 +14,17 @@ const router = createRouter({
       component: () => import("../views/PainterView.vue"),
     },
     {
+      path: "/new",
+      name: "Prompt Painter",
+      component: () => import("../views/PromptPainter.vue"),
+    },
+    {
       path: "/gallery",
       name: "Gallery View",
       component: () => import("../views/GalleryView.vue"),
     },
     {
-      path: "/imgtest",
+      path: "/viewImage",
       name: "Image",
       component: () => import("../views/ImageViewer.vue"),
     },

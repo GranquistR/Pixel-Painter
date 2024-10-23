@@ -2,12 +2,12 @@ import { PixelGrid } from "./PixelGrid";
 
 export default class Art {
   artId?: number;
-  artName?: string;
+  artName: string;
   artistId?: number;
   artistName?: string;
-  width?: number;
-  artLength?: number;
-  encode?: string;
+  width: number;
+  artLength: number;
+  encode: string;
   creationDate?: string;
   isPublic?: boolean;
   numLikes?: number;

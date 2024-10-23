@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="viewer-page-canvas" class="vertical-align-middle"></canvas>
+    <canvas :id="canvasId" class="vertical-align-middle"></canvas>
   </div>
 </template>
 
@@ -13,19 +13,21 @@ const props = defineProps<{
   pixelSize: number;
 }>();
 
+const canvasId = `viewer-page-canavs-${props.art.artId}`
+
 const canvas = ref<HTMLCanvasElement>();
 const context = ref<CanvasRenderingContext2D>();
 //ctx.width =
 onMounted(() => {
   let canvasInit = document.getElementById(
-    "viewer-page-canvas",
+    canvasId,
   ) as HTMLCanvasElement;
   if (canvasInit) {
     canvas.value = canvasInit;
     let contextInit = canvasInit.getContext("2d");
     if (contextInit) {
       context.value = contextInit;
-      canvas.value.width = props.art.width * props.pixelSize;
+      canvas.value.width = props?.art?.width * props.pixelSize;
       canvas.value.height = props.art.artLength * props.pixelSize;
     }
   }
@@ -34,9 +36,9 @@ onMounted(() => {
 });
 function render() {
   if (context.value) {
-    const imageTest = props.art.encode;
-    var b = 0;
-    var e = 6;
+    const imageServe = props.art.encode;
+    var hexBegin = 0;
+    var hexEnd = 6;
     for (
       let column = 0;
       column < props.art.width * props.pixelSize;
@@ -48,10 +50,10 @@ function render() {
         row += props.pixelSize
       ) {
         //console.log(b);
-        context.value.fillStyle = "#" + imageTest.substring(b, e);
+        context.value.fillStyle = "#" + imageServe.substring(hexBegin, hexEnd);
         context.value.fillRect(column, row, props.pixelSize, props.pixelSize);
-        b += 6;
-        e += 6;
+        hexBegin += 6;
+        hexEnd += 6;
       }
     }
   }

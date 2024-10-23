@@ -5,22 +5,24 @@ export class PixelGrid {
   height: number;
   grid: string[][];
 
-  constructor(width: number, height: number, encodedGrid?: string) {
+
+  constructor(width: number, height: number, backgroundColor: string, encodedGrid?: string) {
     this.width = width;
     this.height = height;
-    this.grid = this.createGrid(width, height);
+    this.grid = this.createGrid(width, height, backgroundColor);
 
     if (encodedGrid) {
-      this.grid = codec.Decode(encodedGrid, height, width).grid;
+      this.grid = codec.Decode(encodedGrid, height, width, backgroundColor).grid;
     }
+
   }
 
-  createGrid(width: number, height: number): string[][] {
+  createGrid(width: number, height: number, backgroundColor: string): string[][] {
     const grid: string[][] = [];
     for (let i = 0; i < height; i++) {
       const row: string[] = [];
       for (let j = 0; j < width; j++) {
-        row.push("#ffffff");
+        row.push(backgroundColor);
       }
       grid.push(row);
     }
