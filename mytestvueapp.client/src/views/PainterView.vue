@@ -10,7 +10,7 @@
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
-      <Button icon="pi pi-ban" label="quit" severity="secondary" class="mr-2">
+      <Button icon="pi pi-ban" label="Quit" severity="secondary" class="mr-2">
       </Button>
       <Button icon="pi pi-upload" label="Publish"> </Button>
     </template>
