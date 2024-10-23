@@ -21,8 +21,6 @@
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
-import Button from "primevue/button";
-import ArtAccessService from "../utils/ArtAccessService";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
@@ -30,13 +28,12 @@ import ArtAccessService from "../services/ArtAccessService";
 const allArt = ref<Art | null>(null);
 const allComments = ref<Comment[] | null>(null);
 
-const MyImg = ref<Art>();
 onMounted(() => {
   ArtAccessService.getArtById(2).then(
-    (promise) => (allArt.value = promise as Art),
+    (promise) => (allArt.value = promise as Art)
   );
   ArtAccessService.getCommentsById(2).then(
-    (promise) => (allComments.value = promise as Comment[]),
+    (promise) => (allComments.value = promise as Comment[])
   );
 });
 </script>
