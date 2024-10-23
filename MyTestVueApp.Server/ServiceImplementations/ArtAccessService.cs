@@ -24,7 +24,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
@@ -67,7 +67,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query = 
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(Likes.ID) as Likes, Count(Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
@@ -98,6 +98,43 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
             return painting;
+        }
+
+        public IEnumerable<Comment> GetCommentsById(int id)
+        {
+            var comments = new List<Comment>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query = 
+                    "SELECT ID, ArtistID, ArtistName, ArtID, Comment, CommentTime FROM Comment " +
+                    "WHERE ArtID=" + id + "AND Response IS NULL " + 
+                    "Order By CommentTime";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var comment = new Comment
+                            { //Art Table + NumLikes and NumComments
+                                CommentId = reader.GetInt32(0),
+                                ArtistId = reader.GetInt32(1),
+                                ArtistName = reader.GetString(2),
+                                ArtId = reader.GetInt32(3),
+                                CommentContent = reader.GetString(4),
+                                CommentTime = reader.GetDateTime(5)
+                            };
+                            comments.Add(comment);
+                        }
+                    }
+                }
+            }
+            return comments;
         }
     }
 }

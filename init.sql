@@ -62,11 +62,13 @@ CREATE TABLE Comment (
     ArtistID int,
     ArtistName varchar(20),
     ArtID int,
+    Response int,
     Comment varchar(2222),
     CommentTime DATETIME DEFAULT GETDATE(),
     CONSTRAINT PK_Comment PRIMARY KEY (ID),
     CONSTRAINT FK_ArtistComment FOREIGN KEY (ArtistID,ArtistName) REFERENCES Artist(ID,ArtistName) ON DELETE CASCADE,
-    CONSTRAINT FK_ArtComment FOREIGN KEY (ArtID) REFERENCES Art(ID)
+    CONSTRAINT FK_ArtComment FOREIGN KEY (ArtID) REFERENCES Art(ID),
+    CONSTRAINT CommentResponse FOREIGN KEY (Response) REFERENCES Comment(ID)
     
 );
 END

@@ -4,7 +4,6 @@ import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
 import ArtAccessService from "@/utils/ArtAccessService";
 import { PixelGrid } from "@/entities/PixelGrid";
-import type { RefSymbol } from "@vue/reactivity";
 
 const allArt = ref<Art[] | null>(null);
 const displayArt = ref<Art[] | null>(null);
