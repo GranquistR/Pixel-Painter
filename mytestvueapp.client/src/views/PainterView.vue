@@ -56,12 +56,17 @@ const cursor = ref<Cursor>(
 );
 const mouseButtonHeldDown = ref<boolean>(false);
 
-var theColor = localStorage.getItem('backgroundColor');
-if(theColor===null){
-  theColor = '#ffffff'
+var backgroundColor = localStorage.getItem('backgroundColor');
+if(backgroundColor===null){
+  backgroundColor = '#ffffff'
 }
+var resolution = Number(localStorage.getItem('resolution'));
 
-const pixelGrid = ref<PixelGrid>(new PixelGrid(32, 32, theColor ));
+
+
+
+
+const pixelGrid = ref<PixelGrid>(new PixelGrid(resolution,resolution, backgroundColor));
 
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -135,11 +140,11 @@ function DrawAtCoords(coords: Vector2[]) {
       coord.y >= 0 &&
       coord.y < pixelGrid.value.height
     ) {
-      if (mouseButtonHeldDown.value && theColor != null) {
+      if (mouseButtonHeldDown.value && backgroundColor != null) {
         if (cursor.value.selectedTool.label === "Brush") {
           pixelGrid.value.grid[coord.x][coord.y] = cursor.value.color;
         } else if (cursor.value.selectedTool.label === "Eraser") {
-          pixelGrid.value.grid[coord.x][coord.y] = theColor;
+          pixelGrid.value.grid[coord.x][coord.y] = backgroundColor;
         } else if (cursor.value.selectedTool.label === "Pipette") {
           cursor.value.color =
             pixelGrid.value.grid[cursor.value.position.x][
