@@ -1,12 +1,13 @@
 <template>
   <FloatingCard
-    position="bottomright"
-    header="Color Select"
+    position="left"
+    header="Brush Settings"
     width="11rem"
     button-icon="pi pi-palette"
     button-label=""
-    button-severity="secondary"
+    :default-open="true"
   >
+    Color:
     <div class="flex flex-wrap">
       <div v-for="color in defaultColors" :key="color">
         <div
@@ -17,28 +18,35 @@
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
     </div>
+    <div class="mt-1">Size: {{ size }}</div>
+
+    <div class="px-2">
+      <Slider class="mt-2" v-model="size" min="1" max="32" />
+    </div>
   </FloatingCard>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
+import Slider from "primevue/slider";
 
-const selectedColor = defineModel<string>({ default: "#000000" });
+const selectedColor = defineModel<string>("color", { default: "#000000" });
+const size = defineModel<number>("size", { default: 1 });
 
 const defaultColors = ref<string[]>([
   "#000000",
+  "#ED1C24",
+  "#FF7F27",
+  "#7F7F7F",
+  "#FFF200",
+  "#22B14C",
+  "#C3C3C3",
+  "#00A2E8",
+  "#3F48CC",
   "#FFFFFF",
-  "#FF0000",
-  "#00FF00",
-  "#0000FF",
-  "#FFFF00",
-  "#FF00FF",
-  "#00FFFF",
-  "#C0C0C0",
-  "#808080",
-  "#800000",
-  "#808000",
+  "#A349A4",
+  "#FFAEC9",
 ]);
 </script>
 

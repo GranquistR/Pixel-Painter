@@ -2,7 +2,7 @@
   <Button
     @click="openDialog = !openDialog"
     :label="buttonLabel"
-    :severity="buttonSeverity"
+    :severity="openDialog ? 'primary' : 'secondary'"
     :icon="buttonIcon"
     class="mr-2"
   ></Button>
@@ -18,16 +18,20 @@
 <script setup lang="ts">
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const openDialog = ref(false);
 
-defineProps<{
+const props = defineProps<{
   position: string;
   header: string;
   width: string;
   buttonLabel: string;
-  buttonSeverity: string;
+  defaultOpen: boolean;
   buttonIcon: string;
 }>();
+
+onMounted(() => {
+  openDialog.value = props.defaultOpen;
+});
 </script>

@@ -5,7 +5,7 @@
     width="13rem"
     button-icon="pi pi-pencil"
     button-label=""
-    button-severity="secondary"
+    :default-open="true"
   >
     <div
       v-for="tool in PainterTool.getDefaults()"
