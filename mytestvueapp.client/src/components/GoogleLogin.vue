@@ -18,9 +18,9 @@ onMounted(() => {
     isLoggedIn.value = result;
   });
 
-    if (isLoggedIn) {
-        LoginService.storeUserSub();
-    }
+  if (isLoggedIn.value) {
+    LoginService.storeUserSub();
+  }
 });
 
 function buttonClick() {
@@ -35,6 +35,4 @@ function Login() {
   var url = new URL(window.location.href);
   window.location.replace(`login/Login?returnUrl=${url.origin}/LoginRedirect`);
 }
-
-
 </script>
