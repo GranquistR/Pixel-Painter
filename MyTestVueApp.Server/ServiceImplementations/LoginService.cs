@@ -4,6 +4,8 @@ using Google.Apis.Oauth2.v2;
 using Google.Apis.Oauth2.v2.Data;
 using Google.Apis.Services;
 using Google.Apis.Util;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
@@ -64,6 +66,49 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 Logger.LogCritical(ex, "Error in GetSubId");
                 throw;
+            }
+        }
+
+        public async Task<int> SendIdToDatabase(string subId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // This query and command is to check if the user and Id is already in the database
+                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE Token = @Token";
+                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@Token", subId);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count > 0)
+                    {
+                        Console.WriteLine("Id already exists in database");
+                        return 0;
+                    }
+                }
+
+                var query = "INSERT INTO Artist (ArtistName, Token) VALUES (@ArtistName, @Token)";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtistName", "Username");
+                    command.Parameters.AddWithValue("@Token", subId);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        Console.WriteLine("Id was added successfully");
+                        return rowsChanged;
+                    } 
+                    else
+                    {
+                        Console.WriteLine("Failted to insert Id");
+                        return -1;
+                    }
+                }
             }
         }
     }

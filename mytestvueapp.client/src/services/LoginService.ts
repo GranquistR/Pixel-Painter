@@ -23,4 +23,15 @@ export default class LoginService {
       console.error("Error logging out:", error);
     }
   }
+
+    public static async storeUserSub(): Promise<void> {
+        try {
+            const response = await fetch("login/StoreUserSub");
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+        } catch (error) {
+            console.error("Error storing user sub");
+        }
+    }
 }

@@ -1,8 +1,13 @@
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Oauth2.v2.Data;
+using Google.Apis.Oauth2.v2;
+using Google.Apis.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -36,10 +41,10 @@ namespace MyTestVueApp.Server.Controllers
         [Route("LoginRedirect")]
         public async Task<IActionResult> RedirectLogin(string code, string scope, string authuser, string prompt)
         {
-            var AccessToken = await LoginService.GetUserId(code);
+            var subId = await LoginService.GetUserId(code);
 
             // Add Id to cookies
-            Response.Cookies.Append("GoogleOAuth", AccessToken, new CookieOptions
+            Response.Cookies.Append("GoogleOAuth", subId, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -67,6 +72,30 @@ namespace MyTestVueApp.Server.Controllers
                 return Ok(!string.IsNullOrEmpty(userId));
             }
             return Ok(false);
+        }
+
+        [HttpGet]
+        [Route("StoreUserSub")]
+        public async Task<IActionResult> StoreUserSub()
+        {
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var rowsChanged = await LoginService.SendIdToDatabase(userId);
+
+
+                if (rowsChanged > 0)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return Ok(false);
+                }
+            }
+            else
+            {
+                return Ok(false);
+            }
         }
     }
 }
