@@ -12,7 +12,7 @@
         <RouterLink class="p-2" to="/">
           <Button rounded label="Home" icon="pi pi-home" />
         </RouterLink>
-        <RouterLink class="p-2" to="/paint">
+        <RouterLink class="p-2" to="/new">
           <Button rounded label="Painter" icon="pi pi-pencil" />
         </RouterLink>
         <RouterLink class="p-2" to="/gallery">
