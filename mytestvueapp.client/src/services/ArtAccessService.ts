@@ -1,5 +1,5 @@
 import Art from "../entities/Art";
-import Comment from "../entities/Comment"
+import Comment from "../entities/Comment";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<any> {
@@ -23,7 +23,7 @@ export default class ArtAccessService {
             art.creationDate,
             art.isPublic,
             art.numLikes,
-            art.numcomments
+            art.numComments
           )
         );
       }
@@ -68,20 +68,20 @@ export default class ArtAccessService {
 
   public static async getCommentsById(artId: number): Promise<any> {
     try {
-    const response = await fetch(`artaccess/GetCommentsById?id=${artId}`);
+      const response = await fetch(`artaccess/GetCommentsById?id=${artId}`);
       console.log("GetComments-Response: ", response);
       const json = await response.json();
       console.log("GetComments-JSONData: ", json);
 
       const allComments: Comment[] = [];
       for (const comment of json) {
-        allComments.push(comment as Comment)
+        allComments.push(comment as Comment);
       }
 
-      console.log(allComments)
-    return allComments;
+      console.log(allComments);
+      return allComments;
     } catch (error) {
-      console.error
+      console.error;
     }
   }
 }
