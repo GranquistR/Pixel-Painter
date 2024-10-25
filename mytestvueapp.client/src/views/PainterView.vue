@@ -193,7 +193,11 @@ function fill(x: number, y: number) {
   }
 }
 
-  
+window.addEventListener("storage", () => {
+  // When local storage changes, dump the list to
+  // the console.
+  backgroundColor = localStorage.getItem("backgroundColor");
+});
 
 const canvas = ref();
 </script>

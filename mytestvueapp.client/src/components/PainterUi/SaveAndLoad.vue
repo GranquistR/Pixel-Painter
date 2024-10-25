@@ -60,6 +60,7 @@ function copyEncodedText() {
   }
 }
 
+
 function decodeToCanvas() {
   if (pixelGrid.value ) {
     let backgroundColor = localStorage.getItem('backgroundColor');
@@ -77,5 +78,6 @@ function decodeToCanvas() {
   } else {
     console.error("PixelGrid is undefined");
   }
+  
 }
 </script>
