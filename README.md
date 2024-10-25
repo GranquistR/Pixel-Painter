@@ -51,6 +51,11 @@ vscode-icons
 ### Backend setup in Visual Studio
 
 1. Open the .sln file in the root directory of the project in Visual Studio
+1. Create your appsettings.json file in the .server folder with key/value pairs for the following:
+	- ConnectionString
+	- ClientId
+	- ClientSecret
+	- HomeUrl
 1. Run the project with the Start button in Visual Studio
 
 ## Testing the application

@@ -1,11 +1,11 @@
 <template>
   <FloatingCard
-    position="left"
+    position="middle"
     width="25rem"
     header="Save and Load"
     button-icon="pi pi-save"
     button-label=""
-    button-severity="secondary"
+    :default-open="false"
   >
     <div class="flex justify-content-around">
       <Button
