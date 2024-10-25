@@ -60,7 +60,7 @@ const likedClicked = () => {
           <Button
             :severity="liked ? 'danger' : ''"
             class="w-full flex-grow p-1"
-            icon="pi pi-heart"
+            :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
             :label="likes"
             @click="likedClicked()"
           />

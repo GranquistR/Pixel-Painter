@@ -75,7 +75,6 @@ export default class ArtAccessService {
       for (const comment of json) {
         allComments.push(comment as Comment)
       }
-
       console.log(allComments)
     return allComments;
     } catch (error) {
