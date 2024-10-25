@@ -6,11 +6,22 @@ export default class codec {
 
     for (let i = 0; i < inputGrid.height; i++) {
       for (let j = 0; j < inputGrid.width; j++) {
-        EncodedPicture = EncodedPicture + inputGrid.grid[i][j].substring(1);
+        EncodedPicture = EncodedPicture + inputGrid.grid[i][j];
       }
     }
-    return EncodedPicture;
-  }
+    
+      let newStr = "";
+    
+      for (let i = 0; i < EncodedPicture.length; i++) {
+        if (EncodedPicture[i] !== '#') {
+          newStr += EncodedPicture[i];
+        }
+      }
+    
+      return newStr;
+    }
+    
+  
 
   public static Decode(
     encodedString: String,

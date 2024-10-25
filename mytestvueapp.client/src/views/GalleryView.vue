@@ -2,7 +2,8 @@
 import { onMounted, ref, watch } from "vue";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
-import ArtAccessService from "@/utils/ArtAccessService";
+import ArtAccessService from "@/services/ArtAccessService";
+import { PixelGrid } from "@/entities/PixelGrid";
 
 const allArt = ref<Art[] | null>(null);
 const displayArt = ref<Art[] | null>(null);

@@ -56,7 +56,7 @@ const resolution = defineModel('resolution' ,{default: 32});
 const title = defineModel<string>('title', {default:""});
 const description = defineModel<string>('description',{default:""});
 
-const backgroundColor = defineModel<string>({ default: "#ffffff" });
+const backgroundColor = defineModel<string>({ default: "ffffff" });
 function updateLocalStorage(){
   localStorage.setItem('backgroundColor', backgroundColor.value);
   localStorage.setItem('resolution', resolution.value.toString());

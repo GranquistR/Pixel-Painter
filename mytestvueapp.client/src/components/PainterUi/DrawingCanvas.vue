@@ -6,6 +6,8 @@
 
 <script setup lang="ts">
 import { Application, Sprite, Texture } from "pixi.js";
+import { DropShadowFilter } from "@pixi/filter-drop-shadow";
+import { OutlineFilter } from "@pixi/filter-outline";
 import { Viewport } from "pixi-viewport"; // create viewport
 import { onMounted, watch } from "vue";
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -67,6 +69,17 @@ viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 function drawCanvas() {
   viewport.removeChildren();
 
+  var dropShadowFilter = new DropShadowFilter();
+  dropShadowFilter.distance = 0;
+
+  const dropShadow = new Sprite(Texture.WHITE);
+  dropShadow.width = props.pixelGrid.width * PIXEL_SIZE;
+  dropShadow.height = props.pixelGrid.height * PIXEL_SIZE;
+  dropShadow.tint = 0x000000;
+  dropShadow.filters = [dropShadowFilter];
+
+  viewport.addChild(dropShadow);
+
   for (var i = 0; i < props.pixelGrid.width; i++) {
     for (var j = 0; j < props.pixelGrid.height; j++) {
       const sprite = viewport.addChild(new Sprite(Texture.WHITE));
@@ -82,8 +95,21 @@ function drawCanvas() {
 viewport.on("pointermove", (e) => {
   const pos = viewport.toWorld(e.globalX, e.globalY);
 
-  cursor.value.position.x = Math.floor(pos.x / PIXEL_SIZE);
-  cursor.value.position.y = Math.floor(pos.y / PIXEL_SIZE);
+  if (
+    cursor.value.selectedTool.label == "Brush" ||
+    cursor.value.selectedTool.label == "Eraser"
+  ) {
+    cursor.value.position.x = Math.floor(
+      (pos.x - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
+    );
+    cursor.value.position.y = Math.floor(
+      (pos.y - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
+    );
+  } else {
+    cursor.value.position.x = Math.floor(pos.x / PIXEL_SIZE);
+    cursor.value.position.y = Math.floor(pos.y / PIXEL_SIZE);
+  }
+
   updateCursor();
 });
 
@@ -91,24 +117,38 @@ viewport.on("pointermove", (e) => {
 function updateCursor() {
   // Remove the old cursor
   viewport.children.forEach((child) => {
-    if (child.alpha == 0.9) {
+    if (child.alpha == 0.99) {
       viewport.removeChild(child);
     }
   });
 
   // Add the new cursor
   const cursorBox = new Sprite(Texture.WHITE);
-  cursorBox.tint = "red";
-  cursorBox.alpha = 0.9;
-  cursorBox.width = cursor.value.size * PIXEL_SIZE;
-  cursorBox.height = cursor.value.size * PIXEL_SIZE;
-  cursorBox.position.set(
-    cursor.value.position.x * PIXEL_SIZE,
-    cursor.value.position.y * PIXEL_SIZE
-  );
-  if (cursor.value.position.x != -1 && cursor.value.position.y != -1) {
-    viewport.addChild(cursorBox);
+  var outlineFilter = new OutlineFilter(1, 0x000000);
+  outlineFilter.knockout = true;
+  cursorBox.alpha = 0.99;
+
+  if (
+    cursor.value.selectedTool.label == "Brush" ||
+    cursor.value.selectedTool.label == "Eraser"
+  ) {
+    cursorBox.width = cursor.value.size * PIXEL_SIZE;
+    cursorBox.height = cursor.value.size * PIXEL_SIZE;
+    cursorBox.position.set(
+      cursor.value.position.x * PIXEL_SIZE,
+      cursor.value.position.y * PIXEL_SIZE
+    );
+  } else {
+    cursorBox.width = PIXEL_SIZE;
+    cursorBox.height = PIXEL_SIZE;
+    cursorBox.position.set(
+      cursor.value.position.x * PIXEL_SIZE,
+      cursor.value.position.y * PIXEL_SIZE
+    );
   }
+
+  cursorBox.filters = [outlineFilter];
+  viewport.addChild(cursorBox);
 }
 
 //centers the canvas
