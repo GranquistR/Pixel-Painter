@@ -73,8 +73,6 @@ export default class codec {
         k = k + 6;
       }
     }
-    //PainterView.backgroundColor= localStorage.getItem('backgroundColor');
-
     
     return decodedPicture;
   }

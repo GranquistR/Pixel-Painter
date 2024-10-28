@@ -39,6 +39,7 @@ import { ref } from "vue";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
 import { useToast } from "primevue/usetoast";
+import PainterView from "@/views/PainterView.vue"
 
 const toast = useToast();
 
@@ -62,11 +63,15 @@ function copyEncodedText() {
 
 
 function decodeToCanvas() {
-  if (pixelGrid.value ) {
-    let backgroundColor = localStorage.getItem('backgroundColor');
+  let backgroundColor = localStorage.getItem('backgroundColor');
     if (backgroundColor===null){
-      backgroundColor = 'FFFFFF';
-    }
+      backgroundColor = 'FFFFFF';}
+      let res = Number(localStorage.getItem('resolution'));
+      pixelGrid.value = new PixelGrid(res,res, backgroundColor);
+
+  if (pixelGrid.value ) {
+    
+    
     pixelGrid.value.updateGrid(
       codec.Decode(
         stringEncodedText.value,
@@ -79,5 +84,7 @@ function decodeToCanvas() {
     console.error("PixelGrid is undefined");
   }
   
+  
+ 
 }
 </script>
