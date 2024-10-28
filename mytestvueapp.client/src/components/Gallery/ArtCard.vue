@@ -8,6 +8,7 @@
     <!-- Container -->
     <Card
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
+      @click="router.push(`/art/${art.artId}`)"
     >
       <template #header>
         <MyCanvas :art="art" :pixelSize="(32 / art.artLength) * 6.5" />
@@ -47,6 +48,7 @@ import Button from "primevue/button";
 import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
+import router from "@/router";
 
 const props = defineProps<{
   art: Art;

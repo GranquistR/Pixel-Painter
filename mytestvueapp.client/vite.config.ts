@@ -53,10 +53,6 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "^/weatherforecast": {
-        target,
-        secure: false,
-      },
       "^/artaccess": {
         target,
         secure: false,

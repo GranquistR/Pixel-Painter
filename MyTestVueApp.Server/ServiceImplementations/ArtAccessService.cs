@@ -9,9 +9,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
     public class ArtAccessService : IArtAccessService
     {
         private IOptions<ApplicationConfiguration> AppConfig { get; }
-        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig)
+        private ILogger<ArtAccessService> Logger { get; }
+        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger)
         {
             AppConfig = appConfig;
+            Logger = logger;
         }
 
         public IEnumerable<Art> GetAllArt()

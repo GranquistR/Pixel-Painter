@@ -10,7 +10,13 @@
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
-      <Button icon="pi pi-ban" label="Quit" severity="secondary" class="mr-2">
+      <Button
+        icon="pi pi-ban"
+        label="Quit"
+        severity="secondary"
+        class="mr-2"
+        @click="ResetArt()"
+      >
       </Button>
       <Button icon="pi pi-upload" label="Publish"> </Button>
     </template>
@@ -43,28 +49,43 @@ import Toolbar from "primevue/toolbar";
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
 import SaveAndLoad from "@/components/PainterUi/SaveAndLoad.vue";
-import { ref, toRaw, watch, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
+import router from "@/router";
+import { onBeforeRouteLeave } from "vue-router";
+
+onBeforeRouteLeave((to, from, next) => {
+  if (to.path != "/new") {
+    localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
+  }
+  next();
+});
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
 );
 const mouseButtonHeldDown = ref<boolean>(false);
 
-var backgroundColor = localStorage.getItem("backgroundColor");
-if (backgroundColor === null) {
-  backgroundColor = "#ffffff";
-}
-var resolution = Number(localStorage.getItem("resolution"));
+const workingGrid = JSON.parse(
+  localStorage.getItem("working-art") as string
+) as PixelGrid;
 
 const pixelGrid = ref<PixelGrid>(
-  new PixelGrid(resolution, resolution, backgroundColor)
+  new PixelGrid(
+    workingGrid.width,
+    workingGrid.height,
+    workingGrid.backgroundColor
+  )
 );
+
+if (workingGrid) {
+  pixelGrid.value.updateGrid(workingGrid);
+}
 
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -154,9 +175,9 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j >= 0 &&
               coord.y + j < pixelGrid.value.height
             ) {
-              if (backgroundColor != null) {
+              if (pixelGrid.value.backgroundColor != null) {
                 pixelGrid.value.grid[coord.x + i][coord.y + j] =
-                  backgroundColor;
+                  pixelGrid.value.backgroundColor;
               }
             }
           }
@@ -213,6 +234,11 @@ function fill(x: number, y: number) {
       }
     }
   }
+}
+
+function ResetArt() {
+  localStorage.removeItem("working-art");
+  router.push("/new");
 }
 
 const canvas = ref();

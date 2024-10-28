@@ -4,20 +4,34 @@ export class PixelGrid {
   width: number;
   height: number;
   grid: string[][];
+  backgroundColor: string;
 
-
-  constructor(width: number, height: number, backgroundColor: string, encodedGrid?: string) {
+  constructor(
+    width: number,
+    height: number,
+    backgroundColor: string,
+    encodedGrid?: string
+  ) {
     this.width = width;
     this.height = height;
     this.grid = this.createGrid(width, height, backgroundColor);
+    this.backgroundColor = backgroundColor;
 
     if (encodedGrid) {
-      this.grid = codec.Decode(encodedGrid, height, width, backgroundColor).grid;
+      this.grid = codec.Decode(
+        encodedGrid,
+        height,
+        width,
+        backgroundColor
+      ).grid;
     }
-
   }
 
-  createGrid(width: number, height: number, backgroundColor: string): string[][] {
+  createGrid(
+    width: number,
+    height: number,
+    backgroundColor: string
+  ): string[][] {
     const grid: string[][] = [];
     for (let i = 0; i < height; i++) {
       const row: string[] = [];

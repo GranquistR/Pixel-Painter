@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
-using MyTestVueApp.Server.ServiceImplementations;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -22,7 +22,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public IEnumerable<Art> GetAllArt()
         {
-           return ArtAccessService.GetAllArt();
+            return ArtAccessService.GetAllArt();
         }
 
         [HttpGet]
