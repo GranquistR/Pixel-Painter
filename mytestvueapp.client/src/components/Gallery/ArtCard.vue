@@ -1,37 +1,3 @@
-<script setup>
-import Card from "primevue/card";
-import Button from "primevue/button";
-import { ref } from "vue";
-import MyCanvas from "../MyCanvas/MyCanvas.vue";
-
-const { art } = defineProps(["art"]);
-const liked = ref(false);
-const hover = ref(false);
-
-const likes = ref("0");
-const comments = ref("0");
-console.log(art)
-
-likes.value = `${art.numLikes}`;
-if (art.numComments){
-  comments.value = `${art.numComments}`;
-}
-
-const likedClicked = () => {
-  liked.value = !liked.value;
-
-  if (liked.value) {
-    likes.value = art.numLikes + 1
-  } else {
-    likes.value = art.numLikes;
-  }
-
-  console.log(liked.value);
-};
-
-
-</script>
-
 <template>
   <div
     class="border-color mr-4 mb-4 border-round-md"
@@ -42,9 +8,10 @@ const likedClicked = () => {
     <!-- Container -->
     <Card
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
+      @click="router.push(`/art/${art.artId}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="6.5"/>
+        <MyCanvas :art="art" :pixelSize="(32 / art.artLength) * 6.5" />
         <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>
@@ -64,15 +31,58 @@ const likedClicked = () => {
             :label="likes"
             @click="likedClicked()"
           />
-          <Button 
-          class="w-full flex-grow p-2" 
-          icon="pi pi-comment" 
-          :label="comments" />
+          <Button
+            class="w-full flex-grow p-2"
+            icon="pi pi-comment"
+            :label="art.numComments?.toString() || 'Null'"
+          />
         </div>
       </template>
     </Card>
   </div>
 </template>
+
+<script setup lang="ts">
+import Card from "primevue/card";
+import Button from "primevue/button";
+import { ref } from "vue";
+import MyCanvas from "../MyCanvas/MyCanvas.vue";
+import Art from "@/entities/Art";
+import router from "@/router";
+
+const props = defineProps<{
+  art: Art;
+}>();
+
+console.log(props.art);
+
+const liked = ref(false);
+const hover = ref(false);
+
+const likes = ref(0);
+const comments = ref(0);
+
+if (props.art.numLikes) {
+  likes.value = props.art.numLikes;
+}
+if (props.art.numComments) {
+  comments.value = props.art.numComments;
+}
+
+const likedClicked = () => {
+  liked.value = !liked.value;
+
+  if (props.art.numLikes) {
+    if (liked.value) {
+      likes.value = props.art.numLikes + 1;
+    } else {
+      likes.value = props.art.numLikes;
+    }
+  }
+
+  console.log(liked.value);
+};
+</script>
 
 <style scoped>
 * {

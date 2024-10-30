@@ -16,11 +16,10 @@ const isLoggedIn = ref(false);
 onMounted(() => {
   LoginService.isLoggedIn().then((result) => {
     isLoggedIn.value = result;
+    if (isLoggedIn.value) {
+      LoginService.storeUserSub();
+    }
   });
-
-  if (isLoggedIn.value) {
-    LoginService.storeUserSub();
-  }
 });
 
 function buttonClick() {

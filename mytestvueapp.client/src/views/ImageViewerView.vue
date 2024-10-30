@@ -24,16 +24,21 @@ import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const allArt = ref<Art | null>(null);
 const allComments = ref<Comment[] | null>(null);
 
 onMounted(() => {
-  ArtAccessService.getArtById(2).then(
-    (promise) => (allArt.value = promise as Art)
-  );
-  ArtAccessService.getCommentsById(2).then(
-    (promise) => (allComments.value = promise as Comment[])
-  );
+  const id = Number(route.params.id);
+
+  ArtAccessService.getArtById(id).then((promise: Art) => {
+    allArt.value = promise as Art;
+  });
+  ArtAccessService.getCommentsById(id).then((promise: Comment[]) => {
+    allComments.value = promise;
+  });
 });
 </script>

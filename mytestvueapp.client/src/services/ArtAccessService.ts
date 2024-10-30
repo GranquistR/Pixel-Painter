@@ -1,31 +1,19 @@
 import Art from "../entities/Art";
-import Comment from "../entities/Comment"
+import Comment from "../entities/Comment";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<any> {
     try {
-      const response = await fetch("artaccess/GetAllArt");
-      console.log("GetAll-Response: ", response);
+      const response = await fetch("/artaccess/GetAllArt");
       const json = await response.json();
-      console.log("GetAll-JSONData: ", json);
 
       const allArt: Art[] = [];
-      for (const art of json) {
-        allArt.push(
-          new Art(
-            art.artId,
-            art.artName,
-            art.artistId,
-            art.artistName,
-            art.width,
-            art.artLength,
-            art.encode,
-            art.creationDate,
-            art.isPublic,
-            art.numLikes,
-            art.numcomments
-          )
-        );
+
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
+        console.log("Art", art);
+        allArt.push(art);
       }
       console.log("AllArt", allArt);
 
@@ -37,30 +25,12 @@ export default class ArtAccessService {
 
   public static async getArtById(artId: number): Promise<any> {
     try {
-      const response = await fetch(`artaccess/GetArtById?id=${artId}`);
-      console.log("ArtById-Response: ", response);
+      const response = await fetch(`/artaccess/GetArtById?id=${artId}`);
       const json = await response.json();
-      console.log("ArtById-JSONData: ", json);
 
       const artpiece = json as Art;
-      console.log("ArtById-jsonAsArt", artpiece);
 
-      const newArtPiece = new Art(
-        json.artId,
-        json.artName,
-        json.artistId,
-        json.artistName,
-        json.width,
-        json.artLength,
-        json.encode,
-        json.creationDate,
-        json.isPublic,
-        json.numLikes,
-        json.numcomments
-      );
-      console.log("ArtById-Pixelgrid", newArtPiece);
-
-      return newArtPiece;
+      return artpiece;
     } catch (error) {
       console.error;
     }
@@ -68,19 +38,20 @@ export default class ArtAccessService {
 
   public static async getCommentsById(artId: number): Promise<any> {
     try {
-    const response = await fetch(`artaccess/GetCommentsById?id=${artId}`);
+      const response = await fetch(`/artaccess/GetCommentsById?id=${artId}`);
       console.log("GetComments-Response: ", response);
       const json = await response.json();
       console.log("GetComments-JSONData: ", json);
 
       const allComments: Comment[] = [];
       for (const comment of json) {
-        allComments.push(comment as Comment)
+        allComments.push(comment as Comment);
       }
-      console.log(allComments)
-    return allComments;
+
+      console.log(allComments);
+      return allComments;
     } catch (error) {
-      console.error
+      console.error;
     }
   }
 }
