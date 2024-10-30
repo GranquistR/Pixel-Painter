@@ -17,6 +17,6 @@ namespace MyTestVueApp.Server.Interfaces
         /// Removes a specific like entry into the database.
         /// </summary>
         /// <returns>Returns the number of rows changed, or -1</returns>
-        public Task<int> RemoveLike(int artId);
+        public Task<int> RemoveLike(int artId, string userId);
     }
 }

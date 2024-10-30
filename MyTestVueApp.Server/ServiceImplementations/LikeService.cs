@@ -30,15 +30,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     checkDupCommand.Parameters.AddWithValue("@ArtistId", userId);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
-                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    int count = (int) await checkDupCommand.ExecuteScalarAsync();
                     if (count > 0)
                     {
                         Console.WriteLine("This user has already liked this art piece!");
                         return 0;
                     }
                 }
-                var query = "INSERT INTO Likes (ArtistID, ArtID) VALUES (@ArtistId, @ArtId)";
 
+                var query = "INSERT INTO Likes (ArtistID, ArtID) VALUES (@ArtistId, @ArtId)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ArtistId", userId);
@@ -57,9 +57,45 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
         
-        public async Task<int> RemoveLike(int artId)
+        public async Task<int> RemoveLike(int artId, string userId)
         {
-            return -1;
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //Check to make sure like exists
+                 //Check to make sure the user hasnt already liked this work of art
+                var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
+                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", userId);
+                    checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
+
+                    int count = (int) await checkDupCommand.ExecuteScalarAsync();
+                    if (count == 0)
+                    {
+                        Console.WriteLine("The like you are trying to delete doesnt exist!");
+                        return 0;
+                    }
+                }
+
+                var query = "DELETE FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
+                using (SqlCommand command = new SqlCommand(query, connection)) 
+                {
+                    command.Parameters.AddWithValue("@ArtistId", userId);
+                    command.Parameters.AddWithValue("@ArtId", artId);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        Console.WriteLine("Like was removed sucessfully!");
+                        return rowsChanged;
+                    } else {
+                        Console.WriteLine("Failed to remove Like!");
+                        return -1;
+                    }
+                }
+            }
         }
     }
 }

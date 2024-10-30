@@ -26,14 +26,38 @@ namespace MyTestVueApp.Server.Controllers
         [Route("InsertLike")]
         public async Task<IActionResult> InsertLike(int artId)
         {
-            //Testing
-            Console.WriteLine("InsertLike Endpoint Called");
-        
+    
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 // You can add additional checks here if needed
                 var rowsChanged = await LikeService.InsertLike(artId, userId);
+                if (rowsChanged > 0) // If the like has sucessfully been inserted
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return Ok(false);
+                    }
+            }
+            else
+            {
+                return Ok(false);
+            }
+        
+        }
+
+        [HttpGet]
+        [Route("RemoveLike")]
+        public async Task<IActionResult> RemoveLike(int artId)
+        {
+        
+            // If the user is logged in
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                // You can add additional checks here if needed
+                var rowsChanged = await LikeService.RemoveLike(artId, userId);
                 if (rowsChanged > 0) // If the like has sucessfully been inserted
                     {
                         return Ok();
