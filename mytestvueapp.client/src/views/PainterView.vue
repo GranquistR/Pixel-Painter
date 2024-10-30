@@ -243,28 +243,24 @@ function ResetArt() {
 
 document.addEventListener("keydown", function (event) { 
 if (event.key === "p") {event.preventDefault();cursor.value.selectedTool.label = "Pan";} 
-if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";} 
-if (event.key === "e") {event.preventDefault();cursor.value.selectedTool.label = "Eraser";} 
-if (event.key === "d") {event.preventDefault();cursor.value.selectedTool.label = "Pipette";} 
-if (event.key === "f") {event.preventDefault();cursor.value.selectedTool.label = "Paint-Bucket";} 
-if (event.key === "1") {event.preventDefault();cursor.value.color = "#000000";} 
-if (event.key === "2") {event.preventDefault();cursor.value.color = "#ED1C24";} 
-if (event.key === "3") {event.preventDefault();cursor.value.color = "#FF7F27";} 
-if (event.key === "4") {event.preventDefault();cursor.value.color = "#7F7F7F";} 
-if (event.key === "5") {event.preventDefault();cursor.value.color = "#FFF200";} 
-if (event.key === "6") {event.preventDefault();cursor.value.color = "#22B14C";} 
-if (event.key === "7") {event.preventDefault();cursor.value.color = "#C3C3C3";} 
-if (event.key === "8") {event.preventDefault();cursor.value.color = "#00A2E8";} 
-if (event.key === "9") {event.preventDefault();cursor.value.color = "#3F48CC";} 
-if (event.key === "0") {event.preventDefault();cursor.value.color = "#FFFFFF";} 
-if (event.key === "-") {event.preventDefault();cursor.value.color = "#A349A4";} 
-if (event.key === "=") {event.preventDefault();cursor.value.color = "#FFAEC9";} 
-if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1 ;} 
-if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1 ;} 
-
-
-
-
+else if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";} 
+else if (event.key === "e") {event.preventDefault();cursor.value.selectedTool.label = "Eraser";} 
+else if (event.key === "d") {event.preventDefault();cursor.value.selectedTool.label = "Pipette";} 
+else if (event.key === "f") {event.preventDefault();cursor.value.selectedTool.label = "Paint-Bucket";} 
+else if (event.key === "1") {event.preventDefault();cursor.value.color = "#000000";} 
+else if (event.key === "2") {event.preventDefault();cursor.value.color = "#ED1C24";} 
+else if (event.key === "3") {event.preventDefault();cursor.value.color = "#FF7F27";} 
+else if (event.key === "4") {event.preventDefault();cursor.value.color = "#7F7F7F";} 
+else if (event.key === "5") {event.preventDefault();cursor.value.color = "#FFF200";} 
+else if (event.key === "6") {event.preventDefault();cursor.value.color = "#22B14C";} 
+else if (event.key === "7") {event.preventDefault();cursor.value.color = "#C3C3C3";} 
+else if (event.key === "8") {event.preventDefault();cursor.value.color = "#00A2E8";} 
+else if (event.key === "9") {event.preventDefault();cursor.value.color = "#3F48CC";} 
+else if (event.key === "0") {event.preventDefault();cursor.value.color = "#FFFFFF";} 
+else if (event.key === "-") {event.preventDefault();cursor.value.color = "#A349A4";} 
+else if (event.key === "=") {event.preventDefault();cursor.value.color = "#FFAEC9";} 
+else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1 ;} 
+else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1 ;} 
 
 }); 
 

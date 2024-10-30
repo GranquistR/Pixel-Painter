@@ -14,7 +14,7 @@
           @click="selectedColor = color"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
           :style="{ backgroundColor: color }"
-          v-b-tooltip.hover title="poop"
+          v-b-tooltip.hover title= "Shortcut:"
         ></div>
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
@@ -22,7 +22,7 @@
     <div class="mt-1">Size: {{ size }}</div>
 
     <div class="px-2">
-      <Slider class="mt-2" v-model="size" min="1" max="32" v-b-tooltip.hover title="z(-), x(+)"/>
+      <Slider class="mt-2" v-model="size" min="1" max="32" v-b-tooltip.hover title="Decrease(Z),Increase(X)"/>
     </div>
   </FloatingCard>
 </template>
@@ -36,7 +36,7 @@ const selectedColor = defineModel<string>("color", { default: "#000000" });
 const size = defineModel<number>("size", { default: 1 });
 
 const defaultColors = ref<string[]>([
-  "#000000",
+  "#000000", 
   "#ED1C24",
   "#FF7F27",
   "#7F7F7F",
