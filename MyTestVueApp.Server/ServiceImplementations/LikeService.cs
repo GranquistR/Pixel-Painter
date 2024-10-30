@@ -16,7 +16,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
         }
 
-        public async Task<int> InsertLike(int artId, int userId)
+        public async Task<int> InsertLike(int artId, string userId)
         {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString))

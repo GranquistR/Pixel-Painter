@@ -12,7 +12,7 @@ namespace MyTestVueApp.Server.Interfaces
         /// Inserts a like entry into the database.
         /// </summary>
         /// <returns>Returns the number of rows changed, or -1</returns>
-        public Task<int> InsertLike(int artId, int userId);
+        public Task<int> InsertLike(int artId, string userId);
         /// <summary>
         /// Removes a specific like entry into the database.
         /// </summary>

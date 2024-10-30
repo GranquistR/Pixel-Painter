@@ -105,7 +105,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     } 
                     else
                     {
-                        Console.WriteLine("Failted to insert Id");
+                        Console.WriteLine("Failed to insert Id");
                         return -1;
                     }
                 }

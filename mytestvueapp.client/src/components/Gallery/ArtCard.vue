@@ -11,7 +11,7 @@
       @click="router.push(`/art/${art.artId}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="(32 / art.artLength) * 6.5" />
+        <MyCanvas :art="art" :pixelSize="(32 / art.height) * 6.5" />
         <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>

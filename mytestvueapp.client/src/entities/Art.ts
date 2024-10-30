@@ -6,7 +6,7 @@ export default class Art {
   artistId: number;
   artistName: string;
   width: number;
-  artLength: number;
+  height: number;
   encode: string;
   creationDate: string;
   isPublic: boolean;
@@ -20,7 +20,7 @@ export default class Art {
     this.artistId = 0;
     this.artistName = "";
     this.width = 0;
-    this.artLength = 0;
+    this.height = 0;
     this.encode = "";
     this.creationDate = "";
     this.isPublic = false;

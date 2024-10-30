@@ -33,8 +33,7 @@ namespace MyTestVueApp.Server.Controllers
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 // You can add additional checks here if needed
-                int userIdInt = int.Parse(userId);
-                var rowsChanged = await LikeService.InsertLike(artId, userIdInt);
+                var rowsChanged = await LikeService.InsertLike(artId, userId);
                 if (rowsChanged > 0) // If the like has sucessfully been inserted
                     {
                         return Ok();

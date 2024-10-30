@@ -26,11 +26,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic";
+                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -45,7 +45,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 ArtistId = reader.GetString(2),
                                 ArtistName = reader[3] as string ?? string.Empty,
                                 Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
+                                Height = reader.GetInt32(5),
                                 Encode = reader.GetString(6),
                                 CreationDate = reader.GetDateTime(7),
                                 IsPublic = reader.GetBoolean(8),
@@ -69,12 +69,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query = 
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
                     "WHERE Art.ID=" + id + " " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic ";
+                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic ";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -83,13 +83,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
 
                             painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            { //ArtId, ArtName, ArtistId, Width, Height, Encode, Date, IsPublic
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
                                 ArtistId = reader.GetString(2),
                                 ArtistName = reader[3] as string ?? string.Empty,
                                 Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
+                                Height = reader.GetInt32(5),
                                 Encode = reader.GetString(6),
                                 CreationDate = reader.GetDateTime(7),
                                 IsPublic = reader.GetBoolean(8)
