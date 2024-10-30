@@ -1,13 +1,9 @@
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Oauth2.v2.Data;
-using Google.Apis.Oauth2.v2;
-using Google.Apis.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -30,11 +26,15 @@ namespace MyTestVueApp.Server.Controllers
         [Route("InsertLike")]
         public async Task<IActionResult> InsertLike(int artId)
         {
+            //Testing
+            Console.WriteLine("InsertLike Endpoint Called");
+        
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 // You can add additional checks here if needed
-                var rowsChanged = await LikeService.InsertLike(artId, userId);
+                int userIdInt = int.Parse(userId);
+                var rowsChanged = await LikeService.InsertLike(artId, userIdInt);
                 if (rowsChanged > 0) // If the like has sucessfully been inserted
                     {
                         return Ok();

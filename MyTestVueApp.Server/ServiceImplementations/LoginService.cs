@@ -77,7 +77,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
 
                 // This query and command is to check if the user and Id is already in the database
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE Token = @Token";
+                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @Token";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
                     checkDupCommand.Parameters.AddWithValue("@Token", subId);
@@ -90,7 +90,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
 
-                var query = "INSERT INTO Artist (ArtistName, Token) VALUES (@ArtistName, @Token)";
+                var query = "INSERT INTO Artist (ArtistName, ID) VALUES (@ArtistName, @Token)";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

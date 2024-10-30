@@ -42,7 +42,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             { //Art Table + NumLikes and NumComments
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
+                                ArtistId = reader.GetString(2),
                                 ArtistName = reader[3] as string ?? string.Empty,
                                 Width = reader.GetInt32(4),
                                 ArtLength = reader.GetInt32(5),
@@ -86,7 +86,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
                                 ArtId = reader.GetInt32(0),
                                 ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
+                                ArtistId = reader.GetString(2),
                                 ArtistName = reader[3] as string ?? string.Empty,
                                 Width = reader.GetInt32(4),
                                 ArtLength = reader.GetInt32(5),
@@ -125,7 +125,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             var comment = new Comment
                             { //Art Table + NumLikes and NumComments
                                 CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetInt32(1),
+                                ArtistId = reader.GetString(1),
                                 ArtistName = reader.GetString(2),
                                 ArtId = reader.GetInt32(3),
                                 CommentContent = reader.GetString(4),
