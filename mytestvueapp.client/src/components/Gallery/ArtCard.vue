@@ -29,7 +29,7 @@
             class="w-full flex-grow p-1"
             :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
             :label="likes"
-            @click="likedClicked()"
+            @click.stop="likedClicked()"
           />
           <Button
             class="w-full flex-grow p-2"
