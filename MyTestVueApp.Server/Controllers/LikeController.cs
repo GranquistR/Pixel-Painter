@@ -58,7 +58,7 @@ namespace MyTestVueApp.Server.Controllers
             {
                 // You can add additional checks here if needed
                 var rowsChanged = await LikeService.RemoveLike(artId, userId);
-                if (rowsChanged > 0) // If the like has sucessfully been inserted
+                if (rowsChanged > 0) // If the like has sucessfully been removed
                     {
                         return Ok();
                     }
