@@ -6,13 +6,13 @@ namespace MyTestVueApp.Server.Entities
 
         public string? ArtName { get; set; }
 
-        public int ArtistId { get; set; }
+        public string? ArtistId { get; set; }
 
         public string? ArtistName { get; set; }
 
         public int Width { get; set; }
 
-        public int ArtLength { get; set; }
+        public int Height { get; set; }
 
         public string? Encode { get; set; }
 

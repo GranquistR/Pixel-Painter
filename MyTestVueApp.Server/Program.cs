@@ -19,6 +19,7 @@ builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSe
 //Custom Services
 builder.Services.AddTransient<IArtAccessService, ArtAccessService>();
 builder.Services.AddTransient<ILoginService, LoginService>();
+builder.Services.AddTransient<ILikeService, LikeService>();
 
 var app = builder.Build();
 
