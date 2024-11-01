@@ -9,12 +9,12 @@
   >
     Color:
     <div class="flex flex-wrap">
-      <div v-for="color in defaultColors" :key="color">
+      <div v-for="color in DefaultColor.getDefaultColors()" :key="color.hex">
         <div 
-          @click="selectedColor = color"
+          @click="selectedColor = color.hex"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
-          :style="{ backgroundColor: color }"
-          v-b-tooltip.hover title= "Shortcut:"
+          :style="{ backgroundColor: color.hex}"
+          v-tooltip.hover :title=color.shortcut
         ></div>
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
@@ -22,7 +22,7 @@
     <div class="mt-1">Size: {{ size }}</div>
 
     <div class="px-2">
-      <Slider class="mt-2" v-model="size" min="1" max="32" v-b-tooltip.hover title="Decrease(Z),Increase(X)"/>
+      <Slider class="mt-2" v-model="size" min="1" max="32" v-b-tooltip.hover title="Decrease(z),Increase(x)"/>
     </div>
   </FloatingCard>
 </template>
@@ -31,6 +31,8 @@ import { ref } from "vue";
 import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
 import Slider from "primevue/slider";
+import DefaultColor from "@/entities/DefaultColors"
+
 
 const selectedColor = defineModel<string>("color", { default: "#000000" });
 const size = defineModel<number>("size", { default: 1 });
@@ -49,20 +51,8 @@ const defaultColors = ref<string[]>([
   "#A349A4",
   "#FFAEC9",
 ]);
-const defaultColorShortcuts = ref<string[]>([
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "0",
-  "-",
-  "=",
-]);
+
+
 </script>
 
 <style>
