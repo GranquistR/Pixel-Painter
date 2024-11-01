@@ -60,13 +60,9 @@ const liked = ref(false);
 const hover = ref(false);
 
 const likes = ref(0);
-const comments = ref(0);
 
 if (props.art.numLikes) {
   likes.value = props.art.numLikes;
-}
-if (props.art.numComments) {
-  comments.value = props.art.numComments;
 }
 
 const likedClicked = () => {
