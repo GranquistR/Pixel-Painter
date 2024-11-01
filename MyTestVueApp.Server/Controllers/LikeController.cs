@@ -38,12 +38,12 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        return Ok(false);
+                        return BadRequest("Failed to insert like. User may have already liked this post.");
                     }
             }
             else
             {
-                return Ok(false);
+                return BadRequest("User is not logged in");
             }
         
         }
@@ -64,12 +64,12 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        return Ok(false);
+                        return BadRequest("Did not remove target like. It may not have existed.");
                     }
             }
             else
             {
-                return Ok(false);
+                return BadRequest("User is not logged in!");
             }
         
         }
