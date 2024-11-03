@@ -24,6 +24,7 @@ import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
+import CommentAccessService from "../services/CommentAccessService";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -37,7 +38,7 @@ onMounted(() => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     allArt.value = promise as Art;
   });
-  ArtAccessService.getCommentsById(id).then((promise: Comment[]) => {
+  CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = promise;
   });
 });
