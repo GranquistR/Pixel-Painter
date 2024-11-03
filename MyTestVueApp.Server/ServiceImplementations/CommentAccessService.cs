@@ -15,7 +15,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             AppConfig = appConfig;
             Logger = logger;
         }
-
         public IEnumerable<Comment> GetCommentsById(int id)
         {
                 var comments = new List<Comment>();
@@ -39,7 +38,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 var comment = new Comment
                                 { //Art Table + NumLikes and NumComments
                                     CommentId = reader.GetInt32(0),
-                                    ArtistId = reader.GetInt32(1),
+                                    ArtistId = reader.GetString(1),
                                     ArtistName = reader.GetString(2),
                                     ArtId = reader.GetInt32(3),
                                     CommentContent = reader.GetString(4),

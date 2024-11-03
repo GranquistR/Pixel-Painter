@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
@@ -34,6 +35,18 @@ namespace MyTestVueApp.Server.Controllers
         public IEnumerable<Comment> GetCommentsById(int id)
         {
             return CommentAccessService.GetCommentsById(id);
+        }
+
+        [HttpGet]
+        [Route("CheckCookietoUser")]
+        public async Task<IActionResult> CheckCookietoUser(int commentId)
+        {
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                // You can add additional checks here if needed
+                return Ok(userId == commentId.ToString());
+            }
+            return Ok(false);
         }
     }
 }
