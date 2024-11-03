@@ -65,6 +65,10 @@ export default defineConfig({
         target,
         secure: false,
       },
+      "^/like": {
+        target,
+        secure: false,
+      }
     },
     port: 5173,
     https: {
