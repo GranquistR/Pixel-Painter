@@ -9,11 +9,12 @@ import { Application, Sprite, Texture } from "pixi.js";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { OutlineFilter } from "@pixi/filter-outline";
 import { Viewport } from "pixi-viewport"; // create viewport
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref } from "vue";
 import { PixelGrid } from "@/entities/PixelGrid";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
+
 
 //Constants
 var PIXEL_SIZE = 10;
@@ -24,7 +25,7 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-defineExpose({ recenter });
+defineExpose({ recenter, updateCursor});
 
 //model
 const cursor = defineModel<Cursor>({
@@ -92,29 +93,34 @@ function drawCanvas() {
   }
 }
 
-viewport.on("pointermove", (e) => {
-  const pos = viewport.toWorld(e.globalX, e.globalY);
+const pos = ref<any>();
 
-  if (
-    cursor.value.selectedTool.label == "Brush" ||
-    cursor.value.selectedTool.label == "Eraser"
-  ) {
-    cursor.value.position.x = Math.floor(
-      (pos.x - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
-    );
-    cursor.value.position.y = Math.floor(
-      (pos.y - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
-    );
-  } else {
-    cursor.value.position.x = Math.floor(pos.x / PIXEL_SIZE);
-    cursor.value.position.y = Math.floor(pos.y / PIXEL_SIZE);
-  }
+
+
+viewport.on("pointermove", (e) => {
+  pos.value = viewport.toWorld(e.globalX, e.globalY);
+
 
   updateCursor();
 });
 
 //update cursor, not full canvas
 function updateCursor() {
+  if (
+    cursor.value.selectedTool.label == "Brush" ||
+    cursor.value.selectedTool.label == "Eraser"
+  ) {
+    cursor.value.position.x = Math.floor(
+      (pos.value.x - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
+    );
+    cursor.value.position.y = Math.floor(
+      (pos.value.y - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
+    );
+  } else {
+    cursor.value.position.x = Math.floor(pos.value.x / PIXEL_SIZE);
+    cursor.value.position.y = Math.floor(pos.value.y / PIXEL_SIZE);
+  }
+
   // Remove the old cursor
   viewport.children.forEach((child) => {
     if (child.alpha == 0.99) {

@@ -242,11 +242,11 @@ function ResetArt() {
 }
 
 document.addEventListener("keydown", function (event) { 
-if (event.key === "p") {event.preventDefault();cursor.value.selectedTool.label = "Pan";} 
-else if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";} 
-else if (event.key === "e") {event.preventDefault();cursor.value.selectedTool.label = "Eraser";} 
-else if (event.key === "d") {event.preventDefault();cursor.value.selectedTool.label = "Pipette";} 
-else if (event.key === "f") {event.preventDefault();cursor.value.selectedTool.label = "Paint-Bucket";} 
+if (event.key === "p") {event.preventDefault();cursor.value.selectedTool.label = "Pan";canvas?.value.updateCursor()} 
+else if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";canvas?.value.updateCursor()} 
+else if (event.key === "e") {event.preventDefault();cursor.value.selectedTool.label = "Eraser";canvas?.value.updateCursor()} 
+else if (event.key === "d") {event.preventDefault();cursor.value.selectedTool.label = "Pipette";canvas?.value.updateCursor()} 
+else if (event.key === "f") {event.preventDefault();cursor.value.selectedTool.label = "Paint-Bucket";canvas?.value.updateCursor()} 
 else if (event.key === "1") {event.preventDefault();cursor.value.color = "#000000";} 
 else if (event.key === "2") {event.preventDefault();cursor.value.color = "#ED1C24";} 
 else if (event.key === "3") {event.preventDefault();cursor.value.color = "#FF7F27";} 
@@ -259,8 +259,8 @@ else if (event.key === "9") {event.preventDefault();cursor.value.color = "#3F48C
 else if (event.key === "0") {event.preventDefault();cursor.value.color = "#FFFFFF";} 
 else if (event.key === "-") {event.preventDefault();cursor.value.color = "#A349A4";} 
 else if (event.key === "=") {event.preventDefault();cursor.value.color = "#FFAEC9";} 
-else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1 ;} 
-else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1 ;} 
+else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1;canvas?.value.updateCursor()} 
+else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1;canvas?.value.updateCursor()} 
 
 }); 
 
