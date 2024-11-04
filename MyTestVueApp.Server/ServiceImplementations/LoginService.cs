@@ -17,6 +17,34 @@ namespace MyTestVueApp.Server.ServiceImplementations
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILogger<LoginService> Logger { get; }
 
+        private string[] adjectives = new string[]
+        {
+            "Happy", "Sad", "Bright", "Dark", "Quick",
+            "Slow", "Loud", "Soft", "Smooth", "Rough",
+            "Imploding", "Cold", "New", "Old", "Rich",
+            "Poor", "Clean", "Dirty", "Easy", "Hard",
+            "Funny", "Serious", "Friendly", "Angry", "Calm",
+            "Bitter", "Sweet", "Sour", "Spicy", "Salty",
+            "Beautiful", "Ugly", "Strong", "Weak", "Heavy",
+            "Light", "Tall", "Short", "Wide", "Narrow",
+            "Colorful", "Dull", "Busy", "Quiet", "Famous",
+            "Unknown", "Happy", "Lazy", "Active", "Thoughtful"
+        };
+
+        private string[] nouns = new string[]
+        {
+            "Apple", "Ball", "Cat", "Dog", "Elephant",
+            "Flower", "Guitar", "House", "Ice", "Jacket",
+            "Kite", "Lion", "Mountain", "Notebook", "Orange",
+            "Pencil", "Quilt", "Rocket", "Sun", "Tree",
+            "Umbrella", "Violin", "Window", "Xylophone", "Yacht",
+            "Zebra", "Book", "Car", "Desk", "Egg",
+            "Fish", "Glove", "Hat", "Island", "Jam",
+            "Key", "Lamp", "Mug", "Nut", "Oven",
+            "Pizza", "Quokka", "Ring", "Shoes", "Turtle",
+            "Vase", "Whistle", "Dancer", "Yarn", "Zipper"
+        };
+
         public LoginService(IOptions<ApplicationConfiguration> appConfig, ILogger<LoginService> logger)
         {
             AppConfig = appConfig;
@@ -110,6 +138,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
+        }
+
+        public string getAdjective(int index)
+        {
+            return adjectives[index];
+        }
+
+        public string getNoun(int index)
+        {
+            return nouns[index];
+        }
+
+        public async Task<string> generateUsername()
+        {
+            Random rnd = new Random();
+
+            var username = getAdjective(rnd.Next(50)) + getNoun(rnd.Next(50)) + rnd.Next(1000);
+
+            return username;
         }
     }
 }

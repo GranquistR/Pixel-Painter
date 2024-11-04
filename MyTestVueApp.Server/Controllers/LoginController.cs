@@ -8,6 +8,7 @@ using Microsoft.Identity.Client;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -51,6 +52,10 @@ namespace MyTestVueApp.Server.Controllers
                 SameSite = SameSiteMode.Strict
             });
 
+            Logger.LogInformation("Storing user sub...");
+            await StoreUserSub(subId);
+            Logger.LogInformation("Done awaiting StoreUserSub");
+
             return Redirect(AppConfig.Value.HomeUrl);
         }
 
@@ -78,10 +83,11 @@ namespace MyTestVueApp.Server.Controllers
         [Route("StoreUserSub")]
         public async Task<IActionResult> StoreUserSub()
         {
+            Logger.LogInformation("In StoreUserSub");
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
+                Logger.LogInformation("SubId gotten");
                 var rowsChanged = await LoginService.SendIdToDatabase(userId);
-
 
                 if (rowsChanged > 0)
                 {
@@ -96,6 +102,30 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Ok(false);
             }
+        }
+
+        public async Task<IActionResult> StoreUserSub(string userId)
+        {
+            Logger.LogInformation("In Overloaded StoreUserSub");
+
+            var rowsChanged = await LoginService.SendIdToDatabase(userId);
+
+            if (rowsChanged > 0)
+            {
+                return Ok();
+            }
+            else
+            {
+                return Ok(false);
+            }
+        }
+
+        [HttpGet]
+        [Route("UsernameGenerator")]
+        public async Task<IActionResult> UsernameGenerator()
+        {
+            var username = await LoginService.generateUsername();
+            return Ok(new { username });
         }
     }
 }

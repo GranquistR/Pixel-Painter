@@ -31,7 +31,29 @@ export default class LoginService {
                 throw new Error("Network response was not ok");
             }
         } catch (error) {
-            console.error("Error storing user sub");
+            console.error(error);
+        }
+    }
+
+    public static async generateUsername(): Promise<string> {
+        try {
+            const response = await fetch("login/UsernameGenerator");
+            
+            if (!response.ok) {
+                console.log("Response was not ok");
+                throw new Error("Error: Bad response");
+            }
+
+            const data = await response.json();
+            const username: string = data.username;
+           
+            console.log("Username: ", username);
+
+            return username;
+        }
+        catch (error) {
+            console.error(error);
+            return "Failed to generate username";
         }
     }
 }

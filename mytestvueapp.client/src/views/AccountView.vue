@@ -2,20 +2,31 @@
   <Card>
     <template #title>Account</template>
     <template #content>
-      <Button label="logout" icon="pi pi-sign-out" @click="logout()" />
+        <IftaLabel>
+            <InputText id="username" v-model="value" variant="filled" :disabled="isDisabled" placeholder="Username" />
+            <label for="username">Username</label>
+            <Button label="Edit" @click="toggleInput()" />
+            <Button label="Gen User" @click="getNewUsername()" />
+        </IftaLabel>
+        <div> <Button label="logout" icon="pi pi-sign-out" @click="logout()" /></div>
     </template>
   </Card>
 </template>
-
+    
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import LoginService from "@/services/LoginService";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import Card from "primevue/card";
-import Button from "primevue/button";
+    import Button from "primevue/button";
+    import InputText from 'primevue/inputtext';
+    import IftaLabel from 'primevue/iftalabel';
 
-const toast = useToast();
+    const toast = useToast();
+    var isDisabled = ref(true);
+
+
 
 onMounted(() => {
   LoginService.isLoggedIn().then((isLoggedIn) => {
@@ -41,5 +52,14 @@ function logout() {
       life: 3000,
     });
   });
-}
-</script>
+    }
+
+    function toggleInput() {
+        isDisabled.value = !isDisabled.value;
+    }
+
+    function getNewUsername() {
+        // console.log(LoginService.generateUsername());
+        return LoginService.generateUsername();
+    }
+</script>   

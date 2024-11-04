@@ -1,8 +1,8 @@
 <template>
   <Button
-    :label="isLoggedIn ? 'Account' : 'Login'"
-    @click="buttonClick()"
-    icon="pi pi-google"
+	:label="isLoggedIn ? 'Account' : 'Login'"
+	@click="buttonClick()"
+	icon="pi pi-google"
   ></Button>
 </template>
 <script setup lang="ts">
@@ -15,23 +15,24 @@ const isLoggedIn = ref(false);
 
 onMounted(() => {
   LoginService.isLoggedIn().then((result) => {
-    isLoggedIn.value = result;
-    if (isLoggedIn.value) {
-      LoginService.storeUserSub();
-    }
+	  isLoggedIn.value = result;
+
+      /*if (isLoggedIn.value ) {
+          LoginService.storeUserSub();
+      }*/
   });
 });
 
 function buttonClick() {
   if (isLoggedIn.value) {
-    router.push("/account");
+	router.push("/account");
   } else {
-    Login();
+	Login();
   }
 }
 
 function Login() {
-  var url = new URL(window.location.href);
-  window.location.replace(`login/Login?returnUrl=${url.origin}/LoginRedirect`);
+	var url = new URL(window.location.href);
+	window.location.replace(`login/Login?returnUrl=${url.origin}/LoginRedirect`);
 }
 </script>
