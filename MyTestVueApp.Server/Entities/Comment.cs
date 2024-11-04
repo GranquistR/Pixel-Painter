@@ -4,7 +4,7 @@ namespace MyTestVueApp.Server.Entities
     { // Art Table
         public int CommentId { get; set; }
 
-        public int ArtistId { get; set; }
+        public string? ArtistId { get; set; }
 
         public string? ArtistName { get; set; }
 

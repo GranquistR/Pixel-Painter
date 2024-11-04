@@ -61,10 +61,10 @@ function copyEncodedText() {
 }
 
 function decodeToCanvas() {
-  if (pixelGrid.value ) {
-    let backgroundColor = localStorage.getItem('backgroundColor');
-    if (backgroundColor===null){
-      backgroundColor = 'FFFFFF';
+  if (pixelGrid.value) {
+    let backgroundColor = localStorage.getItem("backgroundColor");
+    if (backgroundColor === null) {
+      backgroundColor = "FFFFFF";
     }
     pixelGrid.value.updateGrid(
       codec.Decode(

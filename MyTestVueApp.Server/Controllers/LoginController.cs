@@ -20,7 +20,6 @@ namespace MyTestVueApp.Server.Controllers
         private ILogger<ArtAccessController> Logger { get; }
         private ILoginService LoginService { get; }
 
-
         public LoginController(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessController> logger, ILoginService loginService)
         {
             AppConfig = appConfig;

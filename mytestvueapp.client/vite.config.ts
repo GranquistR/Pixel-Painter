@@ -53,10 +53,6 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "^/weatherforecast": {
-        target,
-        secure: false,
-      },
       "^/artaccess": {
         target,
         secure: false,
@@ -65,6 +61,10 @@ export default defineConfig({
         target,
         secure: false,
       },
+      "^/like": {
+        target,
+        secure: false,
+      }
     },
     port: 5173,
     https: {

@@ -8,9 +8,10 @@
     <!-- Container -->
     <Card
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
+      @click="router.push(`/art/${art.artId}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="(32 / art.artLength) * 6.5" />
+        <MyCanvas :art="art" :pixelSize="(32 / art.height) * 6.5" />
         <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>
@@ -26,9 +27,9 @@
           <Button
             :severity="liked ? 'danger' : ''"
             class="w-full flex-grow p-1"
-            icon="pi pi-heart"
+            :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
             :label="likes"
-            @click="likedClicked()"
+            @click.stop="likedClicked()"
           />
           <Button
             class="w-full flex-grow p-2"
@@ -47,6 +48,7 @@ import Button from "primevue/button";
 import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
+import router from "@/router";
 
 const props = defineProps<{
   art: Art;
@@ -58,13 +60,9 @@ const liked = ref(false);
 const hover = ref(false);
 
 const likes = ref(0);
-const comments = ref(0);
 
 if (props.art.numLikes) {
   likes.value = props.art.numLikes;
-}
-if (props.art.numComments) {
-  comments.value = props.art.numComments;
 }
 
 const likedClicked = () => {

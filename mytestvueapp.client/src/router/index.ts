@@ -24,9 +24,9 @@ const router = createRouter({
       component: () => import("../views/GalleryView.vue"),
     },
     {
-      path: "/viewImage",
+      path: "/art/:id",
       name: "Image",
-      component: () => import("../views/ImageViewer.vue"),
+      component: () => import("../views/ImageViewerView.vue"),
     },
     {
       path: "/account",

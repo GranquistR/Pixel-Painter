@@ -28,7 +28,7 @@ onMounted(() => {
     if (contextInit) {
       context.value = contextInit;
       canvas.value.width = props?.art?.width * props.pixelSize;
-      canvas.value.height = props.art.artLength * props.pixelSize;
+      canvas.value.height = props.art.height * props.pixelSize;
     }
   }
 
@@ -46,7 +46,7 @@ function render() {
     ) {
       for (
         let row = 0;
-        row < props.art.artLength * props.pixelSize;
+        row < props.art.height * props.pixelSize;
         row += props.pixelSize
       ) {
         //console.log(b);
