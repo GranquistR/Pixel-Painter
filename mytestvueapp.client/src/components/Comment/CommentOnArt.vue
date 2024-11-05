@@ -12,13 +12,24 @@
     <div class="inline-block w-2 h-auto px-3" id="Timestamp ">
       {{ props.comment.commentTime }}
     </div>
+    <button v-if="artistIDisCookieUser == true">edit comment</button>
   </div>
 </template>
 
 <script setup lang="ts">
+import CommentAccessService from "../../services/CommentAccessService";
 import type Art from "@/entities/Art";
 import type Comment from "@/entities/Comment";
 import { onMounted, ref } from "vue";
+const artistIDisCookieUser = ref(false);
+onMounted(() => {
+  if (props.comment.artistId != null) {
+    CommentAccessService.isCookieCommentUser(100).then((data) => {
+      artistIDisCookieUser.value = data;
+      return artistIDisCookieUser;
+    });
+  }
+});
 
 const props = defineProps<{
   comment: Comment;

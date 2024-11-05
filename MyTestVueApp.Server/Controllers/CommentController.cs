@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
@@ -39,12 +40,12 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("CheckCookietoUser")]
-        public async Task<IActionResult> CheckCookietoUser(int commentId)
+        public IActionResult CheckCookietoUser(int commentUserId)
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 // You can add additional checks here if needed
-                return Ok(userId == commentId.ToString());
+                return Ok(userId == commentUserId.ToString());
             }
             return Ok(false);
         }
