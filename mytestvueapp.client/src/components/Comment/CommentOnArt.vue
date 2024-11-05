@@ -7,12 +7,7 @@
     >
       {{ props.comment.artistName }}
     </div>
-    <div class="w-2 h-auto text-align-left py-2" id="Timestamp ">
-      {{ props.comment.commentTime }}
-    </div>
-    
-  </div>
-   <div class="inline-block text-left w-8 h-auto px-8 white-space-pre mt-1" id="Comment">
+    <div class="inline-block text-left w-8 h-auto white-space-normal" id="Comment">
       {{ props.comment.commentContent }}
     </div> -->
     <div class="m-2 px-6">
