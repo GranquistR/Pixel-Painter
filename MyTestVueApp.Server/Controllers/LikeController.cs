@@ -43,7 +43,7 @@ namespace MyTestVueApp.Server.Controllers
             }
             else
             {
-                return BadRequest("User is not logged in");
+                return BadRequest("User is not logged in!");
             }
         
         }
@@ -72,6 +72,29 @@ namespace MyTestVueApp.Server.Controllers
                 return BadRequest("User is not logged in!");
             }
         
+        }
+
+        [HttpGet]
+        [Route("IsLiked")]
+        public async Task<IActionResult> StoreUserSub(int artId)
+        {
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var liked = await LikeService.IsLiked(artId, userId);
+
+                if (liked)
+                {
+                    return Ok(true);
+                }
+                else
+                {
+                    return Ok(false);
+                }
+            }
+            else
+            {
+                return BadRequest("User is not logged in!");
+            }
         }
     }
 }
