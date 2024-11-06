@@ -22,16 +22,19 @@ import type Art from "@/entities/Art";
 import type Comment from "@/entities/Comment";
 import { onMounted, ref } from "vue";
 const artistIDisCookieUser = ref(false);
-onMounted(() => {
-  if (props.comment.artistId != null) {
-    CommentAccessService.isCookieCommentUser(100).then((data) => {
-      artistIDisCookieUser.value = data;
-      return artistIDisCookieUser;
-    });
-  }
-});
 
 const props = defineProps<{
   comment: Comment;
 }>();
+onMounted(() => {
+  console.log(props.comment.artistId);
+  if (props.comment.artistId != null) {
+    //   CommentAccessService.isCookieCommentUser(props.comment.artistId).then(
+    //     (data) => {
+    //       artistIDisCookieUser.value = data;
+    //       return artistIDisCookieUser;
+    //     },
+    //   );
+  }
+});
 </script>

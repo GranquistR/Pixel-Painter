@@ -40,12 +40,12 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("CheckCookietoUser")]
-        public IActionResult CheckCookietoUser(int commentUserId)
+        public IActionResult CheckCookietoUser(string commentUserId)
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 // You can add additional checks here if needed
-                return Ok(userId == commentUserId.ToString());
+                return Ok(userId == commentUserId);
             }
             return Ok(false);
         }
