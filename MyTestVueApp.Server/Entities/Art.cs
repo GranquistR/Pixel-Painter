@@ -4,12 +4,11 @@ namespace MyTestVueApp.Server.Entities
     {
         //Required
         public int id { get; set; }
-        public string artistId { get; set; }
+        public int artistId { get; set; }
         public string title { get; set; }
         public bool isPublic { get; set; }
         public DateTime creationDate { get; set; }
-
-        public string? ArtName { get; set; }
+        public PixelGrid pixelGrid { get; set; }
 
         //Optional external values
         public string artistName { get; set; }

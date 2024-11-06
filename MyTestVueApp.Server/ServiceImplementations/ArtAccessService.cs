@@ -26,11 +26,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
-                    "FROM ART " +
-                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
-                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic";
+                    @"
+                    Select 
+	                    Art.Id, 
+	                    Art.Title, 
+	                    Art.ArtistId, 
+	                    Artist.Name, 
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate, 
+	                    Art.isPublic, 
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+	                    LEFT JOIN Artist ON Art.ArtistId = Artist.CreationDate
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -48,7 +62,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             { //Art Table + NumLikes and NumComments
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
-                                artistId = reader.GetString(2),
+                                artistId = reader.GetInt32(2),
                                 artistName = reader[3] as string ?? string.Empty,
                                 creationDate = reader.GetDateTime(7),
                                 isPublic = reader.GetBoolean(8),
@@ -73,12 +87,30 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
-                    "FROM ART " +
-                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
-                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "WHERE Art.ID=" + id + " " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic ";
+                    $@"
+                    Select	
+	                    Art.ID,
+	                    Art.Title, 
+	                    Art.Artistid, 
+	                    Artist.Name,
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate,
+	                    Art.isPublic,
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                    WHERE Art.ID =  {id} 
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
+
+                //SQL INJECTION WHOOPS^
+                //Good thing we have type checking :p
+
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -96,7 +128,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
-                                artistId = reader.GetString(2),
+                                artistId = reader.GetInt32(2),
                                 artistName = reader[3] as string ?? string.Empty,
                                 pixelGrid = pixelGrid,
                                 creationDate = reader.GetDateTime(7),
@@ -112,7 +144,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public Art SaveArt(Art art)
         {
 
-            
+
 
 
 
@@ -131,9 +163,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "SELECT ID, ArtistID, ArtistName, ArtID, Comment, CommentTime FROM Comment " +
-                    "WHERE ArtID=" + id + "AND Response IS NULL " +
-                    "Order By CommentTime";
+                    $@"
+                     SELECT 
+	                    Comment.Id, 
+	                    Comment.ArtistID, 
+	                    Artist.[Name], 
+	                    Comment.ArtID, 
+	                    Comment.[Message], 
+	                    Comment.CreationDate 
+                     FROM Comment  
+                     LEFT JOIN Artist ON Comment.ArtistId = Artist.Id
+                     WHERE ArtID = {id} AND Comment.ReplyId IS NULL  
+                     Order By Comment.CreationDate;
+                    ";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -142,9 +184,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         while (reader.Read())
                         {
                             var comment = new Comment
-                            { //Art Table + NumLikes and NumComments
+                            { 
                                 CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetString(1),
+                                ArtistId = reader.GetInt32(1),
                                 ArtistName = reader.GetString(2),
                                 ArtId = reader.GetInt32(3),
                                 CommentContent = reader.GetString(4),

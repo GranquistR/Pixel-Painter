@@ -38,8 +38,8 @@ namespace MyTestVueApp.Server.Controllers
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                art.artistId = userId;
-                art.creationDate = DateTime.UtcNow;
+                //art.artistId = userId;
+                //art.creationDate = DateTime.UtcNow;
 
 
 
