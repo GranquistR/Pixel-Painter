@@ -5,8 +5,9 @@
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
     @mousedown="mouseButtonHeldDown = true"
-    @mouseup="mouseButtonHeldDown = false"
+    @mouseup="mouseButtonHeldDown = false; onMouseUp()"
     @contextmenu.prevent
+    
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
@@ -58,6 +59,7 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
+import LinkedList from "@/utils/undo"
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new") {
@@ -240,6 +242,17 @@ function ResetArt() {
   localStorage.removeItem("working-art");
   router.push("/new");
 }
+
+var undoList = new LinkedList;
+
+undoList.append(pixelGrid);
+
+function onMouseUp() {
+      console.log('Mouse button released!');
+      // Handle the mouseup event here
+    
+    }
+
 
 const canvas = ref();
 </script>
