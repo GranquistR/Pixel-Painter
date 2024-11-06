@@ -1,4 +1,5 @@
 <template>
+  
   <DrawingCanvas
     ref="canvas"
     :pixelGrid="pixelGrid"
@@ -248,8 +249,7 @@ var undoList = new LinkedList;
 undoList.append(pixelGrid);
 
 function onMouseUp() {
-      console.log('Mouse button released!');
-      // Handle the mouseup event here
+      undoList.isDifferent(pixelGrid);
     
     }
 
