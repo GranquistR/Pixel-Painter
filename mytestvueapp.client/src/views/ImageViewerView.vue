@@ -3,7 +3,7 @@
     <div class="border-2">
       <my-canvas
         v-if="allArt"
-        :key="allArt.artId"
+        :key="allArt.id"
         :art="allArt"
         :pixelSize="10"
       ></my-canvas>

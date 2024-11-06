@@ -8,15 +8,15 @@
     <!-- Container -->
     <Card
       class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
-      @click="router.push(`/art/${art.artId}`)"
+      @click="router.push(`/art/${art.id}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="(32 / art.artLength) * 6.5" />
+        <MyCanvas :art="art" :pixelSize="(32 / art.pixelGrid?.height) * 6.5" />
         <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
       </template>
       <template #title>
         <div class="text-base font-bold m-0 px-2 pt-1">
-          {{ art.artName }}
+          {{ art.title }}
         </div>
       </template>
       <template #subtitle>
@@ -54,8 +54,6 @@ const props = defineProps<{
   art: Art;
 }>();
 
-console.log(props.art);
-
 const liked = ref(false);
 const hover = ref(false);
 
@@ -79,8 +77,6 @@ const likedClicked = () => {
       likes.value = props.art.numLikes;
     }
   }
-
-  console.log(liked.value);
 };
 </script>
 

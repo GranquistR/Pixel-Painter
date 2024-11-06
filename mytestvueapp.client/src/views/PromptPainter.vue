@@ -2,7 +2,7 @@
   <div
     class="absolute bottom-50 bg-primary flex align-items-center justify-content-center w-full h-10rem"
   >
-    <Card
+    <!-- <Card
       class="flex ml-auto mr-3 h-12rem align-items-center justify-content-start"
     >
       <template #title>Enter Title And Description Of Art</template>
@@ -21,7 +21,7 @@
           v-model="description"
         />
       </template>
-    </Card>
+    </Card> -->
 
     <Card
       class="flex mr-auto ml-3 w-auto h-12rem align-items-center justify-content-start"
@@ -74,16 +74,11 @@ import Button from "primevue/button";
 import ColorPicker from "primevue/colorpicker";
 import Card from "primevue/card";
 import InputNumber from "primevue/inputnumber";
-import Textarea from "primevue/textarea";
-import InputText from "primevue/inputtext";
-import Art from "@/entities/Art";
 import { onMounted, ref } from "vue";
 import router from "@/router";
 import { PixelGrid } from "@/entities/PixelGrid";
 
 const resolution = ref<number>(32);
-const title = ref<string>("");
-const description = ref<string>("");
 const backgroundColor = ref<string>("#ffffff");
 
 function updateLocalStorage() {

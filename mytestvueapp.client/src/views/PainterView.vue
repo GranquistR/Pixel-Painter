@@ -18,7 +18,7 @@
         @click="ResetArt()"
       >
       </Button>
-      <Button icon="pi pi-upload" label="Publish"> </Button>
+      <UploadButton :pixelGrid="pixelGrid" />
     </template>
 
     <template #center>
@@ -49,7 +49,7 @@ import Toolbar from "primevue/toolbar";
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
 import SaveAndLoad from "@/components/PainterUi/SaveAndLoad.vue";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
@@ -58,12 +58,17 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
+import UploadButton from "@/components/PainterUi/UploadButton.vue";
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new") {
-    localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
+    LocalSave();
   }
   next();
+});
+
+window.addEventListener("beforeunload", (e) => {
+  LocalSave();
 });
 
 const cursor = ref<Cursor>(
@@ -84,7 +89,7 @@ const pixelGrid = ref<PixelGrid>(
 );
 
 if (workingGrid) {
-  pixelGrid.value.updateGrid(workingGrid);
+  pixelGrid.value.DeepCopy(workingGrid);
 }
 
 const cursorPositionComputed = computed(
@@ -239,6 +244,10 @@ function fill(x: number, y: number) {
 function ResetArt() {
   localStorage.removeItem("working-art");
   router.push("/new");
+}
+
+function LocalSave() {
+  localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
 }
 
 const canvas = ref();

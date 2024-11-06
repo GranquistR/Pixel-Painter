@@ -38,19 +38,23 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
+                            };
                             var painting = new Art
                             { //Art Table + NumLikes and NumComments
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8),
-                                NumLikes = reader.GetInt32(9),
-                                NumComments = reader.GetInt32(10)
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                artistId = reader.GetString(2),
+                                artistName = reader[3] as string ?? string.Empty,
+                                creationDate = reader.GetDateTime(7),
+                                isPublic = reader.GetBoolean(8),
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10),
+                                pixelGrid = pixelGrid,
                             };
                             paintings.Add(painting);
                         }
@@ -68,7 +72,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = 
+                var query =
                     "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
@@ -82,24 +86,39 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         while (reader.Read())
                         {
 
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
+                            };
                             painting = new Art
                             { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetInt32(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                ArtLength = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8)
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                artistId = reader.GetString(2),
+                                artistName = reader[3] as string ?? string.Empty,
+                                pixelGrid = pixelGrid,
+                                creationDate = reader.GetDateTime(7),
                             };
-                            
+
                         }
                     }
                 }
             }
             return painting;
+        }
+
+        public Art SaveArt(Art art)
+        {
+
+            
+
+
+
+
+
+            return art;
         }
 
         public IEnumerable<Comment> GetCommentsById(int id)
@@ -111,9 +130,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = 
+                var query =
                     "SELECT ID, ArtistID, ArtistName, ArtID, Comment, CommentTime FROM Comment " +
-                    "WHERE ArtID=" + id + "AND Response IS NULL " + 
+                    "WHERE ArtID=" + id + "AND Response IS NULL " +
                     "Order By CommentTime";
 
                 using (var command = new SqlCommand(query, connection))

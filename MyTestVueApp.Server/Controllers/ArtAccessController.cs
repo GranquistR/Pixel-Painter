@@ -32,6 +32,25 @@ namespace MyTestVueApp.Server.Controllers
             return ArtAccessService.GetArtById(id);
         }
 
+        [HttpPost]
+        [Route("SaveArt")]
+        public IActionResult SaveArt( Art art)
+        {
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                art.artistId = userId;
+                art.creationDate = DateTime.UtcNow;
+
+
+
+                return Ok(art);
+            }
+            else
+            {
+                return BadRequest("User not logged in");
+            }
+        }
+
         [HttpGet]
         [Route("GetCommentsById")]
         public IEnumerable<Comment> GetCommentsById(int id)

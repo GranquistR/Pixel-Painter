@@ -66,7 +66,7 @@ function decodeToCanvas() {
     if (backgroundColor === null) {
       backgroundColor = "FFFFFF";
     }
-    pixelGrid.value.updateGrid(
+    pixelGrid.value.DeepCopy(
       codec.Decode(
         stringEncodedText.value,
         pixelGrid.value.width,
