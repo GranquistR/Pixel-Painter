@@ -9,7 +9,7 @@ namespace MyTestVueApp.Server.Entities
         public bool isPublic { get; set; }
         public DateTime creationDate { get; set; }
 
-        public PixelGrid pixelGrid { get; set; }
+        public string? ArtName { get; set; }
 
         //Optional external values
         public string artistName { get; set; }

@@ -27,9 +27,9 @@
           <Button
             :severity="liked ? 'danger' : ''"
             class="w-full flex-grow p-1"
-            icon="pi pi-heart"
+            :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
             :label="likes"
-            @click="likedClicked()"
+            @click.stop="likedClicked()"
           />
           <Button
             class="w-full flex-grow p-2"
@@ -58,13 +58,9 @@ const liked = ref(false);
 const hover = ref(false);
 
 const likes = ref(0);
-const comments = ref(0);
 
 if (props.art.numLikes) {
   likes.value = props.art.numLikes;
-}
-if (props.art.numComments) {
-  comments.value = props.art.numComments;
 }
 
 const likedClicked = () => {

@@ -26,11 +26,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic,COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
+                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
                     "FROM ART " +
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic";
+                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -78,7 +78,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
                     "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
                     "WHERE Art.ID=" + id + " " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.Artistid, Art.ArtistName, Art.Width, Art.ArtLength, Art.Encode, Art.CreationDate, Art.isPublic ";
+                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic ";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -144,7 +144,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             var comment = new Comment
                             { //Art Table + NumLikes and NumComments
                                 CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetInt32(1),
+                                ArtistId = reader.GetString(1),
                                 ArtistName = reader.GetString(2),
                                 ArtId = reader.GetInt32(3),
                                 CommentContent = reader.GetString(4),
