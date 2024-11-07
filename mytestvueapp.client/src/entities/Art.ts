@@ -3,7 +3,7 @@ import { PixelGrid } from "./PixelGrid";
 export default class Art {
   artId: number;
   artName: string;
-  artistId: number;
+  artistId: string;
   artistName: string;
   width: number;
   height: number;
@@ -17,7 +17,7 @@ export default class Art {
   constructor() {
     this.artId = 0;
     this.artName = "";
-    this.artistId = 0;
+    this.artistId = "";
     this.artistName = "";
     this.width = 0;
     this.height = 0;

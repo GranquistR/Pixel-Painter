@@ -1,6 +1,6 @@
 export default class Comment {
     commentId?: number
-    artistId?: number
+    artistId?: string
     artistName?: string
     artId?: number
     commentContent?: string
@@ -9,7 +9,7 @@ export default class Comment {
 
     constructor(
         commentId?: number,
-        artistId?: number,
+        artistId?: string,
         artistName?: string,
         artId?: number,
         commentContent?: string,

@@ -49,5 +49,30 @@ namespace MyTestVueApp.Server.Controllers
             }
             return Ok(false);
         }
+        [HttpGet]
+        [Route("EditComment")]
+        public async Task<IActionResult> EditComment(int commentId, String newMessage)
+        {
+
+            // If the user is logged in
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                // You can add additional checks here if needed
+                var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
+                if (rowsChanged > 0) // If the like has sucessfully been inserted
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                }
+            }
+            else
+            {
+                return BadRequest("User is not logged in");
+            }
+
+        }
     }
 }
