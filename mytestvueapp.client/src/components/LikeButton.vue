@@ -2,6 +2,8 @@
     import Button from "primevue/button";
     import LoginService from "@/services/LoginService";
     import LikeService from "@/services/LikeService";
+    import router from "@/services/LoginService";
+    import { useToast } from "primevue/usetoast";
 
     import { ref, onMounted } from "vue";
     
@@ -11,9 +13,10 @@
     }>();
 
     const localLike = ref(0);
-
     const liked = ref(false);
     const loggedIn = ref(false);
+
+    const toast = useToast();
 
   onMounted(() => {
     LikeService.isLiked(props.artId)
@@ -30,6 +33,12 @@
       if (!loggedIn.value) {
         // Route to login page
         console.log("User is not loggged in!");
+        toast.add({
+          severity: "error",
+          summary: "Warning",
+          detail: "User must be logged in to like art!",
+          life: 3000,
+        });
         return;
       }
       if (liked.value) {
@@ -61,7 +70,6 @@
         });
       }
       // Calculate new number of likes
-
     }
 </script>
 
