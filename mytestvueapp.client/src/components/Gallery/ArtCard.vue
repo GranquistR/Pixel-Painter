@@ -24,13 +24,7 @@
       </template>
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
-          <Button
-            :severity="liked ? 'danger' : ''"
-            class="w-full flex-grow p-1"
-            :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
-            :label="likes"
-            @click.stop="likedClicked()"
-          />
+          <LikeButton :artId="props.art.artId" :likes="props.art.numLikes" />
           <Button
             class="w-full flex-grow p-2"
             icon="pi pi-comment"
@@ -45,6 +39,7 @@
 <script setup lang="ts">
 import Card from "primevue/card";
 import Button from "primevue/button";
+import LikeButton from "../LikeButton.vue";
 import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
@@ -65,19 +60,6 @@ if (props.art.numLikes) {
   likes.value = props.art.numLikes;
 }
 
-const likedClicked = () => {
-  liked.value = !liked.value;
-
-  if (props.art.numLikes) {
-    if (liked.value) {
-      likes.value = props.art.numLikes + 1;
-    } else {
-      likes.value = props.art.numLikes;
-    }
-  }
-
-  console.log(liked.value);
-};
 </script>
 
 <style scoped>
