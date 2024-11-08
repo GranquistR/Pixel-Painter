@@ -10,10 +10,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
     {
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILogger<ArtAccessService> Logger { get; }
-        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger)
+        private ILoginService LoginService { get; }
+        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger, ILoginService loginService)
         {
             AppConfig = appConfig;
             Logger = logger;
+            LoginService = loginService;
         }
 
         public IEnumerable<Art> GetAllArt()
@@ -141,16 +143,48 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return painting;
         }
 
-        public Art SaveArt(Art art)
+        public async Task<Art> SaveArt(string userSubId, Art art)
         {
+            try
+            {
 
+                var artist = await LoginService.GetUserBySubId(userSubId);
 
+                art.artistId = artist.Id;
+                art.creationDate = DateTime.UtcNow;
 
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                {
+                    connection.Open();
 
+                    var query = @"
+                    INSERT INTO Art (Title, ArtistId, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @ArtistId, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    SELECT SCOPE_IDENTITY();
+                ";
 
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Title", art.title);
+                        command.Parameters.AddWithValue("@ArtistId", art.artistId);
+                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
 
+                        var newArtId = await command.ExecuteScalarAsync();
+                        art.id = Convert.ToInt32(newArtId);
+                    }
+                }
 
-            return art;
+                return art;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveArt");
+                throw;
+            }
         }
 
         public IEnumerable<Comment> GetCommentsById(int id)
@@ -184,7 +218,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         while (reader.Read())
                         {
                             var comment = new Comment
-                            { 
+                            {
                                 CommentId = reader.GetInt32(0),
                                 ArtistId = reader.GetInt32(1),
                                 ArtistName = reader.GetString(2),

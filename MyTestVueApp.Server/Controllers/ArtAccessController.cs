@@ -34,20 +34,24 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPost]
         [Route("SaveArt")]
-        public IActionResult SaveArt( Art art)
+        public async Task<IActionResult> SaveArt(Art art)
         {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                //art.artistId = userId;
-                //art.creationDate = DateTime.UtcNow;
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var result = await ArtAccessService.SaveArt(userSubId, art);
 
-
-
-                return Ok(art);
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("User not logged in");
+                return Problem("Failed to save, Check Server logs");
             }
         }
 

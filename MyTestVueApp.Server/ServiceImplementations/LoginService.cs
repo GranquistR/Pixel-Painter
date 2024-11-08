@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
+using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using System;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -102,7 +104,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         Console.WriteLine("Id was added successfully");
                         return rowsChanged;
-                    } 
+                    }
                     else
                     {
                         Console.WriteLine("Failed to insert Id");
@@ -110,6 +112,49 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
+        }
+
+        public async Task<Artist> GetUserBySubId(string subId)
+        {
+            var artist = new Artist();
+
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = @"
+                    SELECT TOP (1) [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                      FROM [PixelPainter].[dbo].[Artist]
+                      WHERE SubId = @SubId
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@SubId", subId);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                            };
+                            return artist;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

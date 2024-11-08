@@ -52,22 +52,53 @@ import { ref } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
-
+import { useToast } from "primevue/usetoast";
+import router from "@/router";
+const toast = useToast();
 const visible = ref(false);
+const loading = ref(false);
 
 const art = ref<Art>(new Art());
+art.value.title = "Untitled Art";
 
 const props = defineProps<{
   pixelGrid: PixelGrid;
 }>();
 
 function Upload() {
+  loading.value = true;
+
   art.value.pixelGrid.DeepCopy(props.pixelGrid);
 
-  if (art.value.title == "") {
-    art.value.title = "Untitled Art";
-  }
-
-  ArtAccessService.UploadArt(art.value);
+  ArtAccessService.UploadArt(art.value)
+    .then((data: Art) => {
+      if (data.id != undefined) {
+        toast.add({
+          severity: "success",
+          summary: "Success",
+          detail: "Art uploaded successfully",
+        });
+        localStorage.removeItem("working-art");
+        router.push("/art/" + data.id);
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Failed to upload art",
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to upload art",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+      visible.value = false;
+    });
 }
 </script>

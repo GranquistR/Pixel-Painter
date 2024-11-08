@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyTestVueApp.Server.Entities;
 
 namespace MyTestVueApp.Server.Interfaces
 {
@@ -6,5 +7,6 @@ namespace MyTestVueApp.Server.Interfaces
     {
         public Task<string> GetUserId(string code);
         public Task<int> SendIdToDatabase(string subId);
+        public Task<Artist> GetUserBySubId(string SubId);
     }
 }
