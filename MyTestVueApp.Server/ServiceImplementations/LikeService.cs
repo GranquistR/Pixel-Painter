@@ -97,5 +97,30 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+
+        public async Task<bool> IsLiked(int artId, string userId) {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString)) 
+            {
+                connection.Open();
+
+                string likedQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @userId AND ArtID = @artId";
+                using (SqlCommand command = new SqlCommand(likedQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@userId", userId);
+                    command.Parameters.AddWithValue("@artId", artId);
+
+                    int count = (int) await command.ExecuteScalarAsync();
+
+                    if (count > 0) {
+                        Console.WriteLine("User has liked this artpiece!");
+                        return true;
+                    } else {
+                        Console.WriteLine("User has not liked this artpiece!");
+                        return false;
+                    }
+                }
+            }
+        }
     }
 }

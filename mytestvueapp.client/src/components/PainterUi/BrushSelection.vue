@@ -33,6 +33,7 @@ import Button from "primevue/button";
 import Tag from "primevue/tag";
 import FloatingCard from "./FloatingCard.vue";
 import PainterTool from "@/entities/PainterTool";
+import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue"
 
 const model = defineModel<PainterTool>({
   default: PainterTool.getDefaults()[0],
