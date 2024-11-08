@@ -97,6 +97,79 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+
+        public async Task<int> DeleteComment(int commentId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Check to make sure the there is a comment to delete
+                var checknullQuery = "SELECT Count(*) FROM comment WHERE ID = @CommentId";
+                using (SqlCommand checkDupCommand = new SqlCommand(checknullQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count == 0)
+                    {
+                        Console.WriteLine("No comment exists to delete!");
+                        return 0;
+                    }
+                    if (count > 1)
+                    {
+                        Console.WriteLine("more than one comment with same ID!");
+                        return 0;
+                    }
+                }
+                var checkResponseQuery = "SELECT Count(*) FROM comment WHERE Response = @CommentId";
+                using (SqlCommand checkResponseCommand = new SqlCommand(checknullQuery, connection))
+                {
+                    checkResponseCommand.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int count = (int)await checkResponseCommand.ExecuteScalarAsync();
+                    if (count > 0)
+                    {
+                        var subquery = "DELETE Comment WHERE Response = @commentId";
+                        using (SqlCommand DeleteResponse = new SqlCommand(subquery, connection))
+                        {
+                            DeleteResponse.Parameters.AddWithValue("@CommentId", commentId);
+
+                            int rowsChanged = DeleteResponse.ExecuteNonQuery();
+                            if (rowsChanged > 0)
+                            {
+                                Console.WriteLine("Response Comments Deleted");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed to delete response comments!");
+                                return -1;
+                            }
+                        }
+                    }
+                }
+                //update table here
+                var query = "Delete Comment WHERE ID = @CommentId";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        Console.WriteLine("Comment was Deleted sucessfully!");
+                        return rowsChanged;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to edit comment!");
+                        return -1;
+                    }
+                }
+            }
+        }
+
     }
 
 

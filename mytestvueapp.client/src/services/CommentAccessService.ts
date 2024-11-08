@@ -4,16 +4,13 @@ export default class CommentAccessService {
   public static async getCommentsById(artId: number): Promise<any> {
     try {
       const response = await fetch(`/comment/GetCommentsById?id=${artId}`);
-      console.log("GetComments-Response: ", response);
       const json = await response.json();
-      console.log("GetComments-JSONData: ", json);
 
       const allComments: Comment[] = [];
       for (const comment of json) {
         allComments.push(comment as Comment);
       }
 
-      console.log(allComments);
       return allComments;
     } catch (error) {
       console.error;
@@ -30,17 +27,27 @@ export default class CommentAccessService {
     } catch (error) {
       console.error;
     }
+  }
+  public static async EditComment(
+    commentId: number,
+    newMessage: string,
+  ): Promise<any> {
+    try {
+      const response = await fetch(
+        `/comment/EditComment?commentId=${commentId}&newMessage=${newMessage}`,
+      );
+    } catch (error) {
+      console.error;
     }
-    public static async EditComment(commentId: number,newMessage:string): Promise<any> {
-        try {
-            console.log("this is called");
-            const response = await fetch(
-                `/comment/EditComment?commentId=${commentId}&newMessage=${newMessage}`,
-            );
-            console.log(response)
-
-        } catch (error) {
-            console.error;
-        }
+  }
+  public static async DeleteComment(commentId: number): Promise<any> {
+    try {
+      console.log("called");
+      const response = await fetch(
+        `/comment/DeleteComment?commentId=${commentId}`,
+      );
+    } catch (error) {
+      console.error;
     }
+  }
 }

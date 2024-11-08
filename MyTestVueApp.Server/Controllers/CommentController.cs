@@ -59,13 +59,40 @@ namespace MyTestVueApp.Server.Controllers
             {
                 // You can add additional checks here if needed
                 var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
-                if (rowsChanged > 0) // If the like has sucessfully been inserted
+                if (rowsChanged > 0) // If the comment has been sucessfuly edited
                 {
                     return Ok();
                 }
                 else
                 {
                     return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                }
+            }
+            else
+            {
+                return BadRequest("User is not logged in");
+            }
+
+        }
+
+
+        [HttpGet]
+        [Route("DeleteComment")]
+        public async Task<IActionResult> DeleteComment(int commentId)
+        {
+
+            // If the user is logged in
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                // You can add additional checks here if needed
+                var rowsChanged = await CommentAccessService.DeleteComment(commentId);
+                if (rowsChanged > 0) // If the comment has been deleted
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Failed to delte Comment");
                 }
             }
             else
