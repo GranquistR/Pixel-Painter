@@ -42,7 +42,6 @@ export default class CommentAccessService {
   }
   public static async DeleteComment(commentId: number): Promise<any> {
     try {
-      console.log("called");
       const response = await fetch(
         `/comment/DeleteComment?commentId=${commentId}`,
       );
