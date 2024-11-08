@@ -32,4 +32,13 @@ export default class CommentAccessService {
             console.error;
         }
     }
+    public static async postComment(comment: string, ArtId: Number): Promise<any> {
+        try {
+            const response = await fetch(
+                `/comment/postComment?comment=${comment}&ArtId=${ArtId}`,
+            );
+        } catch (error) {
+            console.error;
+        }
+    }
 }

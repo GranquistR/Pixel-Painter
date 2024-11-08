@@ -13,8 +13,12 @@
   <div class="flex justify-content-center align-items-center"></div>
   <div class="border-solid border-1"></div>
   <h2 class="mb-2 ml-6">Add your own comment</h2>
-  <textarea class="ml-6" placeholder="Write your comment..."></textarea>
-  <div><button class="mt-2 ml-6">Post Comment</button></div>
+  <textarea
+    v-model:="commentBox" 
+    class="ml-6" 
+    placeholder="Write your comment...">
+</textarea>
+  <div><button class="mt-2 ml-6" @onclick=PostComment()>Post Comment</button></div>
   <CommentOnArt
     v-for="Comment in allComments"
     :key="Comment.commentId"
@@ -22,14 +26,16 @@
   ></CommentOnArt>
 </template>
 <script setup lang="ts">
+const commentBox = ref("")
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import CommentAccessService from "../services/CommentAccessService";
 import { useRoute } from "vue-router";
+import CommentAccessService from "../services/CommentAccessService";
+import LoginService from "@/services/LoginService";
 
 const route = useRoute();
 
@@ -46,4 +52,9 @@ onMounted(() => {
     allComments.value = promise;
   });
 });
+const PostComment = () => {
+  if (commentBox.value != null){
+    CommentAccessService.postComment(commentBox.value, Number(route.params.id));
+  }
+}
 </script>

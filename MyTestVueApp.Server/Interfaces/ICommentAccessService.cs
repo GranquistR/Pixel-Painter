@@ -13,6 +13,6 @@ namespace MyTestVueApp.Server.Interfaces
         /// </summary>
         /// <returns>A list of all paintings</returns>
         public IEnumerable<Comment> GetCommentsById(int id);
-
+        public Task<bool> createComment(string userID, string comment, int ArtId);
     }
 }

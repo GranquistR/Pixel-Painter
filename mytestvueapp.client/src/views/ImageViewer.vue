@@ -23,6 +23,7 @@ import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
+import CommentAccessService from "../services/CommentAccessService";
 import ArtAccessService from "../services/ArtAccessService";
 
 const allArt = ref<Art | null>(null);
