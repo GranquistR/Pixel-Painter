@@ -60,7 +60,11 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
+<<<<<<< HEAD
 import LinkedList from "@/utils/undo"
+=======
+import DefaultColor from "@/entities/DefaultColors";
+>>>>>>> master
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new") {
@@ -244,6 +248,7 @@ function ResetArt() {
   router.push("/new");
 }
 
+<<<<<<< HEAD
 var undoList = new LinkedList;
 
 undoList.append(pixelGrid);
@@ -252,6 +257,30 @@ function onMouseUp() {
       undoList.isDifferent(pixelGrid);
     
     }
+=======
+document.addEventListener("keydown", function (event) { 
+if (event.key === "p") {event.preventDefault();cursor.value.selectedTool.label = "Pan";canvas?.value.updateCursor()} 
+else if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";canvas?.value.updateCursor()} 
+else if (event.key === "e") {event.preventDefault();cursor.value.selectedTool.label = "Eraser";canvas?.value.updateCursor()} 
+else if (event.key === "d") {event.preventDefault();cursor.value.selectedTool.label = "Pipette";canvas?.value.updateCursor()} 
+else if (event.key === "f") {event.preventDefault();cursor.value.selectedTool.label = "Paint-Bucket";canvas?.value.updateCursor()} 
+else if (event.key === "1") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[0].hex;} 
+else if (event.key === "2") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[1].hex;} 
+else if (event.key === "3") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[2].hex;} 
+else if (event.key === "4") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[3].hex;} 
+else if (event.key === "5") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[4].hex;} 
+else if (event.key === "6") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[5].hex;} 
+else if (event.key === "7") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[6].hex;} 
+else if (event.key === "8") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[7].hex;} 
+else if (event.key === "9") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[8].hex;} 
+else if (event.key === "0") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[9].hex;} 
+else if (event.key === "-") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[10].hex;} 
+else if (event.key === "=") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[11].hex;} 
+else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1;canvas?.value.updateCursor()} 
+else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1;canvas?.value.updateCursor()} 
+
+}); 
+>>>>>>> master
 
 
 const canvas = ref();
