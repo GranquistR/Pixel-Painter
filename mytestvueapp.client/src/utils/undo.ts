@@ -1,35 +1,34 @@
-import type { PixelGrid } from "@/entities/PixelGrid";
 
 
 
 
-class LinkedNode<PixelGrid> {
-    private _elem: PixelGrid;
-    public next: LinkedNode<PixelGrid> | null;
+class LinkedNode<T> {
+    private _elem: T[][];
+    public next: LinkedNode<T> | null;
    
-    constructor(elem: PixelGrid)  {
+    constructor(elem: T[][])  {
         this._elem = elem;
         this.next = null;
         
     }
 
-    get elem(): PixelGrid {
+    get elem(): T[][] {
         return this._elem;
     }
 }
 
-export default class LinkedList<PixelGrid> {
-    private head: LinkedNode<PixelGrid> | null = null;
+export default class LinkedList<T> {
+    private head: LinkedNode<T> | null = null;
 
     private len = 0;
 
-    constructor(headElement?: LinkedNode<PixelGrid>) {
+    constructor(headElement?: LinkedNode<T>) {
         this.head = headElement || null;
     }
 
-    public append(elem: PixelGrid) {
+    public append(elem: T[][]) {
         const node = new LinkedNode(elem);
-        let current: LinkedNode<PixelGrid>;
+        let current: LinkedNode<T>;
 
         if (this.head === null) {
             this.head = node;
@@ -44,14 +43,29 @@ export default class LinkedList<PixelGrid> {
         console.log(this.len);
     }
 
-    public isDifferent(pixelGrid:PixelGrid){
-        if(pixelGrid === this.getLast()){
+    public isDifferent(pixelGrid:T[][]){
+        let isDifferent = false;
+        let latestGrid= this.getLast();
+        if(latestGrid===null){
+            latestGrid=pixelGrid;
+        }
+
+        for (let i = 0; i < pixelGrid.length; i++) {
+            for (let j = 0; j < pixelGrid.length; j++) {
+                
+              if(pixelGrid[i][j] !== latestGrid[i][j]){
+                isDifferent = true;
+              }
+            }
+          }
+          
+        if(isDifferent){
             this.append(pixelGrid);
         }
        
     }
 
-    getLast(): PixelGrid | null {
+    getLast(): T[][] | null {
         if (!this.head) {
           return null; // Empty list
         }
