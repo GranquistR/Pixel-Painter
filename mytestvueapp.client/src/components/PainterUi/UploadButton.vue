@@ -54,6 +54,7 @@ import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
+import LoginService from "@/services/LoginService";
 const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
@@ -68,37 +69,50 @@ const props = defineProps<{
 function Upload() {
   loading.value = true;
 
-  art.value.pixelGrid.DeepCopy(props.pixelGrid);
+  LoginService.isLoggedIn().then((isLoggedIn) => {
+    if (isLoggedIn) {
+      art.value.pixelGrid.DeepCopy(props.pixelGrid);
 
-  ArtAccessService.UploadArt(art.value)
-    .then((data: Art) => {
-      if (data.id != undefined) {
-        toast.add({
-          severity: "success",
-          summary: "Success",
-          detail: "Art uploaded successfully",
+      ArtAccessService.UploadArt(art.value)
+        .then((data: Art) => {
+          if (data.id != undefined) {
+            toast.add({
+              severity: "success",
+              summary: "Success",
+              detail: "Art uploaded successfully",
+            });
+            localStorage.removeItem("working-art");
+            router.push("/art/" + data.id);
+          } else {
+            toast.add({
+              severity: "error",
+              summary: "Error",
+              detail: "Failed to upload art",
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "Failed to upload art",
+          });
+        })
+        .finally(() => {
+          loading.value = false;
+          visible.value = false;
         });
-        localStorage.removeItem("working-art");
-        router.push("/art/" + data.id);
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "Failed to upload art",
-        });
-      }
-    })
-    .catch((error) => {
-      console.log(error);
+    } else {
       toast.add({
         severity: "error",
         summary: "Error",
-        detail: "Failed to upload art",
+        detail: "You must be logged in to upload art",
       });
-    })
-    .finally(() => {
       loading.value = false;
       visible.value = false;
-    });
+      return;
+    }
+  });
 }
 </script>

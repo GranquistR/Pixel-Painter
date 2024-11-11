@@ -143,13 +143,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return painting;
         }
 
-        public async Task<Art> SaveArt(string userSubId, Art art)
+        public async Task<Art> SaveArt(Artist artist, Art art)
         {
             try
             {
-
-                var artist = await LoginService.GetUserBySubId(userSubId);
-
                 art.artistId = artist.Id;
                 art.creationDate = DateTime.UtcNow;
 

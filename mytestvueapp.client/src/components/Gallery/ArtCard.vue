@@ -24,7 +24,7 @@
       </template>
       <template #footer>
         <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
-          <LikeButton :artId="props.art.artId" :likes="props.art.numLikes" />
+          <LikeButton :artId="props.art.id" :likes="props.art.numLikes" />
           <Button
             class="w-full flex-grow p-2"
             icon="pi pi-comment"
@@ -59,7 +59,6 @@ const likes = ref(0);
 if (props.art.numLikes) {
   likes.value = props.art.numLikes;
 }
-
 </script>
 
 <style scoped>

@@ -50,6 +50,8 @@ namespace MyTestVueApp.Server.Controllers
                 SameSite = SameSiteMode.Strict
             });
 
+            await LoginService.SendIdToDatabase(subId);
+
             return Redirect(AppConfig.Value.HomeUrl);
         }
 
@@ -63,38 +65,14 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("IsLoggedIn")]
-        public IActionResult IsLoggedIn()
+        public async Task<IActionResult> IsLoggedIn()
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                // You can add additional checks here if needed
-                return Ok(!string.IsNullOrEmpty(userId));
+                var artist = await LoginService.GetUserBySubId(userId);
+                return Ok(artist != null);
             }
             return Ok(false);
-        }
-
-        [HttpGet]
-        [Route("StoreUserSub")]
-        public async Task<IActionResult> StoreUserSub()
-        {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-            {
-                var rowsChanged = await LoginService.SendIdToDatabase(userId);
-
-
-                if (rowsChanged > 0)
-                {
-                    return Ok();
-                }
-                else
-                {
-                    return Ok(false);
-                }
-            }
-            else
-            {
-                return Ok(false);
-            }
         }
     }
 }

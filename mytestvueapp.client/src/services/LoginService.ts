@@ -1,7 +1,7 @@
 export default class LoginService {
   public static async isLoggedIn(): Promise<boolean> {
     try {
-      const response = await fetch("login/IsLoggedIn");
+      const response = await fetch("/login/IsLoggedIn");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -15,7 +15,7 @@ export default class LoginService {
 
   public static async logout(): Promise<void> {
     try {
-      const response = await fetch("login/Logout");
+      const response = await fetch("/login/Logout");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -24,14 +24,14 @@ export default class LoginService {
     }
   }
 
-    public static async storeUserSub(): Promise<void> {
-        try {
-            const response = await fetch("login/StoreUserSub");
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-        } catch (error) {
-            console.error("Error storing user sub");
-        }
+  public static async storeUserSub(): Promise<void> {
+    try {
+      const response = await fetch("/login/StoreUserSub");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Error storing user sub");
     }
+  }
 }

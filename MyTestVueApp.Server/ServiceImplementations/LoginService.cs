@@ -11,6 +11,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using System;
+using System.Security.Authentication;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -71,44 +72,28 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<int> SendIdToDatabase(string subId)
+        public async Task SendIdToDatabase(string subId)
         {
-            var connectionString = AppConfig.Value.ConnectionString;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            var artist = await GetUserBySubId(subId);
+            if (artist == null)
             {
-                connection.Open();
 
-                // This query and command is to check if the user and Id is already in the database
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @Token";
-                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@Token", subId);
+                    connection.Open();
 
-                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
-                    if (count > 0)
+                    var query = "INSERT INTO Artist (Name, SubId, IsAdmin, CreationDate) VALUES (@Name, @SubId, @IsAdmin, @CreationDate)";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        Console.WriteLine("Id already exists in database");
-                        return 0;
-                    }
-                }
+                        command.Parameters.AddWithValue("@Name", "Username");
+                        command.Parameters.AddWithValue("@SubId", subId);
+                        command.Parameters.AddWithValue("@IsAdmin", 0);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
-                var query = "INSERT INTO Artist (ArtistName, ID) VALUES (@ArtistName, @Token)";
+                        command.ExecuteNonQuery();
 
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@ArtistName", "Username");
-                    command.Parameters.AddWithValue("@Token", subId);
-
-                    int rowsChanged = command.ExecuteNonQuery();
-                    if (rowsChanged > 0)
-                    {
-                        Console.WriteLine("Id was added successfully");
-                        return rowsChanged;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Failed to insert Id");
-                        return -1;
                     }
                 }
             }
