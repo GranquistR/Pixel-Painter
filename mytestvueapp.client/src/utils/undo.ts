@@ -69,6 +69,22 @@ export default class LinkedList<T> {
        
     }
 
+    public getPrevious(pixelGrid:T[][]){
+        if (!this.head) {
+            return null; // Empty list
+          }
+      
+          let current = this.head;
+          while (current.next && current.next.elem != pixelGrid) {
+            current = current.next;
+          }
+      
+          return current.elem;
+        }
+
+       
+    
+
     getLast(): T[][] | null {
         if (!this.head) {
           return null; // Empty list
