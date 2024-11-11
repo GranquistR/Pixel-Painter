@@ -2,7 +2,6 @@
     import Button from "primevue/button";
     import LoginService from "@/services/LoginService";
     import LikeService from "@/services/LikeService";
-    import router from "@/services/LoginService";
     import { useToast } from "primevue/usetoast";
 
     import { ref, onMounted } from "vue";
@@ -29,10 +28,10 @@
 });
 
     const likedClicked = () => {
-      console.log("Like Clicked");
+      //console.log("Like Clicked");
       if (!loggedIn.value) {
         // Route to login page
-        console.log("User is not loggged in!");
+        //console.log("User is not loggged in!");
         toast.add({
           severity: "error",
           summary: "Warning",
@@ -43,7 +42,7 @@
       }
       if (liked.value) {
         // Try to unlike
-        console.log("Trying to unlike");
+        //console.log("Trying to unlike");
         LikeService.removeLike(props.artId)
         .then((value) => {
             if (value) {
@@ -56,10 +55,10 @@
         });
       } else {
         // Try to Like
-        console.log("Trying to like");
+        //console.log("Trying to like");
         LikeService.insertLike(props.artId)
         .then((value) => {
-            console.log("insertLike()", value);
+            //console.log("insertLike()", value);
             if (value) {
                 liked.value = true;
             } 
