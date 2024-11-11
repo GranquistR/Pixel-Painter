@@ -15,6 +15,15 @@ import ToastService from "primevue/toastservice";
 //PrimeFlex
 import "primeflex/primeflex.css";
 
+import Tooltip from "primevue/tooltip"
+
+
+
+
+
+
+
+
 createApp(App)
   .use(PrimeVue, {
     theme: {
@@ -26,6 +35,7 @@ createApp(App)
   })
   .use(router)
   .use(ToastService)
+  .directive('tooltip', Tooltip)
   .mount("#app");
 
 //Set the primary color of the theme
