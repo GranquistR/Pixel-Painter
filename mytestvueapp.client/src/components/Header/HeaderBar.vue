@@ -22,7 +22,7 @@
     </template>
     <template #end>
       <DarkModeSwitcher class="mr-2" />
-      <GoogleLogin></GoogleLogin>
+      <GoogleLogin :key="refreshKey" @refresh="refreshLogin" />
     </template>
   </Toolbar>
 </template>
@@ -37,6 +37,11 @@ import Toolbar from "primevue/toolbar";
 
 const visible = ref(false);
 const password = ref(null);
+const refreshKey = ref(0);
+
+const refreshLogin = () => {
+  refreshKey.value++;
+}
 </script>
 
 <style scoped>
