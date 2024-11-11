@@ -60,11 +60,10 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
-<<<<<<< HEAD
 import LinkedList from "@/utils/undo"
-=======
 import DefaultColor from "@/entities/DefaultColors";
->>>>>>> master
+import codec from "@/utils/codec"
+
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new") {
@@ -248,16 +247,19 @@ function ResetArt() {
   router.push("/new");
 }
 
-<<<<<<< HEAD
-var undoList = new LinkedList;
 
-undoList.append(pixelGrid);
+var undoList = new LinkedList;
+let currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+
+undoList.append(currentGrid);
 
 function onMouseUp() {
-      undoList.isDifferent(pixelGrid);
-    
+  currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+      undoList.isDifferent(currentGrid);
     }
-=======
+
+    
+
 document.addEventListener("keydown", function (event) { 
 if (event.key === "p") {event.preventDefault();cursor.value.selectedTool.label = "Pan";canvas?.value.updateCursor()} 
 else if (event.key === "b") {event.preventDefault();cursor.value.selectedTool.label = "Brush";canvas?.value.updateCursor()} 
@@ -280,7 +282,7 @@ else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cur
 else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1;canvas?.value.updateCursor()} 
 
 }); 
->>>>>>> master
+
 
 
 const canvas = ref();

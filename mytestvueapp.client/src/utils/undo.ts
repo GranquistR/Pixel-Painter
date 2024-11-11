@@ -24,6 +24,7 @@ export default class LinkedList<T> {
 
     constructor(headElement?: LinkedNode<T>) {
         this.head = headElement || null;
+
     }
 
     public append(elem: T[][]) {
@@ -45,23 +46,26 @@ export default class LinkedList<T> {
 
     public isDifferent(pixelGrid:T[][]){
         let isDifferent = false;
-        let latestGrid= this.getLast();
-        if(latestGrid===null){
-            latestGrid=pixelGrid;
-        }
-
+        const last = this.getLast();
+        if(last!==null && this.head!==null){
         for (let i = 0; i < pixelGrid.length; i++) {
             for (let j = 0; j < pixelGrid.length; j++) {
-                
-              if(pixelGrid[i][j] !== latestGrid[i][j]){
-                isDifferent = true;
-              }
+                if(pixelGrid[i][j] !== last[i][j]){
+                    isDifferent=true;
+                }
             }
           }
-          
-        if(isDifferent){
-            this.append(pixelGrid);
+            
+            console.log(isDifferent);
+            
+
         }
+        if (isDifferent){
+            this.append(pixelGrid);
+            
+        }
+       
+
        
     }
 
