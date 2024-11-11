@@ -3,6 +3,15 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Oauth2.v2.Data;
+using Google.Apis.Oauth2.v2;
+using Google.Apis.Services;
+using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
+
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -168,4 +177,56 @@ namespace MyTestVueApp.Server.ServiceImplementations
     }
 
 
+}
+                           }
+        public async Task<bool> createComment(string userID, string comment, int ArtId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            Logger.LogInformation("One hit");
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var duplicateQuery = "SELECT artist.ArtistName FROM Artist WHERE Artist.ID=@ArtistId";
+                using (SqlCommand duplicateCommand = new SqlCommand(duplicateQuery, connection))
+                {
+                    duplicateCommand.Parameters.AddWithValue("@ArtistId", userID);
+
+                    string ArtistName = (string)await duplicateCommand.ExecuteScalarAsync();
+                    //if (count > 0)
+                    //{
+                    //    Console.WriteLine("Placeholder");
+                    //    return false;
+                    //}
+
+                    var insertQuery = "INSERT INTO Comment (ArtID,ArtistId,ArtistName,Comment) VALUES (@ArtId,@ArtistID,@ArtistName,@Comment)";
+                    using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@ArtID", ArtId);
+                        insertCommand.Parameters.AddWithValue("@ArtistID", userID);
+                        insertCommand.Parameters.AddWithValue("@ArtistName", ArtistName);
+                        insertCommand.Parameters.AddWithValue("@Comment", comment);
+                        //int s = 1;
+                        try
+                        {
+                            int rowschanged = (int)await insertCommand.ExecuteNonQueryAsync();
+
+
+                            if (rowschanged > 0)
+                            {
+                                Console.WriteLine("Comment has been successfully added!");
+                                return true;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Comment has not been made");
+                                return false;
+                            }
+                        }
+                        catch (Exception ex) { Console.WriteLine(ex.ToString()); return false; }
+                    }
+                }
+
+            }
+        }
+    }
 }

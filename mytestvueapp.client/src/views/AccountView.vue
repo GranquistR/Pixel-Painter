@@ -41,5 +41,6 @@ function logout() {
       life: 3000,
     });
   });
+  window.location.replace(`/`);
 }
 </script>

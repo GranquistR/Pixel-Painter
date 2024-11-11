@@ -49,4 +49,24 @@ export default class CommentAccessService {
       console.error;
     }
   }
+    public static async isCookieCommentUser(artistId: number): Promise<any> {
+        try {
+            const response = await fetch(`/comment/CheckCookietoUser?id=${artistId}`);
+            const isMyComment: boolean = (await response.json()) as boolean;
+            return isMyComment;
+
+
+        } catch (error) {
+            console.error;
+        }
+    }
+    public static async postComment(comment: string, ArtId: Number): Promise<any> {
+        try {
+            const response = await fetch(
+                `/comment/postComment?comment=${comment}&ArtId=${ArtId}`,
+            );
+        } catch (error) {
+            console.error;
+        }
+    }
 }
