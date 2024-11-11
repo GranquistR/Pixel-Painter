@@ -18,7 +18,7 @@
     class="ml-6" 
     placeholder="Write your comment...">
 </textarea>
-  <div><button class="mt-2 ml-6" @onclick=PostComment()>Post Comment</button></div>
+  <div><button class="mt-2 ml-6" @click=PostComment()>Post Comment</button></div>
   <CommentOnArt
     v-for="Comment in allComments"
     :key="Comment.commentId"

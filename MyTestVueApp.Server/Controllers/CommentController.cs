@@ -61,7 +61,8 @@ namespace MyTestVueApp.Server.Controllers
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                CommentAccessService.createComment(userId, comment, ArtId);
+                await CommentAccessService.createComment(userId, comment, ArtId);
+
                 return Ok();
             }
             return BadRequest("Placeholder");

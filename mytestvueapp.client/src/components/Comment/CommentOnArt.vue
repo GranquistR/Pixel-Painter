@@ -21,6 +21,7 @@
         
         <span >{{ comment.commentContent }}</span>
       </div>
+     <!-- <button>Reply</button> -->
     </div>
 </template>
 

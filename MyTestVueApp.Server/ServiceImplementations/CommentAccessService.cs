@@ -72,31 +72,38 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     duplicateCommand.Parameters.AddWithValue("@ArtistId", userID);
 
-                    string ArtistName =  (String)await duplicateCommand.ExecuteScalarAsync();
+                    string ArtistName = (string)await duplicateCommand.ExecuteScalarAsync();
                     //if (count > 0)
                     //{
                     //    Console.WriteLine("Placeholder");
                     //    return false;
                     //}
 
-                    var insertQuery = "INESRT INTO Comment (ArtID,ArtistID,ArtistName,Comment) VALUES (@ArtId,@ArtistId,@ArtistName,@Comment)";
+                    var insertQuery = "INSERT INTO Comment (ArtID,ArtistId,ArtistName,Comment) VALUES (@ArtId,@ArtistID,@ArtistName,@Comment)";
                     using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection))
                     {
                         insertCommand.Parameters.AddWithValue("@ArtID", ArtId);
-                        insertCommand.Parameters.AddWithValue("@ArtisttID", userID);
+                        insertCommand.Parameters.AddWithValue("@ArtistID", userID);
                         insertCommand.Parameters.AddWithValue("@ArtistName", ArtistName);
                         insertCommand.Parameters.AddWithValue("@Comment", comment);
+                        //int s = 1;
+                        try
+                        {
+                            int rowschanged = (int)await insertCommand.ExecuteNonQueryAsync();
 
-                        int rowsChanged = (int)await insertCommand.ExecuteScalarAsync();
-                        if (rowsChanged > 0)
-                        {
-                            Console.WriteLine("Comment has been successfully added!");
-                            return true;
+
+                            if (rowschanged > 0)
+                            {
+                                Console.WriteLine("Comment has been successfully added!");
+                                return true;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Comment has not been made");
+                                return false;
+                            }
                         }
-                        else
-                        {
-                            return false;
-                        }
+                        catch (Exception ex) { Console.WriteLine(ex.ToString()); return false; }
                     }
                 }
 
