@@ -49,16 +49,7 @@ const props = defineProps<{
   art: Art;
 }>();
 
-console.log(props.art);
-
-const liked = ref(false);
 const hover = ref(false);
-
-const likes = ref(0);
-
-if (props.art.numLikes) {
-  likes.value = props.art.numLikes;
-}
 </script>
 
 <style scoped>
