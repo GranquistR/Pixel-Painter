@@ -24,23 +24,13 @@ namespace MyTestVueApp.Server.Controllers
             AppConfig = appConfig;
         }
 
-        [HttpGet]
-        [Route("IsLoggedIn")]
-        public IActionResult IsLoggedIn()
-        {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-            {
-                // You can add additional checks here if needed
-                return Ok(!string.IsNullOrEmpty(userId));
-            }
-            return Ok(false);
-        }
+        
 
         [HttpGet]
         [Route("GetCommentsById")]
-        public IEnumerable<Comment> GetCommentsById(int id)
+        public IEnumerable<Comment> GetCommentsById(int Artid)
         {
-            return CommentAccessService.GetCommentsById(id);
+            return CommentAccessService.GetCommentsById(Artid);
         }
 
         [HttpGet]
@@ -57,7 +47,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("postComment")]
-        public async Task<IActionResult> postComment(String comment, int ArtId)
+        public async Task<IActionResult> PostComment(String comment, int ArtId)
         {
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
@@ -65,7 +55,7 @@ namespace MyTestVueApp.Server.Controllers
 
                 return Ok();
             }
-            return BadRequest("Placeholder");
+            return BadRequest("User not logged in");
 
         }
     }
