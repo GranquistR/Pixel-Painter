@@ -40,22 +40,11 @@ export default class CommentAccessService {
       console.error;
     }
   }
-  public static async DeleteComment(commentId: number): Promise<any> {
-    try {
-      const response = await fetch(
-        `/comment/DeleteComment?commentId=${commentId}`,
-      );
-    } catch (error) {
-      console.error;
-    }
-  }
-    public static async isCookieCommentUser(artistId: number): Promise<any> {
+    public static async DeleteComment(commentId: number): Promise<any> {
         try {
-            const response = await fetch(`/comment/CheckCookietoUser?id=${artistId}`);
-            const isMyComment: boolean = (await response.json()) as boolean;
-            return isMyComment;
-
-
+            const response = await fetch(
+                `/comment/DeleteComment?commentId=${commentId}`,
+            );
         } catch (error) {
             console.error;
         }
