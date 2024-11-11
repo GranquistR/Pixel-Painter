@@ -141,11 +141,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             {
                                 Console.WriteLine("Response Comments Deleted");
                             }
-                            else
-                            {
-                                Console.WriteLine("Failed to delete response comments!");
-                                return -1;
-                            }
                         }
                     }
                 }
