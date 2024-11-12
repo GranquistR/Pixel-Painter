@@ -3,12 +3,16 @@ import Comment from "../entities/Comment";
 export default class CommentAccessService {
   public static async getCommentsById(artId: number): Promise<any> {
     try {
-      const response = await fetch(`/comment/GetCommentsById?id=${artId}`);
-      const json = await response.json();
+      const response = await fetch(
+        `/comment/GetCommentsByArtId?artId=${artId}`
+      );
+      const jsonComments = await response.json();
 
       const allComments: Comment[] = [];
-      for (const comment of json) {
-        allComments.push(comment as Comment);
+      for (const jsonComment of jsonComments) {
+        let comment = new Comment();
+        comment = jsonComment as Comment;
+        allComments.push(comment);
       }
 
       return allComments;
@@ -17,6 +21,38 @@ export default class CommentAccessService {
     }
   }
 
+  public static async isCookieCommentUser(artistId: number): Promise<any> {
+    try {
+      const response = await fetch(`/comment/CheckCookietoUser?id=${artistId}`);
+      const isMyComment: boolean = (await response.json()) as boolean;
+      return isMyComment;
+    } catch (error) {
+      console.error;
+    }
+  }
+  public static async PostComment(comment: Comment): Promise<Comment> {
+    try {
+      comment.creationDate = new Date().toISOString();
+
+      const response = await fetch("/comment/CreateComment", {
+        method: "POST",
+        body: JSON.stringify(comment),
+        headers: { "Content-Type": "application/json" },
+      });
+      alert(response.ok);
+      if (!response.ok) {
+        throw new Error("Response was false.");
+      }
+
+      const json = await response.json();
+      console.log(json);
+      const result: Comment = json as Comment;
+      return result;
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
   public static async isCookieCommentUser(artistId: string): Promise<any> {
     try {
       const response = await fetch(

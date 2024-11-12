@@ -16,7 +16,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
         }
 
-        public async Task<int> InsertLike(int artId, string userId)
+        public async Task<int> InsertLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -27,7 +27,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", userId);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -41,7 +41,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "INSERT INTO Likes (ArtistID, ArtID) VALUES (@ArtistId, @ArtId)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistId", userId);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
                     int rowsChanged = command.ExecuteNonQuery();
@@ -57,7 +57,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
         
-        public async Task<int> RemoveLike(int artId, string userId)
+        public async Task<int> RemoveLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -68,7 +68,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", userId);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -82,7 +82,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "DELETE FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand command = new SqlCommand(query, connection)) 
                 {
-                    command.Parameters.AddWithValue("@ArtistId", userId);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
                     int rowsChanged = command.ExecuteNonQuery();
@@ -98,17 +98,17 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<bool> IsLiked(int artId, string userId) {
+        public async Task<bool> IsLiked(int artId, Artist artist) {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString)) 
             {
                 connection.Open();
 
-                string likedQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @userId AND ArtID = @artId";
+                string likedQuery = "SELECT Count(*) FROM Likes WHERE ArtistId = @ArtistId AND ArtID = @ArtID";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@userId", userId);
-                    command.Parameters.AddWithValue("@artId", artId);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
+                    command.Parameters.AddWithValue("@ArtID", artId);
 
                     int count = (int) await command.ExecuteScalarAsync();
 

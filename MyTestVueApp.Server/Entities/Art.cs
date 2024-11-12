@@ -1,30 +1,20 @@
 namespace MyTestVueApp.Server.Entities
-{ // ArtId, ArtName, ArtistId, Width, ArtLength, Encode, CreationDate, IsPublic
+{
     public class Art
-    { // Art Table
-        public int ArtId { get; set; }
+    {
+        //Required
+        public int id { get; set; }
+        public int artistId { get; set; }
+        public string title { get; set; }
+        public bool isPublic { get; set; }
+        public DateTime creationDate { get; set; }
+        public PixelGrid pixelGrid { get; set; }
 
-        public string? ArtName { get; set; }
-
-        public string? ArtistId { get; set; }
-
-        public string? ArtistName { get; set; }
-
-        public int Width { get; set; }
-
-        public int Height { get; set; }
-
-        public string? Encode { get; set; }
-
-        public DateTime CreationDate { get; set; }
-
-        public bool IsPublic { get; set; }
-
-        // Likes
-        public int NumLikes { get; set; }
-
-        //Comments
-        public int NumComments { get; set; }
+        //Optional external values
+        public string artistName { get; set; }
+        public int numLikes { get; set; }
+        public int numComments { get; set; }
 
     }
+
 }

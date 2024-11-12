@@ -1,27 +1,27 @@
 import { PixelGrid } from "./PixelGrid";
 
 export default class Art {
-  artId: number;
-  artName: string;
-  artistId: string;
-  artistName: string;
-  width: number;
-  height: number;
-  encode: string;
-  creationDate: string;
+  //required
+  id: number;
+  artistId: number;
+  title: string;
   isPublic: boolean;
-  numLikes: number;
-  numComments: number;
+  creationDate: string;
+
+  //may be null if new
   pixelGrid: PixelGrid;
 
+  //optional
+  artistName: string;
+  numLikes: number;
+  numComments: number;
+
   constructor() {
-    this.artId = 0;
-    this.artName = "";
-    this.artistId = "";
+    this.id = 0;
+    this.title = "";
+    this.artistId = 0;
     this.artistName = "";
-    this.width = 0;
-    this.height = 0;
-    this.encode = "";
+
     this.creationDate = "";
     this.isPublic = false;
     this.numLikes = 0;

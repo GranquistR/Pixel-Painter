@@ -1,53 +1,15 @@
 <template>
-  <div class="w-full flex h-auto p-1 flex-nowrap" v-if="Deleted == false">
-    <div
-      v-if="showTextBox == false"
-      class="inline-block w-2 h-auto px-6 py-1 underline text-lg"
-      id="User"
-    >
-      {{ props.comment.artistName }}
+  <div class="m-2">
+    <div class="flex gap-3">
+      <span v-if="comment.currentUserIsOwner">
+        <i class="pi pi-star-fill" style="color: yellow"></i>
+      </span>
+      <span style="font-weight: bold">{{ comment.commenterName }}</span>
+      <span>{{ comment.creationDate }}</span>
     </div>
-    <div
-      v-if="showTextBox == true"
-      class="inline-block w-2 h-auto px-6 py-1 underline text-lg"
-    >
-      <button @click="DeleteComment(), (Deleted = true)">Delete Comment</button>
+    <div class="mb-4 ml-2">
+      <span>{{ comment.message }}</span>
     </div>
-    <div
-      class="inline-block text-left w-8 h-auto white-space-normal"
-      id="Comment"
-      v-if="showTextBox == false && changedComment == false"
-    >
-      {{ props.comment.commentContent }}
-    </div>
-    <div
-      class="inline-block text-left w-8 h-auto white-space-normal"
-      id="Comment"
-      v-if="showTextBox == false && changedComment == true"
-    >
-      {{ editBox }}
-    </div>
-    <textarea
-      placeholder=""
-      v-model:="editBox"
-      class="inline-block text-left w-8 h-auto white-space-normal"
-      v-if="artistIDisCookieUser == true && showTextBox == true"
-    ></textarea>
-    <div class="inline-block w-2 h-auto px-3" id="Timestamp ">
-      {{ props.comment.commentTime }}
-    </div>
-    <button
-      v-if="artistIDisCookieUser == true && showTextBox == true"
-      @click="SubmitEdit(), (showTextBox = false), (changedComment = true)"
-    >
-      Submit
-    </button>
-    <button
-      v-if="artistIDisCookieUser == true"
-      @click="showTextBox = !showTextBox"
-    >
-      edit comment
-    </button>
   </div>
 </template>
 
@@ -55,7 +17,6 @@
 import CommentAccessService from "../../services/CommentAccessService";
 import type Art from "@/entities/Art";
 import type Comment from "@/entities/Comment";
-import { onMounted, ref } from "vue";
 
 //constants for showing
 const Deleted = ref(false);

@@ -2,6 +2,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 
 export default class codec {
   public static Encode(inputGrid: PixelGrid): string {
+    console.debug(inputGrid);
     let EncodedPicture: string = "";
 
     for (let i = 0; i < inputGrid.height; i++) {
@@ -9,33 +10,33 @@ export default class codec {
         EncodedPicture = EncodedPicture + inputGrid.grid[i][j];
       }
     }
-    
-      let newStr = "";
-    
-      for (let i = 0; i < EncodedPicture.length; i++) {
-        if (EncodedPicture[i] !== '#') {
-          newStr += EncodedPicture[i];
-        }
+
+    let newStr = "";
+
+    for (let i = 0; i < EncodedPicture.length; i++) {
+      if (EncodedPicture[i] !== "#") {
+        newStr += EncodedPicture[i];
       }
-    
-      return newStr;
     }
-    
-  
+
+    return newStr;
+  }
 
   public static Decode(
     encodedString: String,
     height: number,
     width: number,
     backgroundColor: string
-
   ): PixelGrid {
-    if (localStorage.getItem('backgroundColor')===null){
-      backgroundColor = 'FFFFFF';
+    if (localStorage.getItem("backgroundColor") === null) {
+      backgroundColor = "FFFFFF";
     }
-    
 
-    const decodedPicture: PixelGrid = new PixelGrid(height, width, backgroundColor);
+    const decodedPicture: PixelGrid = new PixelGrid(
+      height,
+      width,
+      backgroundColor
+    );
     decodedPicture.createGrid(height, width, backgroundColor);
     let k = 0;
 

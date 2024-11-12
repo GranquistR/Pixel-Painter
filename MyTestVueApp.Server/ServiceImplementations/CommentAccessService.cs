@@ -26,18 +26,49 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
         public IEnumerable<Comment> GetCommentsById(int id)
         {
-            var comments = new List<Comment>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query =
-                    "SELECT ID, ArtistID, ArtistName, ArtID, Comment, CommentTime FROM Comment " +
-                    "WHERE ArtID=" + id + "AND Response IS NULL " +
-                    "Order By CommentTime";
+                var comments = new List<Comment>();
+                var connectionString = AppConfig.Value.ConnectionString;
 
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                    var query = @$"
+                   SELECT 
+                        Comment.Id, 
+                        Comment.ArtistId, 
+                        Comment.ArtID, 
+                        Comment.[Message],
+	                    Artist.[Name] as CommenterName,
+                        Comment.CreationDate,
+                        Comment.ReplyId
+                    FROM Comment  
+                    JOIN Artist ON Artist.id = Comment.ArtistId
+                    WHERE ArtID = @id
+                    Order By CreationDate DESC;";
+
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@id", id));
+                        using (var reader = command.ExecuteReader())
+           
+            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@ArtistID", commenter.Id);
+                        command.Parameters.AddWithValue("@ArtID", comment.artId);
+                        command.Parameters.AddWithValue("@Message", comment.message);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+
+                        var newId = await command.ExecuteScalarAsync();
+                        comment.id = Convert.ToInt32(newId);
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -205,23 +236,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             int rowschanged = (int)await insertCommand.ExecuteNonQueryAsync();
 
+                        return comment;
 
-                            if (rowschanged > 0)
-                            {
-                                Console.WriteLine("Comment has been successfully added!");
-                                return true;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Comment has not been made");
-                                return false;
-                            }
-                        }
-                        catch (Exception ex) { Console.WriteLine(ex.ToString()); return false; }
                     }
                 }
-
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, "Failed to insert comment");
+                    throw;
+                }
             }
+
         }
     }
 }
+
