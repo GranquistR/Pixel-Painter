@@ -19,7 +19,6 @@ const canvas = ref<HTMLCanvasElement>();
 const context = ref<CanvasRenderingContext2D>();
 //ctx.width =
 onMounted(() => {
-  console.log(props.art);
   let canvasInit = document.getElementById(canvasId) as HTMLCanvasElement;
   if (canvasInit) {
     canvas.value = canvasInit;
@@ -49,7 +48,6 @@ function render() {
         row < props.art.pixelGrid.height * props.pixelSize;
         row += props.pixelSize
       ) {
-        //console.log(b);
         context.value.fillStyle = "#" + imageServe.substring(hexBegin, hexEnd);
         context.value.fillRect(column, row, props.pixelSize, props.pixelSize);
         hexBegin += 6;

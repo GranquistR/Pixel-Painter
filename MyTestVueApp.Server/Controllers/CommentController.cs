@@ -18,44 +18,54 @@ namespace MyTestVueApp.Server.Controllers
         private ILogger<CommentController> Logger { get; }
         private ICommentAccessService CommentAccessService { get; }
         private IOptions<ApplicationConfiguration> AppConfig { get; }
-        public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig) {
+        private ILoginService LoginService { get; }
+        public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig, ILoginService loginService)
+        {
             Logger = logger;
             CommentAccessService = commentAccessService;
             AppConfig = appConfig;
-        }
-
-        
-
-        [HttpGet]
-        [Route("GetCommentsById")]
-        public IEnumerable<Comment> GetCommentsById(int Artid)
-        {
-            return CommentAccessService.GetCommentsById(Artid);
+            LoginService = loginService;
         }
 
         [HttpGet]
-        [Route("CheckCookietoUser")]
-        public async Task<IActionResult> CheckCookietoUser(int commentId)
+        [Route("GetCommentsByArtId")]
+        public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
         {
+            var comments = CommentAccessService.GetCommentsById(artId);
+
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                // You can add additional checks here if needed
-                return Ok(userId == commentId.ToString());
+                var artist = await LoginService.GetUserBySubId(userId);
+                foreach (var comment in comments)
+                {
+                    comment.currentUserIsOwner = comment.artistId == artist.Id;
+                }
             }
-            return Ok(false);
+
+            return comments;
         }
 
-        [HttpGet]
-        [Route("postComment")]
-        public async Task<IActionResult> PostComment(String comment, int ArtId)
+        [HttpPost]
+        [Route("CreateComment")]
+        public async Task<IActionResult> CreateComment(Comment comment)
         {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                await CommentAccessService.createComment(userId, comment, ArtId);
-
-                return Ok();
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist != null)
+                    {
+                        var result = await CommentAccessService.CreateComment(artist, comment);
+                        return Ok(result);
+                    }
+                }
+                return BadRequest("User not logged in");
             }
-            return BadRequest("User not logged in");
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
 
         }
     }

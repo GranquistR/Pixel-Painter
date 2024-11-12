@@ -44,7 +44,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     FROM ART  
 	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
 	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-	                    LEFT JOIN Artist ON Art.ArtistId = Artist.CreationDate
+	                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
                     GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
@@ -65,7 +65,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
                                 artistId = reader.GetInt32(2),
-                                artistName = reader[3] as string ?? string.Empty,
+                                artistName = reader.GetString(3),
                                 creationDate = reader.GetDateTime(7),
                                 isPublic = reader.GetBoolean(8),
                                 numLikes = reader.GetInt32(9),
@@ -134,6 +134,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 artistName = reader[3] as string ?? string.Empty,
                                 pixelGrid = pixelGrid,
                                 creationDate = reader.GetDateTime(7),
+                                isPublic = reader.GetBoolean(8),
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10)
                             };
 
                         }
@@ -182,53 +185,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 Logger.LogError(ex, "Error in SaveArt");
                 throw;
             }
-        }
-
-        public IEnumerable<Comment> GetCommentsById(int id)
-        {
-            var comments = new List<Comment>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query =
-                    $@"
-                     SELECT 
-	                    Comment.Id, 
-	                    Comment.ArtistID, 
-	                    Artist.[Name], 
-	                    Comment.ArtID, 
-	                    Comment.[Message], 
-	                    Comment.CreationDate 
-                     FROM Comment  
-                     LEFT JOIN Artist ON Comment.ArtistId = Artist.Id
-                     WHERE ArtID = {id} AND Comment.ReplyId IS NULL  
-                     Order By Comment.CreationDate;
-                    ";
-
-                using (var command = new SqlCommand(query, connection))
-                {
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var comment = new Comment
-                            {
-                                CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetInt32(1),
-                                ArtistName = reader.GetString(2),
-                                ArtId = reader.GetInt32(3),
-                                CommentContent = reader.GetString(4),
-                                CommentTime = reader.GetDateTime(5)
-                            };
-                            comments.Add(comment);
-                        }
-                    }
-                }
-            }
-            return comments;
         }
     }
 }

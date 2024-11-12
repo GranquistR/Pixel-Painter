@@ -26,10 +26,8 @@ onMounted(() => {
 });
 
 const likedClicked = () => {
-  console.log("Like Clicked");
   if (!loggedIn.value) {
     // Route to login page
-    console.log("User is not loggged in!");
     toast.add({
       severity: "error",
       summary: "Warning",
@@ -40,7 +38,6 @@ const likedClicked = () => {
   }
   if (liked.value) {
     // Try to unlike
-    console.log("Trying to unlike");
     LikeService.removeLike(props.artId).then((value) => {
       if (value) {
         liked.value = false;
@@ -51,9 +48,7 @@ const likedClicked = () => {
     });
   } else {
     // Try to Like
-    console.log("Trying to like");
     LikeService.insertLike(props.artId).then((value) => {
-      console.log("insertLike()", value);
       if (value) {
         liked.value = true;
       }
@@ -68,12 +63,10 @@ const likedClicked = () => {
 
 <template>
   <Button
-    :severity="liked ? 'danger' : ''"
-    class="w-full flex-grow p-1"
+    rounded
+    :severity="liked ? 'primary' : 'secondary'"
     :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
     :label="(likes + localLike).toString()"
     @click.stop="likedClicked()"
   />
 </template>
-
-<style scoped></style>

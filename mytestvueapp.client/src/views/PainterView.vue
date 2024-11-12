@@ -48,7 +48,6 @@
 import Toolbar from "primevue/toolbar";
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
-import SaveAndLoad from "@/components/PainterUi/SaveAndLoad.vue";
 import { ref, watch, computed, onMounted } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
@@ -62,13 +61,13 @@ import DefaultColor from "@/entities/DefaultColors";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 
 onBeforeRouteLeave((to, from, next) => {
-  if (to.path != "/new") {
+  if (to.path != "/new" && !to.path.includes("/art")) {
     LocalSave();
   }
   next();
 });
 
-window.addEventListener("beforeunload", (e) => {
+window.addEventListener("beforeunload", () => {
   LocalSave();
 });
 

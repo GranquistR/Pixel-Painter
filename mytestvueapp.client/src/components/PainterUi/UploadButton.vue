@@ -80,23 +80,26 @@ function Upload() {
               severity: "success",
               summary: "Success",
               detail: "Art uploaded successfully",
+              life: 3000,
             });
-            localStorage.removeItem("working-art");
+            localStorage.clear();
             router.push("/art/" + data.id);
           } else {
             toast.add({
               severity: "error",
               summary: "Error",
               detail: "Failed to upload art",
+              life: 3000,
             });
           }
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
           toast.add({
             severity: "error",
             summary: "Error",
             detail: "Failed to upload art",
+            life: 3000,
           });
         })
         .finally(() => {
