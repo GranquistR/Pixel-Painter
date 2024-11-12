@@ -1,27 +1,21 @@
 export default class Comment {
-    commentId?: number
-    artistId?: number
-    artistName?: string
-    artId?: number
-    commentContent?: string
-    response?: number
-    commentTime?: string
+  id?: number;
+  artistId?: number;
+  artId?: number;
+  message?: string;
+  commenterName?: string;
+  creationDate?: string;
+  replyId?: number;
+  currentUserIsOwner?: boolean;
 
-    constructor(
-        commentId?: number,
-        artistId?: number,
-        artistName?: string,
-        artId?: number,
-        commentContent?: string,
-        response?: number,
-        commentTime?: string,
-    ) {
-        this.commentId = commentId
-        this.artistId = artistId
-        this.artistName = artistName
-        this.artId = artId
-        this.commentContent = commentContent
-        this.response = response
-        this.commentTime = commentTime
-    }
-} 
+  constructor() {
+    this.id = 0;
+    this.artistId = 0;
+    this.artId = 0;
+    this.message = "";
+    this.commenterName = "unknown";
+    this.creationDate = "";
+    this.replyId = 0;
+    this.currentUserIsOwner = false;
+  }
+}

@@ -10,10 +10,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
     {
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILogger<ArtAccessService> Logger { get; }
-        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger)
+        private ILoginService LoginService { get; }
+        public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger, ILoginService loginService)
         {
             AppConfig = appConfig;
             Logger = logger;
+            LoginService = loginService;
         }
 
         public IEnumerable<Art> GetAllArt()
@@ -26,11 +28,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
-                    "FROM ART " +
-                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
-                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic";
+                    @"
+                    Select 
+	                    Art.Id, 
+	                    Art.Title, 
+	                    Art.ArtistId, 
+	                    Artist.Name, 
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate, 
+	                    Art.isPublic, 
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+	                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -38,19 +54,23 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
+                            };
                             var painting = new Art
                             { //Art Table + NumLikes and NumComments
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetString(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                Height = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8),
-                                NumLikes = reader.GetInt32(9),
-                                NumComments = reader.GetInt32(10)
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                artistId = reader.GetInt32(2),
+                                artistName = reader.GetString(3),
+                                creationDate = reader.GetDateTime(7),
+                                isPublic = reader.GetBoolean(8),
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10),
+                                pixelGrid = pixelGrid,
                             };
                             paintings.Add(painting);
                         }
@@ -68,13 +88,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = 
-                    "Select Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, COUNT(distinct Likes.ID) as Likes, Count(distinct Comment.ID) as Comments " +
-                    "FROM ART " +
-                    "LEFT JOIN Likes ON Art.ID = Likes.ArtID " +
-                    "LEFT JOIN Comment ON Art.ID = Comment.ArtID " +
-                    "WHERE Art.ID=" + id + " " +
-                    "GROUP BY Art.ID, Art.ArtName, Art.ArtistID, Art.ArtistName, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic ";
+                var query =
+                    $@"
+                    Select	
+	                    Art.ID,
+	                    Art.Title, 
+	                    Art.Artistid, 
+	                    Artist.Name,
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate,
+	                    Art.isPublic,
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                    WHERE Art.ID =  {id} 
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
+
+                //SQL INJECTION WHOOPS^
+                //Good thing we have type checking :p
+
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -82,19 +120,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         while (reader.Read())
                         {
 
-                            painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, Height, Encode, Date, IsPublic
-                                ArtId = reader.GetInt32(0),
-                                ArtName = reader.GetString(1),
-                                ArtistId = reader.GetString(2),
-                                ArtistName = reader[3] as string ?? string.Empty,
-                                Width = reader.GetInt32(4),
-                                Height = reader.GetInt32(5),
-                                Encode = reader.GetString(6),
-                                CreationDate = reader.GetDateTime(7),
-                                IsPublic = reader.GetBoolean(8)
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
                             };
-                            
+                            painting = new Art
+                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                artistId = reader.GetInt32(2),
+                                artistName = reader[3] as string ?? string.Empty,
+                                pixelGrid = pixelGrid,
+                                creationDate = reader.GetDateTime(7),
+                                isPublic = reader.GetBoolean(8),
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10)
+                            };
+
                         }
                     }
                 }
@@ -102,41 +146,45 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return painting;
         }
 
-        public IEnumerable<Comment> GetCommentsById(int id)
+        public async Task<Art> SaveArt(Artist artist, Art art)
         {
-            var comments = new List<Comment>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query = 
-                    "SELECT ID, ArtistID, ArtistName, ArtID, Comment, CommentTime FROM Comment " +
-                    "WHERE ArtID=" + id + "AND Response IS NULL " + 
-                    "Order By CommentTime";
+                art.artistId = artist.Id;
+                art.creationDate = DateTime.UtcNow;
 
-                using (var command = new SqlCommand(query, connection))
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                 {
-                    using (var reader = command.ExecuteReader())
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO Art (Title, ArtistId, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @ArtistId, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    SELECT SCOPE_IDENTITY();
+                ";
+
+                    using (var command = new SqlCommand(query, connection))
                     {
-                        while (reader.Read())
-                        {
-                            var comment = new Comment
-                            { //Art Table + NumLikes and NumComments
-                                CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetString(1),
-                                ArtistName = reader.GetString(2),
-                                ArtId = reader.GetInt32(3),
-                                CommentContent = reader.GetString(4),
-                                CommentTime = reader.GetDateTime(5)
-                            };
-                            comments.Add(comment);
-                        }
+                        command.Parameters.AddWithValue("@Title", art.title);
+                        command.Parameters.AddWithValue("@ArtistId", art.artistId);
+                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+
+                        var newArtId = await command.ExecuteScalarAsync();
+                        art.id = Convert.ToInt32(newArtId);
                     }
                 }
+
+                return art;
             }
-            return comments;
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveArt");
+                throw;
+            }
         }
     }
 }
