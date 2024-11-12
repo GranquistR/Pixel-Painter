@@ -53,43 +53,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         command.Parameters.Add(new SqlParameter("@id", id));
                         using (var reader = command.ExecuteReader())
-           
-            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
-                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
-                    {
-                        command.Parameters.AddWithValue("@ArtistID", commenter.Id);
-                        command.Parameters.AddWithValue("@ArtID", comment.artId);
-                        command.Parameters.AddWithValue("@Message", comment.message);
-                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
-
-                        var newId = await command.ExecuteScalarAsync();
-                        comment.id = Convert.ToInt32(newId);
-                using (var command = new SqlCommand(query, connection))
-                {
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
                         {
-                            var comment = new Comment
-                            { //Art Table + NumLikes and NumComments
-                                CommentId = reader.GetInt32(0),
-                                ArtistId = reader.GetString(1),
-                                ArtistName = reader.GetString(2),
-                                ArtId = reader.GetInt32(3),
-                                CommentContent = reader.GetString(4),
-                                CommentTime = reader.GetDateTime(5)
-                            };
-                            comments.Add(comment);
+                            while (reader.Read())
+                            {
+                                var comment = new Comment
+                                { //Art Table + NumLikes and NumComments
+                                    id = reader.GetInt32(0),
+                                    artistId = reader.GetInt32(1),
+                                    artId = reader.GetInt32(2),
+                                    message = reader.GetString(3),
+                                    commenterName = reader.GetString(4),
+                                    creationDate = reader.GetDateTime(5),
+                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
+                                };
+                                comments.Add(comment);
+                            }
                         }
                     }
                 }
+                return comments;
             }
-            return comments;
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error retrieving comments");
+                throw;
+            }
         }
         public async Task<int> EditComment(int commentId, string newMessage)
         {
@@ -117,11 +105,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
                 //update table here
-                var query = "UPDATE Comment SET Comment = @newComment WHERE ID = @CommentId";
+                var query = "UPDATE Comment SET Message = @newComment WHERE ID = @commentID";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@newComment", newMessage);
-                    command.Parameters.AddWithValue("@CommentId", commentId);
+                    command.Parameters.AddWithValue("@CommentID", commentId);
 
                     int rowsChanged = command.ExecuteNonQuery();
                     if (rowsChanged > 0)
@@ -163,7 +151,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         return 0;
                     }
                 }
-                var checkResponseQuery = "SELECT Count(*) FROM comment WHERE Response = @CommentId";
+                var checkResponseQuery = "SELECT Count(*) FROM comment WHERE ReplyId = @CommentId";
                 using (SqlCommand checkResponseCommand = new SqlCommand(checknullQuery, connection))
                 {
                     checkResponseCommand.Parameters.AddWithValue("@CommentId", commentId);
@@ -171,7 +159,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     int count = (int)await checkResponseCommand.ExecuteScalarAsync();
                     if (count > 0)
                     {
-                        var subquery = "DELETE Comment WHERE Response = @commentId";
+                        var subquery = "DELETE Comment WHERE ReplyId = @commentId";
                         using (SqlCommand DeleteResponse = new SqlCommand(subquery, connection))
                         {
                             DeleteResponse.Parameters.AddWithValue("@CommentId", commentId);
@@ -205,36 +193,28 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
-        public async Task<bool> createComment(string userID, string comment, int ArtId)
+
+        public async Task<Comment> CreateComment(Artist commenter, Comment comment)
         {
-            var connectionString = AppConfig.Value.ConnectionString;
-            Logger.LogInformation("One hit");
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            comment.artistId = commenter.Id;
+            comment.commenterName = commenter.Name;
+            comment.creationDate = DateTime.UtcNow;
+           
+            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
             {
-                connection.Open();
-                var duplicateQuery = "SELECT artist.ArtistName FROM Artist WHERE Artist.ID=@ArtistId";
-                using (SqlCommand duplicateCommand = new SqlCommand(duplicateQuery, connection))
+                try
                 {
-                    duplicateCommand.Parameters.AddWithValue("@ArtistId", userID);
-
-                    string ArtistName = (string)await duplicateCommand.ExecuteScalarAsync();
-                    //if (count > 0)
-                    //{
-                    //    Console.WriteLine("Placeholder");
-                    //    return false;
-                    //}
-
-                    var insertQuery = "INSERT INTO Comment (ArtID,ArtistId,ArtistName,Comment) VALUES (@ArtId,@ArtistID,@ArtistName,@Comment)";
-                    using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection))
+                    connection.Open();
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
-                        insertCommand.Parameters.AddWithValue("@ArtID", ArtId);
-                        insertCommand.Parameters.AddWithValue("@ArtistID", userID);
-                        insertCommand.Parameters.AddWithValue("@ArtistName", ArtistName);
-                        insertCommand.Parameters.AddWithValue("@Comment", comment);
-                        //int s = 1;
-                        try
-                        {
-                            int rowschanged = (int)await insertCommand.ExecuteNonQueryAsync();
+                        command.Parameters.AddWithValue("@ArtistID", commenter.Id);
+                        command.Parameters.AddWithValue("@ArtID", comment.artId);
+                        command.Parameters.AddWithValue("@Message", comment.message);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+
+                        var newId = await command.ExecuteScalarAsync();
+                        comment.id = Convert.ToInt32(newId);
 
                         return comment;
 

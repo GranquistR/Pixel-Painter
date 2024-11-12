@@ -53,17 +53,6 @@ export default class CommentAccessService {
       throw error;
     }
   }
-  public static async isCookieCommentUser(artistId: string): Promise<any> {
-    try {
-      const response = await fetch(
-        `/comment/CheckCookietoUser?commentUserId=${artistId}`,
-      );
-      const isMyComment: boolean = (await response.json()) as boolean;
-      return isMyComment;
-    } catch (error) {
-      console.error;
-    }
-  }
   public static async EditComment(
     commentId: number,
     newMessage: string,

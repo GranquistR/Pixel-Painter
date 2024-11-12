@@ -28,7 +28,7 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
-
+        [HttpGet]
         [Route("GetCommentsByArtId")]
         public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
         {
