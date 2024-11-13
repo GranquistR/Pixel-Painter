@@ -75,39 +75,6 @@ namespace MyTestVueApp.Server.Controllers
             }
             return Ok(false);
         }
-    }
-
-    [HttpGet]
-        [Route("StoreUserSub")]
-        public async Task<IActionResult> StoreUserSub()
-        {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-            {
-                var rowsChanged = await LoginService.SendIdToDatabase(userId);
-
-                if (rowsChanged > 0)
-                {
-                    return Ok();
-                }
-                else
-                {
-                    return Ok(false);
-                }
-            }
-            else
-            {
-                return Ok(false);
-            }
-        }
-
-
-        [HttpGet]
-        [Route("UsernameGenerator")] // May be obsolete 
-        public async Task<IActionResult> UsernameGenerator()
-        {
-            var username = await LoginService.generateUsername();
-            return Ok(new { username });
-        }
 
         [HttpGet]
         [Route("GetUsername")]
