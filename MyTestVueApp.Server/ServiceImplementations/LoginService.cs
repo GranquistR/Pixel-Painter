@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
+using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using System;
+using System.Security.Authentication;
 using System;
 using System.Data;
 

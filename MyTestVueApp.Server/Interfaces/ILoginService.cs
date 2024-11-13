@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyTestVueApp.Server.Entities;
 
 namespace MyTestVueApp.Server.Interfaces
 {
@@ -9,6 +10,6 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<string> generateUsername();
         public Task<string> getUsername(string subId);
         public Task<int> updateUsername(string newUsername, string subId);
-
+        public Task<Artist> GetUserBySubId(string SubId);
     }
 }

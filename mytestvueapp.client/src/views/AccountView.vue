@@ -60,7 +60,7 @@ onMounted(() => {
 
 function logout() {
   LoginService.logout().then(() => {
-    router.push("/");
+    window.location.replace(`/`);
     toast.add({
       severity: "success",
       summary: "Success",
