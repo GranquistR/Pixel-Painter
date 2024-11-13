@@ -22,8 +22,6 @@ export default class LinkedList<T> {
     private tail: LinkedNode | null = null;
     private current: LinkedNode | null = null;
 
-    private len = 0;
-
     constructor(headElement?: LinkedNode, tailElement?: LinkedNode,currentElement?: LinkedNode) {
         this.head = headElement || null;
         this.tail = tailElement || null;
@@ -44,8 +42,6 @@ export default class LinkedList<T> {
             this.current = node;
             }
         }
-        this.len++;
-        console.log(this.len);
     }
 
     public isDifferent(pixelGrid:string[][]){
@@ -58,10 +54,7 @@ export default class LinkedList<T> {
                     isDifferent=true;
                 }
             }
-          }
-            
-            console.log(isDifferent);
-            
+          }            
 
         }
         if (isDifferent){
@@ -100,11 +93,4 @@ export default class LinkedList<T> {
          }
         }
     
-        
-
-       
-   
-
-    
-  
 }
