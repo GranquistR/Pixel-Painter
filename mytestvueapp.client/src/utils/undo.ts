@@ -2,55 +2,59 @@
 
 
 
-class LinkedNode<T> {
-    private _elem: T[][];
-    public next: LinkedNode<T> | null;
+class LinkedNode {
+    private _elem: string[][];
+    public next: LinkedNode | null;
    
-    constructor(elem: T[][])  {
+    constructor(elem: string[][])  {
         this._elem = elem;
         this.next = null;
         
     }
 
-    get elem(): T[][] {
+    get elem(): string[][] {
         return this._elem;
     }
 }
 
 export default class LinkedList<T> {
-    private head: LinkedNode<T> | null = null;
+    private head: LinkedNode | null = null;
+    private tail: LinkedNode | null = null;
+    private current: LinkedNode | null = null;
 
     private len = 0;
 
-    constructor(headElement?: LinkedNode<T>) {
+    constructor(headElement?: LinkedNode, tailElement?: LinkedNode,currentElement?: LinkedNode) {
         this.head = headElement || null;
-
+        this.tail = tailElement || null;
+        this.current = currentElement || null;
     }
 
-    public append(elem: T[][]) {
-        const node = new LinkedNode(elem);
-        let current: LinkedNode<T>;
+    public append(pixelGrid: string[][]) {
+        const node = new LinkedNode(pixelGrid);
 
-        if (this.head === null) {
+        if (this.head === null && this.current === null && this.tail === null) {
             this.head = node;
+            this.tail = node;
+            this.current = node;
         } else {
-            current = this.head;
-            while (current.next) {
-                current = current.next;
+            if(this.current){
+           this.current.next=node;
+            this.tail = node;
+            this.current = node;
             }
-            current.next = node;
         }
         this.len++;
         console.log(this.len);
     }
 
-    public isDifferent(pixelGrid:T[][]){
+    public isDifferent(pixelGrid:string[][]){
         let isDifferent = false;
-        const last = this.getLast();
-        if(last!==null && this.head!==null){
+        
+        if(this.current!==null && this.head!==null){
         for (let i = 0; i < pixelGrid.length; i++) {
             for (let j = 0; j < pixelGrid.length; j++) {
-                if(pixelGrid[i][j] !== last[i][j]){
+                if(pixelGrid[i][j] !== this.current.elem[i][j]){
                     isDifferent=true;
                 }
             }
@@ -69,33 +73,38 @@ export default class LinkedList<T> {
        
     }
 
-    public getPrevious(pixelGrid:T[][]){
-        if (!this.head) {
+    public getPrevious(){
+        
+         if (!this.head) {
             return null; // Empty list
           }
-      
-          let current = this.head;
-          while (current.next && current.next.elem != pixelGrid) {
-            current = current.next;
+          let previous = this.head;
+          if(previous === this.current){
+            return this.head.elem;
           }
-      
-          return current.elem;
+          while (previous.next && previous.next.next && previous.next != this.current) {
+            previous = previous.next;
+          }
+         
+
+          this.current = previous;
+        return this.current.elem;
+          
+           
         }
+
+    public getNext(){
+        if(this.current && this.current.next){
+            this.current = this.current.next
+        return this.current.elem;
+         }
+        }
+    
+        
 
        
-    
+   
 
-    getLast(): T[][] | null {
-        if (!this.head) {
-          return null; // Empty list
-        }
     
-        let current = this.head;
-        while (current.next) {
-          current = current.next;
-        }
-    
-        return current.elem;
-      }
   
 }

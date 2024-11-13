@@ -62,7 +62,7 @@ import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import LinkedList from "@/utils/undo"
 import DefaultColor from "@/entities/DefaultColors";
-import codec from "@/utils/codec"
+
 
 
 onBeforeRouteLeave((to, from, next) => {
@@ -257,6 +257,27 @@ function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
       undoList.isDifferent(currentGrid);
     }
+function undo(){
+  let previousGrid= undoList.getPrevious()
+  if(previousGrid){
+  for(let i=0; i < pixelGrid.value.width; i++){
+    for(let j=0; j < pixelGrid.value.height; j++){
+   pixelGrid.value.grid[i][j]=previousGrid[i][j];
+    }
+  }
+}
+}
+
+function redo(){
+  let nextGrid= undoList.getNext()
+  if(nextGrid)
+  for(let i=0; i < pixelGrid.value.width; i++){
+    for(let j=0; j < pixelGrid.value.height; j++){
+   pixelGrid.value.grid[i][j]=nextGrid[i][j];
+    }
+  }
+  
+}
 
     
 
@@ -278,8 +299,12 @@ else if (event.key === "9") {event.preventDefault();cursor.value.color = Default
 else if (event.key === "0") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[9].hex;} 
 else if (event.key === "-") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[10].hex;} 
 else if (event.key === "=") {event.preventDefault();cursor.value.color = DefaultColor.getDefaultColors()[11].hex;} 
-else if (event.key === "z" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1;canvas?.value.updateCursor()} 
-else if (event.key === "x" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1;canvas?.value.updateCursor()} 
+else if (event.key === "q" && cursor.value.size > 1) {event.preventDefault();cursor.value.size -=1;canvas?.value.updateCursor()} 
+else if (event.key === "w" && cursor.value.size < 32) {event.preventDefault();cursor.value.size +=1;canvas?.value.updateCursor()} 
+
+else if (event.ctrlKey && event.key === 'z') {event.preventDefault(); undo();} 
+else if (event.ctrlKey && event.key === 'y') {event.preventDefault(); redo();} 
+
 
 }); 
 
