@@ -8,6 +8,9 @@ namespace MyTestVueApp.Server.Interfaces
     /// </summary>
     public interface ICommentAccessService
     {
+        Task<int> DeleteComment(int commentId);
+        Task<int> EditComment(int commentId, string newMessage);
+
         /// <summary>
         /// Gets a list of all paintings from the database.
         /// </summary>
