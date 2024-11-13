@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using MyTestVueApp.Server.ServiceImplementations;
 using System.Security.Authentication;
 
 namespace MyTestVueApp.Server.Controllers
@@ -30,9 +31,17 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtById")]
-        public Art GetArtById(int id)
+        public async Task<Art> GetArtByIdAsync(int id)
         {
-            return ArtAccessService.GetArtById(id);
+            var art = ArtAccessService.GetArtById(id);
+
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var artist = await LoginService.GetUserBySubId(userId);
+
+                    art.currentUserIsOwner = (art.artistId == artist.Id);
+            }
+            return art;
         }
 
         [HttpPost]

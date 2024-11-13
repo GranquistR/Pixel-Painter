@@ -10,6 +10,8 @@
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
+        <div v-if="art.currentUserisOwner">this is shown</div>
+        {{ art.currentUserisOwner }}
         <h3>{{ art.title }}</h3>
         <div>By {{ art.artistName }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
@@ -45,22 +47,19 @@ import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
 import LikeButton from "@/components/LikeButton.vue";
-
 const route = useRoute();
-
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-
 onMounted(() => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     art.value = promise as Art;
     uploadDate.value = new Date(promise.creationDate);
+    console.log(art.value);
   });
   updateComments();
 });
-
 function updateComments() {
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = promise;
