@@ -20,13 +20,13 @@
         @click="ResetArt()"
       >
       </Button>
-      <Button icon="pi pi-upload" label="Publish"> </Button>
+      <UploadButton :pixelGrid="pixelGrid" />
     </template>
 
     <template #center>
       <BrushSelection v-model="cursor.selectedTool" />
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
-      <SaveAndLoad v-model="pixelGrid" />
+      <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
       <Button
@@ -50,8 +50,7 @@
 import Toolbar from "primevue/toolbar";
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
-import SaveAndLoad from "@/components/PainterUi/SaveAndLoad.vue";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
@@ -62,14 +61,19 @@ import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import LinkedList from "@/utils/undo"
 import DefaultColor from "@/entities/DefaultColors";
+import UploadButton from "@/components/PainterUi/UploadButton.vue";
 
 
 
 onBeforeRouteLeave((to, from, next) => {
-  if (to.path != "/new") {
-    localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
+  if (to.path != "/new" && !to.path.includes("/art")) {
+    LocalSave();
   }
   next();
+});
+
+window.addEventListener("beforeunload", () => {
+  LocalSave();
 });
 
 const cursor = ref<Cursor>(
@@ -90,7 +94,7 @@ const pixelGrid = ref<PixelGrid>(
 );
 
 if (workingGrid) {
-  pixelGrid.value.updateGrid(workingGrid);
+  pixelGrid.value.DeepCopy(workingGrid);
 }
 
 const cursorPositionComputed = computed(
@@ -308,6 +312,9 @@ else if (event.ctrlKey && event.key === 'y') {event.preventDefault(); redo();}
 
 }); 
 
+function LocalSave() {
+  localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
+}
 
 
 const canvas = ref();

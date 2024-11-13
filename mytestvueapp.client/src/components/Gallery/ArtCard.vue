@@ -1,40 +1,29 @@
 <template>
-  <div
-    class="border-color mr-4 mb-4 border-round-md"
-    @mouseenter="hover = true"
-    @mouseleave="hover = false"
-    :class="{ active: hover }"
-  >
+  <div class="mr-4 mb-4 border-round-md">
     <!-- Container -->
     <Card
-      class="flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
-      @click="router.push(`/art/${art.artId}`)"
+      class="art-card flex-shrink-0 w-13rem overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
+      @click="router.push(`/art/${art.id}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="(32 / art.height) * 6.5" />
-        <!-- <img class="w-full h-10rem m-0" :src="art.encode"/> -->
+        <MyCanvas :art="art" :pixelSize="(32 / art.pixelGrid?.height) * 6.5" />
       </template>
       <template #title>
         <div class="text-base font-bold m-0 px-2 pt-1">
-          {{ art.artName }}
+          {{ art.title }}
         </div>
       </template>
       <template #subtitle>
         <div class="text-sm m-0 px-2">@{{ art.artistName }}</div>
       </template>
-      <template #footer>
-        <div class="flex flex-row w-full gap-2 mt-1 px-2 pb-2">
+      <template #content>
+        <div class="flex gap-2 m-2">
+          <LikeButton :artId="props.art.id" :likes="props.art.numLikes" />
           <Button
-            :severity="liked ? 'danger' : ''"
-            class="w-full flex-grow p-1"
-            :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
-            :label="likes"
-            @click.stop="likedClicked()"
-          />
-          <Button
-            class="w-full flex-grow p-2"
+            rounded
+            severity="secondary"
             icon="pi pi-comment"
-            :label="art.numComments?.toString() || 'Null'"
+            :label="art.numComments?.toString() || ''"
           />
         </div>
       </template>
@@ -45,6 +34,7 @@
 <script setup lang="ts">
 import Card from "primevue/card";
 import Button from "primevue/button";
+import LikeButton from "../LikeButton.vue";
 import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
@@ -53,46 +43,15 @@ import router from "@/router";
 const props = defineProps<{
   art: Art;
 }>();
-
-console.log(props.art);
-
-const liked = ref(false);
-const hover = ref(false);
-
-const likes = ref(0);
-
-if (props.art.numLikes) {
-  likes.value = props.art.numLikes;
-}
-
-const likedClicked = () => {
-  liked.value = !liked.value;
-
-  if (props.art.numLikes) {
-    if (liked.value) {
-      likes.value = props.art.numLikes + 1;
-    } else {
-      likes.value = props.art.numLikes;
-    }
-  }
-
-  console.log(liked.value);
-};
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.art-card {
+  border: 1px solid transparent;
 }
-.border-color {
-  padding: 2px;
-  background-color: var(--p-card-background);
-  position: relative;
-}
-.active {
-  background-color: var(--p-primary-color);
+
+.art-card:hover {
+  border: 1px solid var(--p-primary-color);
 }
 </style>
 

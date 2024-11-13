@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
+using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using System;
+using System.Security.Authentication;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -69,47 +72,74 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<int> SendIdToDatabase(string subId)
+        public async Task SendIdToDatabase(string subId)
         {
+            var artist = await GetUserBySubId(subId);
+            if (artist == null)
+            {
+
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    var query = "INSERT INTO Artist (Name, SubId, IsAdmin, CreationDate) VALUES (@Name, @SubId, @IsAdmin, @CreationDate)";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Name", "Username");
+                        command.Parameters.AddWithValue("@SubId", subId);
+                        command.Parameters.AddWithValue("@IsAdmin", 0);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+
+                        command.ExecuteNonQuery();
+
+                    }
+                }
+            }
+        }
+
+        public async Task<Artist> GetUserBySubId(string subId)
+        {
+            var artist = new Artist();
+
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                // This query and command is to check if the user and Id is already in the database
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @Token";
-                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
-                {
-                    checkDupCommand.Parameters.AddWithValue("@Token", subId);
-
-                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
-                    if (count > 0)
-                    {
-                        Console.WriteLine("Id already exists in database");
-                        return 0;
-                    }
-                }
-
-                var query = "INSERT INTO Artist (ArtistName, ID) VALUES (@ArtistName, @Token)";
-
+                var query = @"
+                    SELECT TOP (1) [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                      FROM [PixelPainter].[dbo].[Artist]
+                      WHERE SubId = @SubId
+                    ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistName", "Username");
-                    command.Parameters.AddWithValue("@Token", subId);
+                    command.Parameters.AddWithValue("@SubId", subId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
-                    if (rowsChanged > 0)
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        Console.WriteLine("Id was added successfully");
-                        return rowsChanged;
-                    } 
-                    else
-                    {
-                        Console.WriteLine("Failed to insert Id");
-                        return -1;
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                            };
+                            return artist;
+                        }
                     }
                 }
             }
+
+            return null;
         }
     }
 }
