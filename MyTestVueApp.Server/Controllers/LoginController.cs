@@ -51,9 +51,7 @@ namespace MyTestVueApp.Server.Controllers
                 SameSite = SameSiteMode.Strict
             });
 
-            Logger.LogInformation("Storing user sub...");
             await StoreUserSub(subId);
-            Logger.LogInformation("Done awaiting StoreUserSub");
 
             return Redirect(AppConfig.Value.HomeUrl);
         }
@@ -82,10 +80,8 @@ namespace MyTestVueApp.Server.Controllers
         [Route("StoreUserSub")]
         public async Task<IActionResult> StoreUserSub()
         {
-            Logger.LogInformation("In StoreUserSub");
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                Logger.LogInformation("SubId gotten");
                 var rowsChanged = await LoginService.SendIdToDatabase(userId);
 
                 if (rowsChanged > 0)
@@ -105,8 +101,6 @@ namespace MyTestVueApp.Server.Controllers
 
         public async Task<IActionResult> StoreUserSub(string userId)
         {
-            Logger.LogInformation("In Overloaded StoreUserSub");
-
             var rowsChanged = await LoginService.SendIdToDatabase(userId);
 
             if (rowsChanged > 0)
@@ -120,11 +114,30 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("UsernameGenerator")]
+        [Route("UsernameGenerator")] // May be obsolete 
         public async Task<IActionResult> UsernameGenerator()
         {
             var username = await LoginService.generateUsername();
             return Ok(new { username });
+        }
+
+        [HttpGet]
+        [Route("GetUsername")]
+        public async Task<IActionResult> GetUsername()
+        {
+            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
+            var username = await LoginService.getUsername(subId);
+            return Ok(new { username });
+        }
+
+        [HttpGet]
+        [Route("UpdateUsername")]
+        public async Task<IActionResult> UpdateUsername(string newUsername)
+        {
+            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
+            var rowsChanged = await LoginService.updateUsername(newUsername, subId);
+
+            return Ok(new { rowsChanged });
         }
     }
 }

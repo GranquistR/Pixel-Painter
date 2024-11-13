@@ -46,14 +46,51 @@ export default class LoginService {
 
             const data = await response.json();
             const username: string = data.username;
-           
-            console.log("Username: ", username);
 
             return username;
         }
         catch (error) {
             console.error(error);
             return "Failed to generate username";
+        }
+    }
+
+    public static async getUsername(): Promise<string> {
+        try {
+            const response = await fetch("login/GetUsername");
+
+            if (!response.ok) {
+                console.log("Response was not ok");
+                throw new Error("Error: Bad response");
+            }
+
+            const data = await response.json();
+            const username: string = data.username;
+
+            return username;
+        }
+        catch (error) {
+            console.error(error);
+            return "Failed to get username";
+        }
+    }
+
+    public static async updateUsername(newUsername : any): Promise<number> {
+        try {
+            const response = await fetch(`login/UpdateUsername?newUsername=${newUsername}`);
+
+            if (!response.ok) {
+                throw new Error("Error: Bad response");
+            }
+
+            const data = await response.json();
+            const rowsChanged: number = data.rowsChanged;
+
+            return rowsChanged;
+        }
+        catch (error) {
+            console.error(error);
+            return -1;
         }
     }
 }

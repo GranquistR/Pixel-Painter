@@ -9,6 +9,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
+using System;
+using System.Data;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -37,7 +39,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             "Flower", "Guitar", "House", "Ice", "Jacket",
             "Kite", "Lion", "Mountain", "Notebook", "Orange",
             "Pencil", "Quilt", "Rocket", "Sun", "Tree",
-            "Umbrella", "Violin", "Window", "Xylophone", "Yacht",
+            "Umbrella", "Violin", "Window", "Car", "Yacht",
             "Zebra", "Book", "Car", "Desk", "Egg",
             "Fish", "Glove", "Hat", "Island", "Jam",
             "Key", "Lamp", "Mug", "Nut", "Oven",
@@ -105,35 +107,33 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
 
                 // This query and command is to check if the user and Id is already in the database
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @Token";
+                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @ID";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@Token", subId);
+                    checkDupCommand.Parameters.AddWithValue("@ID", subId);
 
                     int count = (int)await checkDupCommand.ExecuteScalarAsync();
                     if (count > 0)
                     {
-                        Console.WriteLine("Id already exists in database");
                         return 0;
                     }
                 }
 
-                var query = "INSERT INTO Artist (ArtistName, ID) VALUES (@ArtistName, @Token)";
+                var query = "INSERT INTO Artist (ID, ArtistName) VALUES (@ID, @ArtistName)";
+                string username = generateUsername().Result;
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistName", "Username");
-                    command.Parameters.AddWithValue("@Token", subId);
+                    command.Parameters.AddWithValue("@ID", subId);
+                    command.Parameters.AddWithValue("@ArtistName", username);
 
                     int rowsChanged = command.ExecuteNonQuery();
                     if (rowsChanged > 0)
                     {
-                        Console.WriteLine("Id was added successfully");
                         return rowsChanged;
                     } 
                     else
                     {
-                        Console.WriteLine("Failed to insert Id");
                         return -1;
                     }
                 }
@@ -157,6 +157,72 @@ namespace MyTestVueApp.Server.ServiceImplementations
             var username = getAdjective(rnd.Next(50)) + getNoun(rnd.Next(50)) + rnd.Next(1000);
 
             return username;
+        }
+
+        public async Task<string> getUsername(string subId)
+        {
+            string query = "SELECT ArtistName FROM Artist WHERE ID = @ID";
+
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ID", subId);
+
+                    using (SqlDataReader read = command.ExecuteReader())
+                    {
+                        if (read.Read()) {
+                            string username = read["ArtistName"].ToString();
+                            return username;
+                        }
+                    }
+                }
+            }
+            return "Failed to get username";
+        }
+
+        public async Task<int> updateUsername(string newUsername, string subId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // This query and command is to check if the username is already taken or not
+                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ArtistName = @ArtistName";
+                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@ArtistName", newUsername);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count > 0)
+                    {
+                        return 0;
+                    }
+                }
+
+                // var query = "INSERT INTO Artist (ArtistName) VALUES (@ArtistName)";
+                var query = "UPDATE Artist SET ArtistName = @ArtistName WHERE ID = @ID";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.Add("@ID", SqlDbType.VarChar).Value = subId;
+                    command.Parameters.AddWithValue("@ArtistName", newUsername);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        return rowsChanged;
+                    } 
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
         }
     }
 }
