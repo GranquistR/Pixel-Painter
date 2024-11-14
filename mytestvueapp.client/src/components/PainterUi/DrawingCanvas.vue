@@ -15,7 +15,6 @@ import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 
-
 //Constants
 var PIXEL_SIZE = 10;
 
@@ -25,7 +24,7 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-defineExpose({ recenter, updateCursor});
+defineExpose({ recenter, updateCursor });
 
 //model
 const cursor = defineModel<Cursor>({
@@ -95,11 +94,8 @@ function drawCanvas() {
 
 const pos = ref<any>();
 
-
-
 viewport.on("pointermove", (e) => {
   pos.value = viewport.toWorld(e.globalX, e.globalY);
-
 
   updateCursor();
 });
@@ -163,15 +159,11 @@ function recenter() {
   viewport.setZoom(40 / props.pixelGrid.width);
   viewport.moveCenter(
     (props.pixelGrid.width * PIXEL_SIZE) / 2,
-    (props.pixelGrid.height * PIXEL_SIZE) / 2 + (props.pixelGrid.height * 2.5)
+    (props.pixelGrid.height * PIXEL_SIZE) / 2 + props.pixelGrid.height * 2.5
   );
 }
 
-//refresh canvas when pixelGrid changes
-watch(props.pixelGrid.grid, () => {
-  viewport.children.forEach((child) => {
-    app.stage.removeChild(child);
-  });
+watch(props.pixelGrid, (prev, next) => {
   drawCanvas();
 });
 

@@ -48,71 +48,46 @@
 </template>
 
 <script setup lang="ts">
+//vue prime
 import Toolbar from "primevue/toolbar";
-import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
-import { PixelGrid } from "@/entities/PixelGrid";
-import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import Button from "primevue/button";
+
+//custom components
+import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
-import PainterTool from "@/entities/PainterTool";
-import { Vector2 } from "@/entities/Vector2";
-import Cursor from "@/entities/Cursor";
-import router from "@/router";
-import { onBeforeRouteLeave } from "vue-router";
-import LinkedList from "@/utils/undo";
-import DefaultColor from "@/entities/DefaultColors";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 
-onBeforeRouteLeave((to, from, next) => {
-  if (to.path != "/new" && !to.path.includes("/art")) {
-    LocalSave();
-  }
-  next();
-});
+//entities
+import { PixelGrid } from "@/entities/PixelGrid";
+import { Vector2 } from "@/entities/Vector2";
+import DefaultColor from "@/entities/DefaultColors";
+import PainterTool from "@/entities/PainterTool";
+import Cursor from "@/entities/Cursor";
 
-onMounted(() => {
-  document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("beforeunload", handleBeforeUnload);
-});
+//vue
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
+import router from "@/router";
+import { onBeforeRouteLeave } from "vue-router";
+import { useRoute } from "vue-router";
 
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeyDown);
-  window.removeEventListener("beforeunload", handleBeforeUnload);
-});
+//scripts
+import LinkedList from "@/utils/undo";
 
-const ToggleKeybinds = (disable: boolean) => {
-  if (disable) {
-    document.removeEventListener("keydown", handleKeyDown);
-  } else {
-    document.addEventListener("keydown", handleKeyDown);
-  }
-};
-
-function handleBeforeUnload(event: BeforeUnloadEvent) {
-  LocalSave();
-}
+//variables
+const route = useRoute();
+const canvas = ref();
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
 );
+
 const mouseButtonHeldDown = ref<boolean>(false);
 
-const workingGrid = JSON.parse(
-  localStorage.getItem("working-art") as string
-) as PixelGrid;
+const pixelGrid = ref<PixelGrid>(new PixelGrid(1, 1, "#ff00ff"));
 
-const pixelGrid = ref<PixelGrid>(
-  new PixelGrid(
-    workingGrid.width,
-    workingGrid.height,
-    workingGrid.backgroundColor
-  )
-);
-
-if (workingGrid) {
-  pixelGrid.value.DeepCopy(workingGrid);
-}
+var undoList = new LinkedList();
+var currentGrid: string[][] = [];
 
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -127,6 +102,49 @@ const cursorPositionComputed = computed(
   () => new Vector2(cursor.value.position.x, cursor.value.position.y)
 );
 
+//lifecycle hooks
+onBeforeRouteLeave((to, from, next) => {
+  if (to.path != "/new" && !to.path.includes("/art")) {
+    LocalSave();
+  }
+  next();
+});
+
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  const workingGrid = JSON.parse(
+    localStorage.getItem("working-art") as string
+  ) as PixelGrid;
+  if (workingGrid == null) {
+    router.push("/new");
+  } else {
+    pixelGrid.value.DeepCopy(workingGrid);
+    canvas.value?.recenter();
+    currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+    undoList.append(currentGrid);
+  }
+});
+
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+//functions
+const ToggleKeybinds = (disable: boolean) => {
+  if (disable) {
+    document.removeEventListener("keydown", handleKeyDown);
+  } else {
+    document.addEventListener("keydown", handleKeyDown);
+  }
+};
+
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  LocalSave();
+}
+
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
@@ -139,6 +157,7 @@ watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
 
+//functions
 function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   const pixels: Vector2[] = [];
 
@@ -268,11 +287,6 @@ function ResetArt() {
   router.push("/new");
 }
 
-var undoList = new LinkedList();
-let currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
-
-undoList.append(currentGrid);
-
 function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
   undoList.isDifferent(currentGrid);
@@ -375,8 +389,6 @@ function handleKeyDown(event: KeyboardEvent) {
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
 }
-
-const canvas = ref();
 </script>
 <style scoped>
 .Rainbow,
