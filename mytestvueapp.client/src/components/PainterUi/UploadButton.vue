@@ -48,7 +48,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
@@ -65,6 +65,12 @@ art.value.title = "Untitled Art";
 const props = defineProps<{
   pixelGrid: PixelGrid;
 }>();
+
+const emit = defineEmits(["OpenModal"]);
+
+watch(visible, () => {
+  emit("OpenModal", visible.value);
+});
 
 function Upload() {
   loading.value = true;
