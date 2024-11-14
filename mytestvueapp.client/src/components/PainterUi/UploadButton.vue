@@ -79,7 +79,7 @@ function Upload() {
     if (isLoggedIn) {
       art.value.pixelGrid.DeepCopy(props.pixelGrid);
 
-      ArtAccessService.UploadArt(art.value)
+      ArtAccessService.SaveArt(art.value)
         .then((data: Art) => {
           if (data.id != undefined) {
             toast.add({

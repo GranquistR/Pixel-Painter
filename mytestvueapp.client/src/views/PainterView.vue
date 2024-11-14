@@ -73,6 +73,7 @@ import { useRoute } from "vue-router";
 
 //scripts
 import LinkedList from "@/utils/undo";
+import ArtAccessService from "@/services/ArtAccessService";
 
 //variables
 const route = useRoute();
@@ -117,7 +118,17 @@ onMounted(() => {
   const workingGrid = JSON.parse(
     localStorage.getItem("working-art") as string
   ) as PixelGrid;
-  if (workingGrid == null) {
+
+  if (route.params.id) {
+    const id: number = parseInt(route.params.id as string);
+    ArtAccessService.getArtById(id).then((data) => {
+      pixelGrid.value.DeepCopy(data.pixelGrid);
+      canvas.value?.recenter();
+      currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+      undoList.append(currentGrid);
+      isEditing.value = true;
+    });
+  } else if (workingGrid == null) {
     router.push("/new");
   } else {
     pixelGrid.value.DeepCopy(workingGrid);

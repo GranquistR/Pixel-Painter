@@ -61,6 +61,7 @@ export class PixelGrid {
   DeepCopy(decodedGrid: PixelGrid): void {
     this.width = decodedGrid.width;
     this.height = decodedGrid.height;
+    this.backgroundColor = decodedGrid.backgroundColor;
     this.grid = this.createGrid(this.width, this.height, this.backgroundColor);
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {

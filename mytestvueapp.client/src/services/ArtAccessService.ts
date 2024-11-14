@@ -1,5 +1,6 @@
 import Art from "../entities/Art";
 import Comment from "../entities/Comment";
+import codec from "@/utils/codec";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<Art[]> {
@@ -54,6 +55,13 @@ export default class ArtAccessService {
       const json = await response.json();
 
       const artpiece = json as Art;
+      artpiece.pixelGrid.backgroundColor = "#ffffff";
+      artpiece.pixelGrid.grid = codec.Decode(
+        artpiece.pixelGrid.encodedGrid || "",
+        artpiece.pixelGrid.height,
+        artpiece.pixelGrid.width,
+        artpiece.pixelGrid.backgroundColor
+      ).grid;
 
       return artpiece;
     } catch (error) {
@@ -79,7 +87,7 @@ export default class ArtAccessService {
     }
   }
 
-  public static async UploadArt(art: Art): Promise<Art> {
+  public static async SaveArt(art: Art): Promise<Art> {
     try {
       art.creationDate = new Date().toISOString();
 

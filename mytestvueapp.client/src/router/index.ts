@@ -10,7 +10,12 @@ const router = createRouter({
     },
     {
       path: "/paint",
-      name: "Painter View",
+      name: "New Painter View",
+      component: () => import("../views/PainterView.vue"),
+    },
+    {
+      path: "/paint/:id",
+      name: "Edit Painter View",
       component: () => import("../views/PainterView.vue"),
     },
     {
