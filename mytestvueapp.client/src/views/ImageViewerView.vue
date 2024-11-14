@@ -11,7 +11,6 @@
     <Card class="w-20rem ml-5">
       <template #content>
         <div v-if="art.currentUserisOwner">this is shown</div>
-        {{ art.currentUserisOwner }}
         <h3>{{ art.title }}</h3>
         <div>By {{ art.artistName }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
@@ -56,7 +55,6 @@ onMounted(() => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     art.value = promise as Art;
     uploadDate.value = new Date(promise.creationDate);
-    console.log(art.value);
   });
   updateComments();
 });
