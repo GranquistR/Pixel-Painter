@@ -41,17 +41,17 @@ namespace MyTestVueApp.Server.Controllers
         [Route("LoginRedirect")]
         public async Task<IActionResult> RedirectLogin(string code, string scope, string authuser, string prompt)
         {
-            var subId = await LoginService.GetUserId(code);
+            var userInfo = await LoginService.GetUserId(code);
 
             // Add Id to cookies
-            Response.Cookies.Append("GoogleOAuth", subId, new CookieOptions
+            Response.Cookies.Append("GoogleOAuth", userInfo.Id, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict
             });
 
-            await LoginService.SignupActions(subId);
+            await LoginService.SignupActions(userInfo.Id, userInfo.Email);
 
             return Redirect(AppConfig.Value.HomeUrl);
         }
@@ -108,6 +108,14 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("GetEmail")]
+        public async Task<IActionResult> GetEmail()
+        {
+            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
+            return Ok(LoginService.GetEmail(subId)); 
         }
     }
 }
