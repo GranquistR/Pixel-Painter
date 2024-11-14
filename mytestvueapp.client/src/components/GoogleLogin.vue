@@ -1,6 +1,7 @@
 <template>
   <Button
     :label="isLoggedIn ? 'Account' : 'Login'"
+    rounded
     @click="buttonClick()"
     icon="pi pi-google"
   ></Button>
@@ -21,7 +22,7 @@ onMounted(() => {
 
 function buttonClick() {
   if (isLoggedIn.value) {
-    router.push("/account");
+    router.push("/account#settings");
   } else {
     Login();
   }

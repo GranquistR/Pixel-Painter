@@ -26,7 +26,37 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public IEnumerable<Art> GetAllArt()
         {
-            return ArtAccessService.GetAllArt();
+            return ArtAccessService.GetAllArt().OrderByDescending(art => art.creationDate);
+        }
+
+        [HttpGet]
+        [Route("GetCurrentUsersArt")]
+        public async Task<IActionResult> GetCurrentUsersArt()
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    var result = ArtAccessService.GetAllArt();
+
+                    return Ok(result.Where(art => art.artistId == artist.id).OrderByDescending(art => art.creationDate));
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]

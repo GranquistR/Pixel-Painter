@@ -39,7 +39,7 @@ namespace MyTestVueApp.Server.Controllers
                 var artist = await LoginService.GetUserBySubId(userId);
                 foreach (var comment in comments)
                 {
-                    comment.currentUserIsOwner = comment.artistId == artist.Id;
+                    comment.currentUserIsOwner = comment.artistId == artist.id;
                 }
             }
 
