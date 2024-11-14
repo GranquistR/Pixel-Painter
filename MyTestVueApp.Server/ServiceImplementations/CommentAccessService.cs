@@ -79,10 +79,125 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        public async Task<int> EditComment(int commentId, string newMessage)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Check to make sure the user hasnt already liked this work of art
+                var checkDupQuery = "SELECT Count(*) FROM comment WHERE ID = @CommentId";
+                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count == 0)
+                    {
+                        Console.WriteLine("No comment exists to edit!");
+                        return 0;
+                    }
+                    if (count > 1)
+                    {
+                        Console.WriteLine("more than one comment exists to edit!");
+                        return 0;
+                    }
+                }
+                //update table here
+                var query = "UPDATE Comment SET Message = @newComment WHERE ID = @commentID";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@newComment", newMessage);
+                    command.Parameters.AddWithValue("@CommentID", commentId);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        Console.WriteLine("Comment was changed sucessfully!");
+                        return rowsChanged;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to edit comment!");
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        public async Task<int> DeleteComment(int commentId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Check to make sure the there is a comment to delete
+                var checknullQuery = "SELECT Count(*) FROM comment WHERE ID = @CommentId";
+                using (SqlCommand checkDupCommand = new SqlCommand(checknullQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count == 0)
+                    {
+                        Console.WriteLine("No comment exists to delete!");
+                        return 0;
+                    }
+                    if (count > 1)
+                    {
+                        Console.WriteLine("more than one comment with same ID!");
+                        return 0;
+                    }
+                }
+                var checkResponseQuery = "SELECT Count(*) FROM comment WHERE ReplyId = @CommentId";
+                using (SqlCommand checkResponseCommand = new SqlCommand(checknullQuery, connection))
+                {
+                    checkResponseCommand.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int count = (int)await checkResponseCommand.ExecuteScalarAsync();
+                    if (count > 0)
+                    {
+                        var subquery = "DELETE Comment WHERE ReplyId = @commentId";
+                        using (SqlCommand DeleteResponse = new SqlCommand(subquery, connection))
+                        {
+                            DeleteResponse.Parameters.AddWithValue("@CommentId", commentId);
+
+                            int rowsChanged = DeleteResponse.ExecuteNonQuery();
+                            if (rowsChanged > 0)
+                            {
+                                Console.WriteLine("Response Comments Deleted");
+                            }
+                        }
+                    }
+                }
+                //update table here
+                var query = "Delete Comment WHERE ID = @CommentId";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@CommentId", commentId);
+
+                    int rowsChanged = command.ExecuteNonQuery();
+                    if (rowsChanged > 0)
+                    {
+                        Console.WriteLine("Comment was Deleted sucessfully!");
+                        return rowsChanged;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to edit comment!");
+                        return -1;
+                    }
+                }
+            }
+
+        }
+
         public async Task<Comment> CreateComment(Artist commenter, Comment comment)
         {
-            comment.artistId = commenter.Id;
-            comment.commenterName = commenter.Name;
+            comment.artistId = commenter.id;
+            comment.commenterName = commenter.name;
             comment.creationDate = DateTime.UtcNow;
            
             using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
@@ -93,7 +208,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@ArtistID", commenter.Id);
+                        command.Parameters.AddWithValue("@ArtistID", commenter.id);
                         command.Parameters.AddWithValue("@ArtID", comment.artId);
                         command.Parameters.AddWithValue("@Message", comment.message);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
