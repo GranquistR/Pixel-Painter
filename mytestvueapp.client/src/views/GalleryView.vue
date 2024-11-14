@@ -26,7 +26,7 @@ import Art from "@/entities/Art";
 import ArtAccessService from "@/services/ArtAccessService";
 import InputText from "primevue/inputtext";
 
-const allArt = ref<Art[]>();
+const publicArt = ref<Art[]>();
 const displayArt = ref<Art[]>();
 const search = ref("");
 const loading = ref(true);
@@ -34,8 +34,10 @@ const loading = ref(true);
 onMounted(() => {
   ArtAccessService.getAllArt() // Get All Art
     .then((data) => {
-      allArt.value = data;
-      displayArt.value = data;
+      publicArt.value = data.filter((Art) => 
+        Art.isPublic == true
+      );
+      displayArt.value = publicArt.value;
     })
     .finally(() => {
       loading.value = false;
@@ -43,8 +45,8 @@ onMounted(() => {
 });
 
 watch(search, () => {
-  if (allArt.value) {
-    displayArt.value = allArt.value.filter((Art) =>
+  if (publicArt.value) {
+    displayArt.value = publicArt.value.filter((Art) =>
       Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
   }
