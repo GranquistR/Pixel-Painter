@@ -1,4 +1,12 @@
 <template>
+  <Card
+    v-if="isitmyart"
+    class="block justify-content-center w-full h-full align-items-center"
+  >
+    <template #content
+      >This is your art <DeleteArtButton> </DeleteArtButton
+    ></template>
+  </Card>
   <div class="justify-content-center flex w-full h-full align-items-center">
     <div class="border-2">
       <my-canvas
@@ -10,7 +18,6 @@
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
-        <div v-if="art.currentUserisOwner">this is shown</div>
         <h3>{{ art.title }}</h3>
         <div>By {{ art.artistName }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
@@ -35,6 +42,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
@@ -46,11 +54,14 @@ import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
 import LikeButton from "@/components/LikeButton.vue";
+
 const route = useRoute();
+
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
+var isitmyart = false;
 onMounted(() => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     art.value = promise as Art;
@@ -58,9 +69,13 @@ onMounted(() => {
   });
   updateComments();
 });
+
 function updateComments() {
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = promise;
   });
 }
+ArtAccessService.IsMyArt(id).then((promise: boolean) => {
+  isitmyart = promise;
+});
 </script>

@@ -4,7 +4,7 @@ export default class CommentAccessService {
   public static async getCommentsById(artId: number): Promise<any> {
     try {
       const response = await fetch(
-        `/comment/GetCommentsByArtId?artId=${artId}`
+        `/comment/GetCommentsByArtId?artId=${artId}`,
       );
       const jsonComments = await response.json();
 
@@ -55,22 +55,25 @@ export default class CommentAccessService {
       console.error;
     }
   }
-    public static async DeleteComment(commentId: number): Promise<any> {
-        try {
-            const response = await fetch(
-                `/comment/DeleteComment?commentId=${commentId}`,
-            );
-        } catch (error) {
-            console.error;
-        }
+  public static async DeleteComment(commentId: number): Promise<any> {
+    try {
+      const response = await fetch(
+        `/comment/DeleteComment?commentId=${commentId}`,
+      );
+    } catch (error) {
+      console.error;
     }
-    public static async postComment(comment: string, ArtId: Number): Promise<any> {
-        try {
-            const response = await fetch(
-                `/comment/postComment?comment=${comment}&ArtId=${ArtId}`,
-            );
-        } catch (error) {
-            console.error;
-        }
+  }
+  public static async postComment(
+    comment: string,
+    ArtId: Number,
+  ): Promise<any> {
+    try {
+      const response = await fetch(
+        `/comment/postComment?comment=${comment}&ArtId=${ArtId}`,
+      );
+    } catch (error) {
+      console.error;
     }
+  }
 }

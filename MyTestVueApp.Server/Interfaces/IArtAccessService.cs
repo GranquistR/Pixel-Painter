@@ -8,6 +8,7 @@ namespace MyTestVueApp.Server.Interfaces
     /// </summary>
     public interface IArtAccessService
     {
+
         /// <summary>
         /// Gets a list of all paintings from the database.
         /// </summary>
@@ -15,5 +16,6 @@ namespace MyTestVueApp.Server.Interfaces
         public IEnumerable<Art> GetAllArt();
         public Art GetArtById(int id);
         public Task<Art> SaveArt(Artist artist, Art art);
+        public Task<int> DeleteArt(int artId);
     }
 }
