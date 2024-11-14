@@ -4,14 +4,11 @@ using Google.Apis.Oauth2.v2;
 using Google.Apis.Oauth2.v2.Data;
 using Google.Apis.Services;
 using Google.Apis.Util;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
-using System;
-using System.Security.Authentication;
 using System;
 using System.Data;
 
@@ -55,6 +52,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
             AppConfig = appConfig;
             Logger = logger;
         }
+
+        #region Google Login
 
         public async Task<string> GetUserId(string code)
         {
@@ -102,58 +101,69 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<int> SendIdToDatabase(string subId)
+        /// <summary>
+        /// Runs on first login to add the user to the database
+        /// </summary>
+        /// <param name="subId"></param>
+        /// <returns></returns>
+        public async Task<Artist> SignupActions(string subId)
         {
-            var connectionString = AppConfig.Value.ConnectionString;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                // This query and command is to check if the user and Id is already in the database
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ID = @ID";
-                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ID", subId);
+                    connection.Open();
 
-                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
-                    if (count > 0)
+                    var artist = await GetUserBySubId(subId);
+
+                    if (artist != null)
                     {
-                        return 0;
+                        return artist;
                     }
-                }
 
-                var query = "INSERT INTO Artist (ID, ArtistName) VALUES (@ID, @ArtistName)";
-                string username = generateUsername().Result;
+                    var query = "INSERT INTO Artist (SubId, Name, IsAdmin, CreationDate) VALUES (@SubId, @Name, @IsAdmin, @CreationDate)";
+                    string username = generateUsername();
 
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@ID", subId);
-                    command.Parameters.AddWithValue("@ArtistName", username);
-
-                    int rowsChanged = command.ExecuteNonQuery();
-                    if (rowsChanged > 0)
+                    using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        return rowsChanged;
-                    } 
-                    else
-                    {
-                        return -1;
+                        command.Parameters.AddWithValue("@SubId", subId);
+                        command.Parameters.AddWithValue("@Name", username);
+                        command.Parameters.AddWithValue("@IsAdmin", false);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+
+                        int rowsChanged = command.ExecuteNonQuery();
+                        if (rowsChanged > 0)
+                        {
+                            return await GetUserBySubId(subId);
+                        }
+                        else
+                        {
+                            throw new Exception("No rows changed during signup actions");
+                        }             
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Signup actions failed!");
+                throw;
+            }
         }
 
-        public string getAdjective(int index)
+        #endregion
+
+        private string getAdjective(int index)
         {
             return adjectives[index];
         }
 
-        public string getNoun(int index)
+        private string getNoun(int index)
         {
             return nouns[index];
         }
 
-        public async Task<string> generateUsername()
+        private string generateUsername()
         {
             Random rnd = new Random();
 
@@ -162,70 +172,95 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return username;
         }
 
-        public async Task<string> getUsername(string subId)
+        public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
-            string query = "SELECT ArtistName FROM Artist WHERE ID = @ID";
-
-            var connectionString = AppConfig.Value.ConnectionString;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                using (SqlCommand command = new SqlCommand(query, connection))
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    command.Parameters.AddWithValue("@ID", subId);
+                    connection.Open();
 
-                    using (SqlDataReader read = command.ExecuteReader())
+                    // This query and command is to check if the username is already taken or not
+                    var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE Name = @Name";
+                    using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                     {
-                        if (read.Read()) {
-                            string username = read["ArtistName"].ToString();
-                            return username;
+                        checkDupCommand.Parameters.AddWithValue("@Name", newUsername);
+
+                        int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                        if (count > 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    var query = "UPDATE Artist SET Name = @Name WHERE SubId = @SubId";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@SubId", subId);
+                        command.Parameters.AddWithValue("@Name", newUsername);
+
+                        int rowsChanged = command.ExecuteNonQuery();
+                        if (rowsChanged > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            throw new Exception("Failed to update username");
                         }
                     }
                 }
             }
-            return "Failed to get username";
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error occured while updating username");
+                throw;
+            }
         }
 
-        public async Task<int> updateUsername(string newUsername, string subId)
+        public async Task<Artist> GetUserBySubId(string subId)
         {
+            var artist = new Artist();
+
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                // This query and command is to check if the username is already taken or not
-                var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE ArtistName = @ArtistName";
-                using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
-                {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistName", newUsername);
-
-                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
-                    if (count > 0)
-                    {
-                        return 0;
-                    }
-                }
-
-                // var query = "INSERT INTO Artist (ArtistName) VALUES (@ArtistName)";
-                var query = "UPDATE Artist SET ArtistName = @ArtistName WHERE ID = @ID";
-
+                var query = @"
+                    SELECT TOP (1) [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                      FROM [PixelPainter].[dbo].[Artist]
+                      WHERE SubId = @SubId
+                    ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.Add("@ID", SqlDbType.VarChar).Value = subId;
-                    command.Parameters.AddWithValue("@ArtistName", newUsername);
+                    command.Parameters.AddWithValue("@SubId", subId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
-                    if (rowsChanged > 0)
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        return rowsChanged;
-                    } 
-                    else
-                    {
-                        return -1;
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4),
+                            };
+                            return artist;
+                        }
                     }
                 }
             }
+
+            return null;
         }
     }
 }

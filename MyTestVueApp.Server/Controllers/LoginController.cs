@@ -51,7 +51,7 @@ namespace MyTestVueApp.Server.Controllers
                 SameSite = SameSiteMode.Strict
             });
 
-            await LoginService.SendIdToDatabase(subId);
+            await LoginService.SignupActions(subId);
 
             return Redirect(AppConfig.Value.HomeUrl);
         }
@@ -77,22 +77,37 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetUsername")]
-        public async Task<IActionResult> GetUsername()
+        [Route("GetCurrentUser")]
+        public async Task<IActionResult> GetCurrentUser()
         {
-            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
-            var username = await LoginService.getUsername(subId);
-            return Ok(new { username });
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var artist = await LoginService.GetUserBySubId(userId);
+                return Ok(artist);
+            }
+            return BadRequest("User is not logged in.");
         }
 
         [HttpGet]
         [Route("UpdateUsername")]
         public async Task<IActionResult> UpdateUsername(string newUsername)
         {
-            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
-            var rowsChanged = await LoginService.updateUsername(newUsername, subId);
-
-            return Ok(new { rowsChanged });
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var subId))
+                {
+                    var success = await LoginService.UpdateUsername(newUsername, subId);
+                    return Ok(success);
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
     }
 }

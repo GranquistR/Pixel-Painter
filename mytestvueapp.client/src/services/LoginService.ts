@@ -1,3 +1,5 @@
+import type Artist from "@/entities/Artist";
+
 export default class LoginService {
   public static async isLoggedIn(): Promise<boolean> {
     try {
@@ -23,62 +25,43 @@ export default class LoginService {
       console.error("Error logging out:", error);
     }
   }
-      public static async generateUsername(): Promise<string> {
-        try {
-            const response = await fetch("login/UsernameGenerator");
-            
-            if (!response.ok) {
-                console.log("Response was not ok");
-                throw new Error("Error: Bad response");
-            }
 
-            const data = await response.json();
-            const username: string = data.username;
+  public static async GetCurrentUser(): Promise<Artist> {
+    try {
+      const response = await fetch("login/GetCurrentUser");
 
-            return username;
-        }
-        catch (error) {
-            console.error(error);
-            return "Failed to generate username";
-        }
+      if (!response.ok) {
+        console.log("Response was not ok");
+        throw new Error("Error: Bad response");
+      }
+
+      const data = await response.json();
+      const user: Artist = data;
+
+      return user;
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
+  }
 
-    public static async getUsername(): Promise<string> {
-        try {
-            const response = await fetch("login/GetUsername");
+  public static async updateUsername(newUsername: any): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `login/UpdateUsername?newUsername=${newUsername}`
+      );
 
-            if (!response.ok) {
-                console.log("Response was not ok");
-                throw new Error("Error: Bad response");
-            }
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
 
-            const data = await response.json();
-            const username: string = data.username;
+      const data = await response.json();
+      const success: boolean = data;
 
-            return username;
-        }
-        catch (error) {
-            console.error(error);
-            return "Failed to get username";
-        }
+      return success;
+    } catch (error) {
+      console.error(error);
+      return false;
     }
-
-    public static async updateUsername(newUsername : any): Promise<number> {
-        try {
-            const response = await fetch(`login/UpdateUsername?newUsername=${newUsername}`);
-
-            if (!response.ok) {
-                throw new Error("Error: Bad response");
-            }
-
-            const data = await response.json();
-            const rowsChanged: number = data.rowsChanged;
-
-            return rowsChanged;
-        }
-        catch (error) {
-            console.error(error);
-            return -1;
-        }
-    }
+  }
 }

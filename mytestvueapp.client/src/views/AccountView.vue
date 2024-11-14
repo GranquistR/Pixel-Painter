@@ -1,46 +1,119 @@
 <template>
-  <Card>
-    <template #title>
-        <span class="text-3xl p-font-bold">Account</span>
-    </template>
-    <template #content>
-        <div class="flex flex-col gap-2">
-            <IftaLabel>
-                <InputText class="mr-1" id="username" v-model="value" variant="filled" :disabled="isDisabled" :value="artistUsername" :invalid="isInvalid" />
-                <label for="username">Username</label>
-                <Button class="p-button p-button-rounded mr-1" :icon="editIcon" @click="toggleInput()" />
-                <Button class="p-button p-button-rounded mr-1" icon="pi pi-check" v-if="!isDisabled" @click="updateUsername()" />
-            </IftaLabel>
+  <div class="m-4">
+    <div class="flex gap-4 justify-content-center">
+      <Card class="h-fit">
+        <template #content>
+          <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
+          <div class="text-3xl p-font-bold">{{ artist.name }}</div>
+          <div class="">myemail@goeshere.com</div>
+          <div class="flex mt-4 p-2 gap-2 flex-column">
+            <Button
+              :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
+              @click="ChangeHash('#settings')"
+              >Account Settings</Button
+            >
+            <Button
+              :severity="route.hash == '#art' ? 'primary' : 'secondary'"
+              @click="ChangeHash('#art')"
+              >My Art</Button
+            >
+          </div>
+        </template>
+      </Card>
+
+      <div v-if="route.hash == '#settings'">
+        <h2>Account Settings</h2>
+        <Card>
+          <template #content>
+            <div class="mb-4">
+              <label for="username">Username</label>
+              <div class="flex gap-1 flex-row align-items-center">
+                <div class="flex flex-column gap-2">
+                  <InputText
+                    :disabled="!isEditing"
+                    class="mr-1"
+                    v-model="newUsername"
+                    variant="filled"
+                  />
+                </div>
+                <Button
+                  v-if="!isEditing"
+                  severity="secondary"
+                  rounded
+                  icon="pi pi-pencil"
+                  @click="isEditing = true"
+                />
+                <span v-else class="">
+                  <Button
+                    severity="danger"
+                    text
+                    rounded
+                    icon="pi pi-times"
+                    @click="CancelEdit()"
+                  />
+                  <Button
+                    severity="success"
+                    text
+                    rounded
+                    icon="pi pi-check"
+                    @click="UpdateUsername()"
+                    :disabled="errorMessage != ''"
+                  />
+                </span>
+              </div>
+              <Message
+                v-if="errorMessage != ''"
+                severity="error"
+                variant="simple"
+                size="small"
+                class="mt-2"
+                >{{ errorMessage }}</Message
+              >
+            </div>
+
+            <Button label="logout" icon="pi pi-sign-out" @click="logout()" />
+          </template>
+        </Card>
+      </div>
+
+      <div v-if="route.hash == '#art'">
+        <h2>My Art</h2>
+        <div class="flex flex-wrap">
+          <ArtCard v-for="art in myArt" :key="art.id" :art="art" :size="10" />
         </div>
-        <Message v-if="isTooLong" size="small" severity="error" variant="simple">Username is too long. Max of 16 characters.</Message>
-        <Message v-if="isTaken" size="small" severity="error" variant="simple">Username is already taken.</Message>
-        <div class="py-2"> <Button label="logout" icon="pi pi-sign-out" @click="logout()" /></div>
-    </template>
-  </Card>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import LoginService from "@/services/LoginService";
+import ArtAccessService from "@/services/ArtAccessService";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import Card from "primevue/card";
-    import Button from "primevue/button";
-    import InputText from 'primevue/inputtext';
-    import IftaLabel from 'primevue/iftalabel';
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Artist from "@/entities/Artist";
+import Avatar from "primevue/avatar";
+import Message from "primevue/message";
+import { useRoute } from "vue-router";
+import type Art from "@/entities/Art";
+import ArtCard from "@/components/Gallery/ArtCard.vue";
 
-    const toast = useToast();
-    var isDisabled = ref(true);
-    var isInvalid = ref(false);
-    var isTooLong = ref(false);
-    var isTaken = ref(false);
-    var artistUsername;
-    var editIcon = "pi pi-pencil";
+const toast = useToast();
+const route = useRoute();
 
+var artist = ref<Artist>(new Artist());
+var isEditing = ref(false);
+var newUsername = ref("");
+
+var myArt = ref<Art[]>([]);
 
 onMounted(() => {
-  LoginService.isLoggedIn().then((isLoggedIn) => {
-    if (!isLoggedIn) {
+  LoginService.GetCurrentUser().then((user: Artist) => {
+    if (user.id == 0) {
       router.push("/");
       toast.add({
         severity: "error",
@@ -48,14 +121,18 @@ onMounted(() => {
         detail: "User must be logged in to view account page",
         life: 3000,
       });
-      }
-
-      (async () => {
-          toggleInput();
-          artistUsername = await LoginService.getUsername();
-          toggleInput();
-      })()  
+    }
+    newUsername.value = user.name;
+    artist.value = user;
   });
+
+  ArtAccessService.GetCurrentUsersArt().then((art) => {
+    myArt.value = art;
+  });
+
+  if (route.hash != "#settings" && route.hash != "#art") {
+    router.push("/account#settings");
+  }
 });
 
 function logout() {
@@ -68,65 +145,57 @@ function logout() {
       life: 3000,
     });
   });
-    }
+}
 
-    function toggleInput() {
-        isDisabled.value = !isDisabled.value;
-        isInvalid.value = false;
-        isTooLong.value = false;
-        isTaken.value = false;
+function CancelEdit() {
+  isEditing.value = false;
+  newUsername.value = artist.value.name;
+}
 
-        (async () => {
-            artistUsername = await LoginService.getUsername();
-            (<HTMLInputElement>document.getElementById('username')).value = artistUsername;
-        })()
+const errorMessage = computed<string>(() => {
+  if (newUsername.value.length > 16) {
+    return "Username is too long. Max of 16 characters.";
+  }
 
-        if (isDisabled.value) {
-            editIcon = "pi pi-pencil";
-        }
-        else {
-            editIcon = "pi pi-times";
-        }
-    }
+  if (newUsername.value.length < 4) {
+    return "Username is too short. Min of 4 characters.";
+  }
 
-    function getUsername() {
-        return LoginService.getUsername();
-    }
+  return "";
+});
 
-    function updateUsername() {
-        var inputText = (<HTMLInputElement>document.getElementById('username'));
-        var newUsername = inputText.value;
-        var rowsChanged;
+function UpdateUsername() {
+  LoginService.updateUsername(newUsername.value)
+    .then((success) => {
+      if (success) {
+        toast.add({
+          severity: "success",
+          summary: "Success",
+          detail: "Username successfully changed",
+          life: 3000,
+        });
+        artist.value.name = newUsername.value;
+        isEditing.value = false;
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Username is already taken. Try another",
+          life: 3000,
+        });
+      }
+    })
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "An error occurred. Please try again later",
+        life: 3000,
+      });
+    });
+}
 
-        if ((newUsername as string).length > 16) {
-            isInvalid.value = true;
-            isTooLong.value = true;
-            isTaken.value = false;
-            artistUsername = newUsername;
-            // toggleInput()
-        }
-        else {
-            isInvalid.value = false;
-            isTooLong.value = false;
-            (async () => {
-                rowsChanged = await LoginService.updateUsername(newUsername);
-
-                if (rowsChanged == 0) {
-                    isTaken.value = true;
-                }
-                else {
-                    isTaken.value = false;
-                    isDisabled.value = true;
-                    artistUsername = newUsername;
-                    editIcon = "pi pi-pencil";
-                    toast.add({
-                        severity: "success",
-                        summary: "Success",
-                        detail: "Username successfully changed.",
-                        life: 3000,
-                    });
-                }
-            })()
-        }
-    }
-</script>   
+function ChangeHash(hash: string) {
+  window.location.hash = hash;
+}
+</script>

@@ -22,8 +22,8 @@
     </template>
 
     <template #center>
-      <BrushSelection v-model="cursor.selectedTool" />
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
+      <BrushSelection v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>

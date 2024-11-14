@@ -39,7 +39,6 @@ export default class CommentAccessService {
         body: JSON.stringify(comment),
         headers: { "Content-Type": "application/json" },
       });
-      alert(response.ok);
       if (!response.ok) {
         throw new Error("Response was false.");
       }
