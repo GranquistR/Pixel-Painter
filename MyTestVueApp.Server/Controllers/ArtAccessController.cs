@@ -25,7 +25,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public IEnumerable<Art> GetAllArt()
         {
-            return ArtAccessService.GetAllArt();
+            return ArtAccessService.GetAllArt().OrderByDescending(art => art.creationDate);
         }
 
         [HttpGet]
@@ -45,7 +45,7 @@ namespace MyTestVueApp.Server.Controllers
 
                     var result = ArtAccessService.GetAllArt();
 
-                    return Ok(result.Where(art => art.artistId == artist.id));
+                    return Ok(result.Where(art => art.artistId == artist.id).OrderByDescending(art => art.creationDate));
                 }
                 else
                 {
