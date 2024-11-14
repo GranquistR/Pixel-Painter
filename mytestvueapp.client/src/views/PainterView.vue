@@ -5,7 +5,10 @@
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
     @mousedown="mouseButtonHeldDown = true"
-    @mouseup="mouseButtonHeldDown = false"
+    @mouseup="
+      mouseButtonHeldDown = false;
+      onMouseUp();
+    "
     @contextmenu.prevent
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
@@ -18,12 +21,12 @@
         @click="ResetArt()"
       >
       </Button>
-      <UploadButton :pixelGrid="pixelGrid" />
+      <UploadButton :pixelGrid="pixelGrid" @OpenModal="ToggleKeybinds" />
     </template>
 
     <template #center>
-      <BrushSelection v-model="cursor.selectedTool" />
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
+      <BrushSelection v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -48,7 +51,7 @@
 import Toolbar from "primevue/toolbar";
 import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import { PixelGrid } from "@/entities/PixelGrid";
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import Button from "primevue/button";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
@@ -57,6 +60,7 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
+import LinkedList from "@/utils/undo";
 import DefaultColor from "@/entities/DefaultColors";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 
@@ -67,9 +71,27 @@ onBeforeRouteLeave((to, from, next) => {
   next();
 });
 
-window.addEventListener("beforeunload", () => {
-  LocalSave();
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 });
+
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+const ToggleKeybinds = (disable: boolean) => {
+  if (disable) {
+    document.removeEventListener("keydown", handleKeyDown);
+  } else {
+    document.addEventListener("keydown", handleKeyDown);
+  }
+};
+
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  LocalSave();
+}
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
@@ -246,7 +268,37 @@ function ResetArt() {
   router.push("/new");
 }
 
-document.addEventListener("keydown", function (event) {
+var undoList = new LinkedList();
+let currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+
+undoList.append(currentGrid);
+
+function onMouseUp() {
+  currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+  undoList.isDifferent(currentGrid);
+}
+function undo() {
+  let previousGrid = undoList.getPrevious();
+  if (previousGrid) {
+    for (let i = 0; i < pixelGrid.value.width; i++) {
+      for (let j = 0; j < pixelGrid.value.height; j++) {
+        pixelGrid.value.grid[i][j] = previousGrid[i][j];
+      }
+    }
+  }
+}
+
+function redo() {
+  let nextGrid = undoList.getNext();
+  if (nextGrid)
+    for (let i = 0; i < pixelGrid.value.width; i++) {
+      for (let j = 0; j < pixelGrid.value.height; j++) {
+        pixelGrid.value.grid[i][j] = nextGrid[i][j];
+      }
+    }
+}
+
+function handleKeyDown(event: KeyboardEvent) {
   if (event.key === "p") {
     event.preventDefault();
     cursor.value.selectedTool.label = "Pan";
@@ -303,16 +355,22 @@ document.addEventListener("keydown", function (event) {
   } else if (event.key === "=") {
     event.preventDefault();
     cursor.value.color = DefaultColor.getDefaultColors()[11].hex;
-  } else if (event.key === "z" && cursor.value.size > 1) {
+  } else if (event.key === "q" && cursor.value.size > 1) {
     event.preventDefault();
     cursor.value.size -= 1;
     canvas?.value.updateCursor();
-  } else if (event.key === "x" && cursor.value.size < 32) {
+  } else if (event.key === "w" && cursor.value.size < 32) {
     event.preventDefault();
     cursor.value.size += 1;
     canvas?.value.updateCursor();
+  } else if (event.ctrlKey && event.key === "z") {
+    event.preventDefault();
+    undo();
+  } else if (event.ctrlKey && event.key === "y") {
+    event.preventDefault();
+    redo();
   }
-});
+}
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));

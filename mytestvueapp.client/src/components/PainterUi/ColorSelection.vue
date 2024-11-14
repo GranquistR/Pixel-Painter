@@ -1,3 +1,4 @@
+qwww
 <template>
   <FloatingCard
     position="left"
@@ -10,11 +11,11 @@
     Color:
     <div class="flex flex-wrap">
       <div v-for="color in DefaultColor.getDefaultColors()" :key="color.hex">
-        <div 
+        <div
           @click="selectedColor = color.hex"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
-          :style="{ backgroundColor: color.hex}"
-          v-tooltip.bottom=color.shortcut
+          :style="{ backgroundColor: color.hex }"
+          v-tooltip.bottom="color.shortcut"
         ></div>
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
@@ -22,7 +23,13 @@
     <div class="mt-1">Size: {{ size }}</div>
 
     <div class="px-2">
-      <Slider class="mt-2" v-model="size" min="1" max="32" v-tooltip.bottom="'Decrease(z),Increase(x)'"/>
+      <Slider
+        class="mt-2"
+        v-model="size"
+        min="1"
+        max="32"
+        v-tooltip.bottom="'Decrease(q),Increase(w)'"
+      />
     </div>
   </FloatingCard>
 </template>
@@ -30,15 +37,10 @@
 import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
 import Slider from "primevue/slider";
-import DefaultColor from "@/entities/DefaultColors"
-
+import DefaultColor from "@/entities/DefaultColors";
 
 const selectedColor = defineModel<string>("color", { default: "#000000" });
 const size = defineModel<number>("size", { default: 1 });
-
-
-
-
 </script>
 
 <style>

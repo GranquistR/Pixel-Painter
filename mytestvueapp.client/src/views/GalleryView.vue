@@ -3,18 +3,18 @@
     <header>
       <h1 class="flex align-items-center gap-3">
         Search for Art
-      <InputText
-        class="mt-2"
-        v-model.trim="search"
-        type="text"
-        placeholder="Search..."
-        size="30"
-        width="100%"
-      />
-    </h1>
+        <InputText
+          class="mt-2"
+          v-model.trim="search"
+          type="text"
+          placeholder="Search..."
+          size="30"
+          width="100%"
+        />
+      </h1>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
-      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" />
+      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6.5" />
     </div>
   </div>
 </template>
