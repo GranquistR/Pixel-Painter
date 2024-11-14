@@ -196,8 +196,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public async Task<Comment> CreateComment(Artist commenter, Comment comment)
         {
-            comment.artistId = commenter.Id;
-            comment.commenterName = commenter.Name;
+            comment.artistId = commenter.id;
+            comment.commenterName = commenter.name;
             comment.creationDate = DateTime.UtcNow;
            
             using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
@@ -208,7 +208,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@ArtistID", commenter.Id);
+                        command.Parameters.AddWithValue("@ArtistID", commenter.id);
                         command.Parameters.AddWithValue("@ArtID", comment.artId);
                         command.Parameters.AddWithValue("@Message", comment.message);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);

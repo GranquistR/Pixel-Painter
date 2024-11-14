@@ -150,7 +150,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                art.artistId = artist.Id;
+                art.artistId = artist.id;
                 art.creationDate = DateTime.UtcNow;
 
                 using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))

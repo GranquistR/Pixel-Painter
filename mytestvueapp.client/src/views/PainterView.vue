@@ -25,8 +25,8 @@
     </template>
 
     <template #center>
-      <BrushSelection v-model="cursor.selectedTool" />
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
+      <BrushSelection v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -73,10 +73,12 @@ onBeforeRouteLeave((to, from, next) => {
 
 onMounted(() => {
   document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 });
 
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
 const ToggleKeybinds = (disable: boolean) => {
@@ -87,9 +89,9 @@ const ToggleKeybinds = (disable: boolean) => {
   }
 };
 
-window.addEventListener("beforeunload", () => {
+function handleBeforeUnload(event: BeforeUnloadEvent) {
   LocalSave();
-});
+}
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")

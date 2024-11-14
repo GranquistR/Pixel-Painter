@@ -1,3 +1,5 @@
+import type Artist from "@/entities/Artist";
+
 export default class LoginService {
   public static async isLoggedIn(): Promise<boolean> {
     try {
@@ -24,14 +26,42 @@ export default class LoginService {
     }
   }
 
-  public static async storeUserSub(): Promise<void> {
+  public static async GetCurrentUser(): Promise<Artist> {
     try {
-      const response = await fetch("/login/StoreUserSub");
+      const response = await fetch("login/GetCurrentUser");
+
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        console.log("Response was not ok");
+        throw new Error("Error: Bad response");
       }
+
+      const data = await response.json();
+      const user: Artist = data;
+
+      return user;
     } catch (error) {
-      console.error("Error storing user sub");
+      console.error(error);
+      throw error;
+    }
+  }
+
+  public static async updateUsername(newUsername: any): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `login/UpdateUsername?newUsername=${newUsername}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+
+      const data = await response.json();
+      const success: boolean = data;
+
+      return success;
+    } catch (error) {
+      console.error(error);
+      return false;
     }
   }
 }

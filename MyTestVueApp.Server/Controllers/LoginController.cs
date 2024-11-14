@@ -8,6 +8,7 @@ using Microsoft.Identity.Client;
 using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -50,7 +51,7 @@ namespace MyTestVueApp.Server.Controllers
                 SameSite = SameSiteMode.Strict
             });
 
-            await LoginService.SendIdToDatabase(subId);
+            await LoginService.SignupActions(subId);
 
             return Redirect(AppConfig.Value.HomeUrl);
         }
@@ -73,6 +74,40 @@ namespace MyTestVueApp.Server.Controllers
                 return Ok(artist != null);
             }
             return Ok(false);
+        }
+
+        [HttpGet]
+        [Route("GetCurrentUser")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var artist = await LoginService.GetUserBySubId(userId);
+                return Ok(artist);
+            }
+            return BadRequest("User is not logged in.");
+        }
+
+        [HttpGet]
+        [Route("UpdateUsername")]
+        public async Task<IActionResult> UpdateUsername(string newUsername)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var subId))
+                {
+                    var success = await LoginService.UpdateUsername(newUsername, subId);
+                    return Ok(success);
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
     }
 }
