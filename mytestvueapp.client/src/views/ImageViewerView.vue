@@ -10,7 +10,17 @@
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
-        <h3>{{ art.title }}</h3>
+        <h3>
+          {{ art.title }}
+          <Button
+            class="ml-4"
+            label="Edit"
+            icon="pi pi-pencil"
+            severity="secondary"
+            @click="router.push(`/paint/${id}`)"
+          ></Button>
+        </h3>
+
         <div>By {{ art.artistName }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
         <LikeButton
@@ -45,6 +55,8 @@ import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
 import LikeButton from "@/components/LikeButton.vue";
+import Button from "primevue/button";
+import router from "@/router";
 
 const route = useRoute();
 

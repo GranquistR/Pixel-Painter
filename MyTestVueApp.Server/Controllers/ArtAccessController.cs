@@ -94,14 +94,29 @@ namespace MyTestVueApp.Server.Controllers
                         return BadRequest("User not logged in");
                     }
 
-                    var result = await ArtAccessService.SaveArt(artist, art);
-
-                    return Ok(result);
+                    if (art.id == 0) //New art
+                    {
+                        var result = await ArtAccessService.SaveNewArt(artist, art);
+                        return Ok(result);
+                    }
+                    else //Update art
+                    {
+                        var result = await ArtAccessService.UpdateArt(artist, art);
+                        if(result == null)
+                        {
+                            return BadRequest("Could not update this art");
+                        }
+                        return Ok(result);
+                    }
                 }
                 else
                 {
                     return BadRequest("User not logged in");
                 }
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {

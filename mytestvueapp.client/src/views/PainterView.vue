@@ -1,7 +1,7 @@
 <template>
   <DrawingCanvas
     ref="canvas"
-    :pixelGrid="pixelGrid"
+    :pixelGrid="art.pixelGrid"
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
     @mousedown="mouseButtonHeldDown = true"
@@ -21,7 +21,7 @@
         @click="ResetArt()"
       >
       </Button>
-      <UploadButton :pixelGrid="pixelGrid" @OpenModal="ToggleKeybinds" />
+      <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
     </template>
 
     <template #center>
@@ -41,7 +41,7 @@
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="pixelGrid.randomizeGrid()"
+        @click="art.pixelGrid.randomizeGrid()"
       />
     </template>
   </Toolbar>
@@ -75,6 +75,7 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import LinkedList from "@/utils/undo";
 import ArtAccessService from "@/services/ArtAccessService";
+import Art from "@/entities/Art";
 
 //variables
 const route = useRoute();
@@ -87,7 +88,7 @@ const cursor = ref<Cursor>(
 
 const mouseButtonHeldDown = ref<boolean>(false);
 
-const pixelGrid = ref<PixelGrid>(new PixelGrid(1, 1, "#ff00ff"));
+const art = ref<Art>(new Art());
 
 var undoList = new LinkedList();
 var currentGrid: string[][] = [];
@@ -126,9 +127,13 @@ onMounted(() => {
     const id: number = parseInt(route.params.id as string);
     ArtAccessService.getArtById(id)
       .then((data) => {
-        pixelGrid.value.DeepCopy(data.pixelGrid);
+        art.value.pixelGrid.DeepCopy(data.pixelGrid);
+        art.value.id = data.id;
+        art.value.title = data.title;
+        art.value.isPublic = data.isPublic;
+
         canvas.value?.recenter();
-        currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+        currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
         undoList.append(currentGrid);
       })
       .catch(() => {
@@ -143,9 +148,9 @@ onMounted(() => {
   } else if (workingGrid == null) {
     router.push("/new");
   } else {
-    pixelGrid.value.DeepCopy(workingGrid);
+    art.value.pixelGrid.DeepCopy(workingGrid);
     canvas.value?.recenter();
-    currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+    currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
     undoList.append(currentGrid);
   }
 });
@@ -226,11 +231,11 @@ function DrawAtCoords(coords: Vector2[]) {
           for (let j = 0; j < cursor.value.size; j++) {
             if (
               coord.x + i >= 0 &&
-              coord.x + i < pixelGrid.value.width &&
+              coord.x + i < art.value.pixelGrid.width &&
               coord.y + j >= 0 &&
-              coord.y + j < pixelGrid.value.height
+              coord.y + j < art.value.pixelGrid.height
             ) {
-              pixelGrid.value.grid[coord.x + i][coord.y + j] =
+              art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
             }
           }
@@ -240,30 +245,32 @@ function DrawAtCoords(coords: Vector2[]) {
           for (let j = 0; j < cursor.value.size; j++) {
             if (
               coord.x + i >= 0 &&
-              coord.x + i < pixelGrid.value.width &&
+              coord.x + i < art.value.pixelGrid.width &&
               coord.y + j >= 0 &&
-              coord.y + j < pixelGrid.value.height
+              coord.y + j < art.value.pixelGrid.height
             ) {
-              if (pixelGrid.value.backgroundColor != null) {
-                pixelGrid.value.grid[coord.x + i][coord.y + j] =
-                  pixelGrid.value.backgroundColor;
+              if (art.value.pixelGrid.backgroundColor != null) {
+                art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
+                  art.value.pixelGrid.backgroundColor;
               }
             }
           }
         }
       } else if (
         coord.x >= 0 &&
-        coord.x < pixelGrid.value.width &&
+        coord.x < art.value.pixelGrid.width &&
         coord.y >= 0 &&
-        coord.y < pixelGrid.value.height
+        coord.y < art.value.pixelGrid.height
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
           cursor.value.color =
-            pixelGrid.value.grid[cursor.value.position.x][
+            art.value.pixelGrid.grid[cursor.value.position.x][
               cursor.value.position.y
             ];
         } else if (cursor.value.selectedTool.label === "Paint-Bucket") {
-          if (pixelGrid.value.grid[coord.x][coord.y] != cursor.value.color) {
+          if (
+            art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
+          ) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
         }
@@ -273,30 +280,30 @@ function DrawAtCoords(coords: Vector2[]) {
 }
 
 function fill(x: number, y: number) {
-  if (y >= 0 && y < pixelGrid.value.height) {
-    const oldColor = pixelGrid.value.grid[x][y];
-    pixelGrid.value.grid[x][y] = cursor.value.color;
+  if (y >= 0 && y < art.value.pixelGrid.height) {
+    const oldColor = art.value.pixelGrid.grid[x][y];
+    art.value.pixelGrid.grid[x][y] = cursor.value.color;
     if (oldColor != cursor.value.color) {
-      if (x + 1 < pixelGrid.value.width) {
-        if (pixelGrid.value.grid[x + 1][y] == oldColor) {
+      if (x + 1 < art.value.pixelGrid.width) {
+        if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
           //alert(x+1 + ", " + y);
           fill(x + 1, y);
         }
       }
-      if (y + 1 < pixelGrid.value.height) {
-        if (pixelGrid.value.grid[x][y + 1] == oldColor) {
+      if (y + 1 < art.value.pixelGrid.height) {
+        if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
           //alert(x + ", " + y+1);
           fill(x, y + 1);
         }
       }
       if (x - 1 >= 0) {
-        if (pixelGrid.value.grid[x - 1][y] == oldColor) {
+        if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
           //alert(x-1 + ", " + y);
           fill(x - 1, y);
         }
       }
       if (y - 1 >= 0) {
-        if (pixelGrid.value.grid[x][y - 1] == oldColor) {
+        if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
           //alert(x + ", " + (y-1));
           fill(x, y - 1);
         }
@@ -311,15 +318,15 @@ function ResetArt() {
 }
 
 function onMouseUp() {
-  currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+  currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
   undoList.isDifferent(currentGrid);
 }
 function undo() {
   let previousGrid = undoList.getPrevious();
   if (previousGrid) {
-    for (let i = 0; i < pixelGrid.value.width; i++) {
-      for (let j = 0; j < pixelGrid.value.height; j++) {
-        pixelGrid.value.grid[i][j] = previousGrid[i][j];
+    for (let i = 0; i < art.value.pixelGrid.width; i++) {
+      for (let j = 0; j < art.value.pixelGrid.height; j++) {
+        art.value.pixelGrid.grid[i][j] = previousGrid[i][j];
       }
     }
   }
@@ -328,9 +335,9 @@ function undo() {
 function redo() {
   let nextGrid = undoList.getNext();
   if (nextGrid)
-    for (let i = 0; i < pixelGrid.value.width; i++) {
-      for (let j = 0; j < pixelGrid.value.height; j++) {
-        pixelGrid.value.grid[i][j] = nextGrid[i][j];
+    for (let i = 0; i < art.value.pixelGrid.width; i++) {
+      for (let j = 0; j < art.value.pixelGrid.height; j++) {
+        art.value.pixelGrid.grid[i][j] = nextGrid[i][j];
       }
     }
 }
@@ -410,7 +417,7 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 function LocalSave() {
-  localStorage.setItem("working-art", JSON.stringify(pixelGrid.value));
+  localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
 }
 </script>
 <style scoped>

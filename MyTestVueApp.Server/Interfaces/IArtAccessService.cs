@@ -14,6 +14,7 @@ namespace MyTestVueApp.Server.Interfaces
         /// <returns>A list of all paintings</returns>
         public IEnumerable<Art> GetAllArt();
         public Art GetArtById(int id);
-        public Task<Art> SaveArt(Artist artist, Art art);
+        public Task<Art> SaveNewArt(Artist artist, Art art);
+        public Task<Art> UpdateArt(Artist artist, Art art);
     }
 }

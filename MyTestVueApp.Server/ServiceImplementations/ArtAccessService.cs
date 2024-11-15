@@ -146,7 +146,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return null;
         }
 
-        public async Task<Art> SaveArt(Artist artist, Art art)
+        public async Task<Art> SaveNewArt(Artist artist, Art art)
         {
             try
             {
@@ -185,6 +185,59 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 Logger.LogError(ex, "Error in SaveArt");
                 throw;
             }
+        }
+
+        public async Task<Art> UpdateArt(Artist artist, Art art)
+        {
+            try
+            {
+                var oldArt = GetArtById(art.id);
+                if (oldArt == null)
+                {
+                    return null; // old art does not exist, thus cant be deleted
+                }
+                else if (oldArt.artistId != artist.id)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to update this art");
+                }
+                else
+                {
+                    using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                    {
+                        connection.Open();
+
+                        var query = @"
+                            UPDATE Art SET
+	                            Title = @Title,
+	                            IsPublic = @IsPublic,
+	                            Width = @Width,
+	                            Height = @Height,
+	                            Encode = @Encode
+                            WHERE Id = @Id AND ArtistID = @ArtistID;
+                        ";
+                        using (var command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@Title", art.title);
+                            command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+                            command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                            command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                            command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                            command.Parameters.AddWithValue("@Id", art.id);
+                            command.Parameters.AddWithValue("@ArtistId", artist.id);
+
+                             await command.ExecuteScalarAsync();
+                            
+                            return GetArtById(Convert.ToInt32(art.id));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in UpdateArt");
+                throw;
+            }
+
         }
     }
 }

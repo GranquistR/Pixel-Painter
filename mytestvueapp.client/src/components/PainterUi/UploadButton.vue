@@ -1,17 +1,21 @@
 <template>
   <Button
-    label="Upload"
-    icon="pi pi-upload"
-    @click="visible = !visible"
+    :label="isEditing ? 'Save Changes' : 'Upload'"
+    :icon="isEditing ? 'pi pi-save' : 'pi pi-upload'"
+    @click="ToggleModal()"
   ></Button>
 
   <Dialog v-model:visible="visible" modal :style="{ width: '26rem' }">
-    <template #header> <h1 class="mr-2">Upload Your Art</h1> </template>
+    <template #header>
+      <h1 class="mr-2">
+        {{ isEditing ? "Save Your Changes?" : "Upload Your Art?" }}
+      </h1>
+    </template>
     <div class="flex flex-column gap-3 justify-content-center">
       <div class="flex align-items-center gap-3">
         <span>Title: </span>
         <InputText
-          v-model="art.title"
+          v-model="newName"
           placeholder="Title"
           class="w-full"
         ></InputText>
@@ -19,7 +23,7 @@
       <div class="flex align-items-center gap-3">
         <span>Privacy:</span>
         <ToggleButton
-          v-model="art.isPublic"
+          v-model="newPrivacy"
           onLabel="Public"
           onIcon="pi pi-globe"
           offLabel="Private"
@@ -38,33 +42,42 @@
         @click="visible = false"
         autofocus
       />
-      <Button label="Save" severity="secondary" @click="Upload()" autofocus />
+      <Button
+        :label="isEditing ? 'Save' : 'Upload'"
+        severity="secondary"
+        @click="Upload()"
+        autofocus
+      />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { PixelGrid } from "@/entities/PixelGrid";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
+
 const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
 
-const art = ref<Art>(new Art());
-art.value.title = "Untitled Art";
+const newName = ref("");
+const newPrivacy = ref(false);
 
 const props = defineProps<{
-  pixelGrid: PixelGrid;
+  art: Art;
 }>();
+
+const isEditing = computed(() => {
+  return props.art.id != 0;
+});
 
 const emit = defineEmits(["OpenModal"]);
 
@@ -72,14 +85,26 @@ watch(visible, () => {
   emit("OpenModal", visible.value);
 });
 
+function ToggleModal() {
+  visible.value = !visible.value;
+  newName.value = props.art.title;
+  if (newName.value == "") {
+    newName.value = "Untitled";
+  }
+  newPrivacy.value = props.art.isPublic;
+}
+
 function Upload() {
   loading.value = true;
 
   LoginService.isLoggedIn().then((isLoggedIn) => {
     if (isLoggedIn) {
-      art.value.pixelGrid.DeepCopy(props.pixelGrid);
-
-      ArtAccessService.SaveArt(art.value)
+      const newArt = new Art();
+      newArt.title = newName.value;
+      newArt.isPublic = newPrivacy.value;
+      newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
+      newArt.id = props.art.id;
+      ArtAccessService.SaveArt(newArt)
         .then((data: Art) => {
           if (data.id != undefined) {
             toast.add({
