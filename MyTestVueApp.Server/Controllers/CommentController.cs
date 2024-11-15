@@ -47,15 +47,6 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetCommentByCommentId")]
-        public Comment GetCommentByCommentId(int CommentId)
-        {
-            var comment = CommentAccessService.GetCommentByCommentId(CommentId);
-
-            return comment;
-        }
-
-        [HttpGet]
         [Route("EditComment")]
         public async Task<IActionResult> EditComment(int commentId, String newMessage)
         {
@@ -79,7 +70,7 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User does not match");
+                    return Unauthorized("User does not have permissions for this action");
                 }
             }
             else
@@ -116,7 +107,7 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User does not match");
+                    return Unauthorized("User does not have permissions for this action");
                 }
 
             }
