@@ -34,10 +34,8 @@ const loading = ref(true);
 onMounted(() => {
   ArtAccessService.getAllArt() // Get All Art
     .then((data) => {
-      publicArt.value = data.filter((Art) => 
-        Art.isPublic == true
-      );
-      displayArt.value = publicArt.value;
+      publicArt.value = data;
+      displayArt.value = data;
     })
     .finally(() => {
       loading.value = false;

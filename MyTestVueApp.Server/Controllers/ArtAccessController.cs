@@ -26,7 +26,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public IEnumerable<Art> GetAllArt()
         {
-            return ArtAccessService.GetAllArt().OrderByDescending(art => art.creationDate);
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
         }
 
         [HttpGet]
@@ -72,14 +72,31 @@ namespace MyTestVueApp.Server.Controllers
                     return BadRequest("Art not found");
                 }
 
-                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                if (art.isPublic)
                 {
-                    var artist = await LoginService.GetUserBySubId(userId);
-
-                    art.currentUserIsOwner = (art.artistId == artist.id);
+                    return Ok(art);
                 }
+                else
+                {
+                    if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                    {
+                        var artist = await LoginService.GetUserBySubId(userId);
+                        art.currentUserIsOwner = (art.artistId == artist.id);
+                        if (art.currentUserIsOwner)
+                        {
 
-                return Ok(art);
+                            return Ok(art);
+                        }
+                        else
+                        {
+                            return Unauthorized("User does not have permission for this action");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("User does not have permission for this action");
+                    }
+                }
             }
             catch (Exception ex)
             {
