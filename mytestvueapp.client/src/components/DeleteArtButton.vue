@@ -7,34 +7,37 @@
     class="block"
   ></Button>
 
-  <Dialog v-model:visible="visible" modal :style="{ width: '26rem' }">
-    <template #header>
-      <h1 class="mr-2">Are you sure you want to delete your art?</h1>
-    </template>
-    <div class="flex flex-column gap-3 justify-content-center">
-      <div class="flex align-items-center gap-3">
-        <span>Reenter the name of the Title to delete: </span>
-        <InputText
-          v-model="confirmDeleteTitle"
-          placeholder="Title"
-          class="w-full"
-        ></InputText>
-      </div>
-      <div class="flex align-items-center gap-3"></div>
-    </div>
+  <Dialog
+    v-model:visible="visible"
+    modal
+    closable="false"
+    :style="{ width: '25rem' }"
+    :header="'Delete ' + art.title + '?'"
+  >
+    <Message icon="pi pi-times-circle" severity="error">
+      This action cannot be undone.
+    </Message>
+
+    <div class="mt-4 mb-2">Confirm the title to continue.</div>
+    <InputText
+      placeholder="Title"
+      class="w-full"
+      v-model="confirmText"
+      autofocus
+    ></InputText>
+
     <template #footer>
       <Button
         label="Cancel"
         text
         severity="secondary"
         @click="visible = false"
-        autofocus
       />
       <Button
         label="Confirm"
-        severity="secondary"
+        severity="danger"
         @click="ConfirmDelete()"
-        autofocus
+        :disabled="confirmText != art.title"
       />
     </template>
   </Dialog>
@@ -45,39 +48,44 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { ref, watch } from "vue";
-import Art from "@/entities/Art";
-import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
-import LoginService from "@/services/LoginService";
-const toast = useToast();
-const visible = ref(false);
-const loading = ref(false);
 import { useRoute } from "vue-router";
+import type Art from "@/entities/Art";
+import Message from "primevue/message";
 
-const confirmDeleteTitle = ref("");
-const emit = defineEmits(["OpenModal"]);
-const route = useRoute();
-const id = Number(route.params.id);
-var matches = false;
-function ConfirmDelete() {
-  if (confirmDeleteTitle.value == "") {
-    console.log("comment must contain something");
-    return 0;
+const toast = useToast();
+const props = defineProps<{
+  art: Art;
+}>();
+const visible = ref(false);
+const confirmText = ref("");
+
+watch(visible, (newVal) => {
+  if (newVal) {
+    confirmText.value = "";
   }
-  ArtAccessService.ConfirmDelete(id, confirmDeleteTitle.value).then(
-    (promise: boolean) => {
-      if (promise == true) {
-        matches = true;
-        ArtAccessService.DeleteArt(id);
-        router.push("/gallery");
-      }
-    },
-  );
-}
-
-watch(visible, () => {
-  emit("OpenModal", visible.value);
 });
+
+function ConfirmDelete() {
+  ArtAccessService.DeleteArt(props.art.id)
+    .then(() => {
+      router.push("/account#art");
+      toast.add({
+        severity: "success",
+        summary: "Art Deleted",
+        detail: "The art has been deleted successfully",
+        life: 3000,
+      });
+    })
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "An error occurred while deleting the art",
+        life: 3000,
+      });
+    });
+}
 </script>

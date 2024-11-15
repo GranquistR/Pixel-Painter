@@ -94,40 +94,18 @@ export default class ArtAccessService {
       console.error(error);
       throw error;
     }
-    }
-    public static async IsMyArt(artId: number): Promise<boolean> {
-        try {
-            const response = await fetch(`/artaccess/IsMyArt?id=${artId}`);
-            const json = await response.json();
+  }
 
-            const ismyart = json as boolean;
+  public static async DeleteArt(ArtId: number): Promise<void> {
+    try {
+      const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`);
 
-            return ismyart;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
     }
-    public static async DeleteArt(ArtId: number): Promise<any> {
-        try {
-            const response = await fetch(
-                `/artaccess/DeleteArt?ArtId=${ArtId}`,
-            );
-        } catch (error) {
-            console.error;
-        }
-    }
-    public static async ConfirmDelete(artId: number,title: string): Promise<boolean> {
-        try {
-            const response = await fetch(`/artaccess/ConfirmDelete?id=${artId}&title=${title}`);
-            const json = await response.json();
-
-            const matches = json as boolean;
-
-            return matches;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
-    }
+  }
 }

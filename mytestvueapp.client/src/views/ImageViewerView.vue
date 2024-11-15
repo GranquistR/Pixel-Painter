@@ -1,12 +1,4 @@
 <template>
-  <Card
-    v-if="isitmyart"
-    class="block justify-content-center w-full h-full align-items-center"
-  >
-    <template #content
-      >This is your art <DeleteArtButton> </DeleteArtButton
-    ></template>
-  </Card>
   <div class="justify-content-center flex w-full h-full align-items-center">
     <div class="border-2">
       <my-canvas
@@ -18,24 +10,25 @@
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
-        <h3>
+        <h3 class="flex">
           {{ art.title }}
+        </h3>
+
+        <div>By {{ art.artistName }}</div>
+        <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
+
+        <div class="flex flex-row align-items-center gap-2 mt-4">
+          <LikeButton class="" :art-id="id" :likes="art.numLikes"></LikeButton>
           <Button
-            class="ml-4"
+            v-if="art.currentUserIsOwner"
             label="Edit"
             icon="pi pi-pencil"
             severity="secondary"
             @click="router.push(`/paint/${id}`)"
           ></Button>
-        </h3>
-
-        <div>By {{ art.artistName }}</div>
-        <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
-        <LikeButton
-          class="mt-4"
-          :art-id="id"
-          :likes="art.numLikes"
-        ></LikeButton>
+          <DeleteArtButton v-if="art.currentUserIsOwner" :art="art">
+          </DeleteArtButton>
+        </div>
       </template>
     </Card>
   </div>
@@ -66,19 +59,31 @@ import Card from "primevue/card";
 import LikeButton from "@/components/LikeButton.vue";
 import Button from "primevue/button";
 import router from "@/router";
+import { useToast } from "primevue/usetoast";
 
 const route = useRoute();
+const toast = useToast();
 
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-var isitmyart = false;
+
 onMounted(() => {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    art.value = promise as Art;
-    uploadDate.value = new Date(promise.creationDate);
-  });
+  ArtAccessService.getArtById(id)
+    .then((promise: Art) => {
+      art.value = promise as Art;
+      uploadDate.value = new Date(promise.creationDate);
+    })
+    .catch(() => {
+      router.push("/gallery");
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Art not found",
+        life: 3000,
+      });
+    });
   updateComments();
 });
 
@@ -87,7 +92,4 @@ function updateComments() {
     allComments.value = promise;
   });
 }
-ArtAccessService.IsMyArt(id).then((promise: boolean) => {
-  isitmyart = promise;
-});
 </script>

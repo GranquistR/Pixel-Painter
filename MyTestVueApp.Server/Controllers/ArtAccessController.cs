@@ -61,7 +61,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtById")]
-        public async  Task<IActionResult> GetArtById(int id)
+        public async Task<IActionResult> GetArtById(int id)
         {
             try
             {
@@ -152,41 +152,37 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("DeleteArt")]
-        public async Task<IActionResult> DeleteArt(int ArtId)
+        public async Task<IActionResult> DeleteArt(int artId)
         {
 
-            // If the user is logged in
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                // You can add additional checks here if needed
-                var rowsChanged = await ArtAccessService.DeleteArt(ArtId);
-                if (rowsChanged > 0) // If the art has been deleted
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    var art = ArtAccessService.GetArtById(artId);
+
+                    if (art.artistId != artist.id)
+                    {
+                        return Unauthorized("User is not authorized for this action");
+                    }
+
+                    await ArtAccessService.DeleteArt(artId);
+
                     return Ok();
+
                 }
                 else
                 {
-                    return BadRequest("Failed to delte Comment");
+                    return BadRequest("User is not logged in");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("User is not logged in");
+                return Problem(ex.Message);
             }
 
         }
-        [HttpGet]
-        [Route("ConfirmDelete")]
-        public async Task<bool> ConfirmDelete(int id, string title)
-        {
-            var art = ArtAccessService.GetArtById(id);
-            bool matches = false;
-            if (title == art.title)
-            {
-                matches = true;
-            }
-            return matches;
-        }
-
     }
 }

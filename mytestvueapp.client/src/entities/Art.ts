@@ -15,7 +15,7 @@ export default class Art {
   artistName: string;
   numLikes: number;
   numComments: number;
-  currentUserisOwner: boolean;
+  currentUserIsOwner: boolean;
 
   constructor() {
     this.id = 0;
@@ -28,6 +28,6 @@ export default class Art {
     this.numLikes = 0;
     this.numComments = 0;
     this.pixelGrid = new PixelGrid(1, 1, "FF0000");
-    this.currentUserisOwner = false;
+    this.currentUserIsOwner = false;
   }
 }

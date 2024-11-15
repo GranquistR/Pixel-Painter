@@ -45,8 +45,8 @@ BEGIN
         ArtistId INT,
         ArtId INT,
         PRIMARY KEY (ArtistId, ArtId),
-        CONSTRAINT FK_Likes_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id) ON DELETE CASCADE,
-        CONSTRAINT FK_Likes_Art FOREIGN KEY (ArtId) REFERENCES Art(Id)
+        CONSTRAINT FK_Likes_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id),
+        CONSTRAINT FK_Likes_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE
     );
 END
 GO
@@ -60,8 +60,8 @@ BEGIN
         [Message] VARCHAR(2222),
         CreationDate DATETIME DEFAULT GETDATE(),
         PRIMARY KEY (Id),
-        CONSTRAINT FK_Comment_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id) ON DELETE CASCADE,
-        CONSTRAINT FK_Comment_Art FOREIGN KEY (ArtId) REFERENCES Art(Id),
+        CONSTRAINT FK_Comment_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id),
+        CONSTRAINT FK_Comment_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE,
         CONSTRAINT FK_Comment_Comment FOREIGN KEY (ReplyId) REFERENCES Comment(Id)
     );
 END
