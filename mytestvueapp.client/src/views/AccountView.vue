@@ -5,7 +5,7 @@
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
           <div class="text-3xl p-font-bold">{{ artist.name }}</div>
-          <div class="">myemail@goeshere.com</div>
+          <div id="emailDisplay" class=""></div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
@@ -108,6 +108,7 @@ const route = useRoute();
 var artist = ref<Artist>(new Artist());
 var isEditing = ref(false);
 var newUsername = ref("");
+var email = ref("");
 
 var myArt = ref<Art[]>([]);
 
@@ -123,7 +124,14 @@ onMounted(() => {
       });
     }
     newUsername.value = user.name;
-    artist.value = user;
+      artist.value = user;
+      // email = LoginService.getEmail();
+
+      LoginService.getEmail().then(email => {
+          document.getElementById('emailDisplay').innerText = email;
+      });
+
+      console.log(email);
   });
 
   ArtAccessService.GetCurrentUsersArt().then((art) => {
