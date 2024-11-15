@@ -55,7 +55,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         #region Google Login
 
-        public async Task<string> GetUserId(string code)
+        public async Task<Userinfo> GetUserId(string code)
         {
             var accessToken = await GetAccessToken(code);
 
@@ -69,7 +69,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 });
 
                 Userinfo userInfo = await oauth2Service.Userinfo.Get().ExecuteAsync();
-                return userInfo.Id;
+
+                return userInfo;
             }
             catch (Exception ex)
             {
@@ -106,7 +107,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         /// </summary>
         /// <param name="subId"></param>
         /// <returns></returns>
-        public async Task<Artist> SignupActions(string subId)
+        public async Task<Artist> SignupActions(string subId, string email)
         {
             try
             {
@@ -122,13 +123,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         return artist;
                     }
 
-                    var query = "INSERT INTO Artist (SubId, Name, IsAdmin, CreationDate) VALUES (@SubId, @Name, @IsAdmin, @CreationDate)";
+                    var query = "INSERT INTO Artist (SubId, Name, Email, IsAdmin, CreationDate) VALUES (@SubId, @Name, @Email, @IsAdmin, @CreationDate)";
                     string username = generateUsername();
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@SubId", subId);
                         command.Parameters.AddWithValue("@Name", username);
+                        command.Parameters.AddWithValue("@Email", email);
                         command.Parameters.AddWithValue("@IsAdmin", false);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
@@ -218,6 +220,29 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 Logger.LogCritical(ex, "Error occured while updating username");
                 throw;
             }
+        }
+
+        public string GetEmail(string subId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var query = "Select Email from Artist WHERE SubId = @SubId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@SubId", subId);
+
+                    var result = command.ExecuteScalar();
+
+                    if (result != DBNull.Value) {
+                        return result.ToString();
+                    }
+                }
+            }
+            return null;
         }
 
         public async Task<Artist> GetUserBySubId(string subId)
