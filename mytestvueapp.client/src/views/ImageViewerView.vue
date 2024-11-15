@@ -36,11 +36,12 @@
   <h2 class="px-4">{{ allComments.length }} Comments</h2>
 
   <div class="px-6">
-    <NewComment @newComment="updateComments"></NewComment>
+    <NewComment @newComment="updateComments" class="mb-4"></NewComment>
     <CommentOnArt
       v-for="Comment in allComments"
       :key="Comment.id"
       :comment="Comment"
+      @delete-comment="updateComments"
     ></CommentOnArt>
   </div>
 </template>

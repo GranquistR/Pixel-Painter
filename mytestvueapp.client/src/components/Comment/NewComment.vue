@@ -8,7 +8,7 @@
     ></InputText>
     <div class="flex flex-row-reverse mt-2" v-if="open">
       <Button class="ml-2" @click="PostComment()">Post Comment</Button>
-      <Button severity="secondary">Cancel</Button>
+      <Button severity="secondary" @click="Cancel()">Cancel</Button>
     </div>
   </div>
 </template>
