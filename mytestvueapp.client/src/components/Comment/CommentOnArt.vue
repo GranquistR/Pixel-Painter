@@ -43,7 +43,9 @@
         <span>{{ comment.creationDate }}</span>
       </div>
       <div class="mb-4 ml-2">
-        <span v-if="!editing">{{ comment.message }}</span>
+        <span v-if="!editing" style="word-break: break-all">{{
+          comment.message
+        }}</span>
         <div v-else>
           <InputText
             v-model:="newMessage"
@@ -65,15 +67,17 @@
         </div>
       </div>
     </div>
-    <Button
-      v-if="comment.currentUserIsOwner"
-      icon="pi pi-ellipsis-h"
-      rounded
-      text
-      severity="secondary"
-      @click="openMenu()"
-    />
-    <Menu ref="menu" :model="items" :popup="true" />
+    <div style="width: 5rem">
+      <Button
+        v-if="comment.currentUserIsOwner"
+        icon="pi pi-ellipsis-h"
+        rounded
+        text
+        severity="secondary"
+        @click="openMenu()"
+      />
+      <Menu ref="menu" :model="items" :popup="true" />
+    </div>
   </div>
 </template>
 
