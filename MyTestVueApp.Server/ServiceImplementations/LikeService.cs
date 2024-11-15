@@ -113,10 +113,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     int count = (int) await command.ExecuteScalarAsync();
 
                     if (count > 0) {
-                        Console.WriteLine("User has liked this artpiece!");
                         return true;
                     } else {
-                        Console.WriteLine("User has not liked this artpiece!");
                         return false;
                     }
                 }
