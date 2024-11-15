@@ -239,6 +239,78 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
+
+        public async Task<int> DeleteArt(int ArtId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Check to make sure the there is a comment to delete
+                var checknullQuery = "SELECT Count(*) FROM Art WHERE ID = @ArtId";
+                using (SqlCommand checkDupCommand = new SqlCommand(checknullQuery, connection))
+                {
+                    checkDupCommand.Parameters.AddWithValue("@ArtId", ArtId);
+
+                    int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                    if (count == 0)
+                    {
+                        Console.WriteLine("No Art exists to delete!");
+                        return 0;
+                    }
+                    if (count > 1)
+                    {
+                        Console.WriteLine("more than one art with same ID!");
+                        return 0;
+                    }
+                }
+                var deleteLikesQuery = "DELETE likes where likes.Artid = @ArtId";
+                using (SqlCommand deleteLikesCommand = new SqlCommand(deleteLikesQuery, connection))
+                {
+                    deleteLikesCommand.Parameters.AddWithValue("@ArtId", ArtId);
+                    int rowsChanged = deleteLikesCommand.ExecuteNonQuery();
+                    if (rowsChanged < 0)
+                    {
+                        Console.WriteLine("error with deleting likes from art");
+                        return 0;
+                    }
+                }
+                var deletecommentsQuery = "DELETE comment where comment.Artid = @ArtId";
+                using (SqlCommand deletecommentsCommand = new SqlCommand(deletecommentsQuery, connection))
+                {
+                    deletecommentsCommand.Parameters.AddWithValue("@ArtId", ArtId);
+                    int rowsChanged = deletecommentsCommand.ExecuteNonQuery();
+                    if (rowsChanged < 0)
+                    {
+                        Console.WriteLine("error with deleting comments from art");
+                        return 0;
+                    }
+                }
+                var deleteArtQuery = "DELETE art where art.id = @ArtId";
+                using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
+                {
+                    deleteArtCommand.Parameters.AddWithValue("@ArtId", ArtId);
+                    int rowsChanged = deleteArtCommand.ExecuteNonQuery();
+                    if (rowsChanged < 0)
+                    {
+                        Console.WriteLine("error with deleting art");
+                        return 0;
+                    }
+                    if (rowsChanged == 0)
+                    {
+                        Console.WriteLine("error with deleting art");
+                        return 0;
+                    }
+                    if (rowsChanged > 0)
+                    {
+                        return rowsChanged;
+                    }
+                    else { return -1; }
+                }
+
+            }
+        }
     }
 }
 

@@ -10,10 +10,12 @@ namespace MyTestVueApp.Server.Entities
         public DateTime creationDate { get; set; }
         public PixelGrid pixelGrid { get; set; }
 
+
         //Optional external values
         public string artistName { get; set; }
         public int numLikes { get; set; }
         public int numComments { get; set; }
+        public bool currentUserIsOwner { get; set; } = false;
 
     }
 

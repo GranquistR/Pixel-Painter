@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using MyTestVueApp.Server.ServiceImplementations;
 using System.Security.Authentication;
 
 namespace MyTestVueApp.Server.Controllers
@@ -60,7 +61,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtById")]
-        public IActionResult GetArtById(int id)
+        public async  Task<IActionResult> GetArtById(int id)
         {
             try
             {
@@ -71,6 +72,13 @@ namespace MyTestVueApp.Server.Controllers
                     return BadRequest("Art not found");
                 }
 
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+
+                    art.currentUserIsOwner = (art.artistId == artist.id);
+                }
+
                 return Ok(art);
             }
             catch (Exception ex)
@@ -78,6 +86,7 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+
 
         [HttpPost]
         [Route("SaveArt")]
@@ -102,7 +111,7 @@ namespace MyTestVueApp.Server.Controllers
                     else //Update art
                     {
                         var result = await ArtAccessService.UpdateArt(artist, art);
-                        if(result == null)
+                        if (result == null)
                         {
                             return BadRequest("Could not update this art");
                         }
@@ -114,7 +123,7 @@ namespace MyTestVueApp.Server.Controllers
                     return BadRequest("User not logged in");
                 }
             }
-            catch(UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
             }
@@ -122,6 +131,61 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("IsMyArt")]
+        public async Task<bool> IsMyArt(int id)
+        {
+            var art = ArtAccessService.GetArtById(id);
+            bool ismine = false;
+
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                var artist = await LoginService.GetUserBySubId(userId);
+
+                ismine = (art.artistId == artist.id);
+            }
+            return ismine;
+        }
+
+
+        [HttpGet]
+        [Route("DeleteArt")]
+        public async Task<IActionResult> DeleteArt(int ArtId)
+        {
+
+            // If the user is logged in
+            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            {
+                // You can add additional checks here if needed
+                var rowsChanged = await ArtAccessService.DeleteArt(ArtId);
+                if (rowsChanged > 0) // If the art has been deleted
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Failed to delte Comment");
+                }
+            }
+            else
+            {
+                return BadRequest("User is not logged in");
+            }
+
+        }
+        [HttpGet]
+        [Route("ConfirmDelete")]
+        public async Task<bool> ConfirmDelete(int id, string title)
+        {
+            var art = ArtAccessService.GetArtById(id);
+            bool matches = false;
+            if (title == art.title)
+            {
+                matches = true;
+            }
+            return matches;
         }
 
     }

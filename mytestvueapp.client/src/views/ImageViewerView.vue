@@ -1,4 +1,12 @@
 <template>
+  <Card
+    v-if="isitmyart"
+    class="block justify-content-center w-full h-full align-items-center"
+  >
+    <template #content
+      >This is your art <DeleteArtButton> </DeleteArtButton
+    ></template>
+  </Card>
   <div class="justify-content-center flex w-full h-full align-items-center">
     <div class="border-2">
       <my-canvas
@@ -44,6 +52,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
 import { ref, onMounted } from "vue";
@@ -64,7 +73,7 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-
+var isitmyart = false;
 onMounted(() => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     art.value = promise as Art;
@@ -78,4 +87,7 @@ function updateComments() {
     allComments.value = promise;
   });
 }
+ArtAccessService.IsMyArt(id).then((promise: boolean) => {
+  isitmyart = promise;
+});
 </script>
