@@ -45,6 +45,7 @@ import Button from "primevue/button";
 const Deleted = ref(false);
 const changedComment = ref(false);
 const editing = ref(false);
+const emit = defineEmits(["newComment"]);
 
 const props = defineProps<{
   comment: Comment;
@@ -64,7 +65,9 @@ const SubmitEdit = () => {
 };
 const DeleteComment = () => {
   if (props.comment.id != null) {
-    CommentAccessService.DeleteComment(props.comment.id);
+    CommentAccessService.DeleteComment(props.comment.id).then(() => {
+      emit("newComment");
+    });
   }
 };
 </script>
