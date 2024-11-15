@@ -63,28 +63,5 @@ export default class LoginService {
       console.error(error);
       return false;
     }
-    }
-
-    public static async getEmail(): Promise<string> {
-        try {
-            const response = await fetch("login/GetEmail");
-
-            if (!response.ok) {
-                throw new Error("Error: Bad response");
-            }
-
-            const email: string = await response.text();
-
-            /*const contentType = response.headers.get("Content-Type");
-            console.log('Content-Type:', contentType);*/
-
-            return email;
-        }
-        catch (error) {
-            console.error(error);
-            return "";
-        }
-    }
+  }
 }
-
-

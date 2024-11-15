@@ -7,5 +7,6 @@
         public string name { get; set; }
         public bool isAdmin { get; set; } = false;
         public DateTime creationDate { get; set; }
+        public string email { get; set; }
     }
 }

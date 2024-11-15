@@ -4,11 +4,13 @@ export default class Artist {
   name: string;
   isAdmin: boolean;
   creationDate: string;
+  email: string;
 
   constructor() {
     this.id = 0;
     this.name = "";
     this.isAdmin = false;
     this.creationDate = "";
+    this.email = "";
   }
 }

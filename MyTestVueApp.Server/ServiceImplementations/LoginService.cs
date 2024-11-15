@@ -222,29 +222,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public string GetEmail(string subId)
-        {
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                var query = "Select Email from Artist WHERE SubId = @SubId";
-
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@SubId", subId);
-
-                    var result = command.ExecuteScalar();
-
-                    if (result != DBNull.Value) {
-                        return result.ToString();
-                    }
-                }
-            }
-            return null;
-        }
-
         public async Task<Artist> GetUserBySubId(string subId)
         {
             var artist = new Artist();
@@ -260,6 +237,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           ,[Name]
                           ,[IsAdmin]
                           ,[CreationDate]
+                          ,[Email]
                       FROM [PixelPainter].[dbo].[Artist]
                       WHERE SubId = @SubId
                     ";
@@ -278,6 +256,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
+                                email = reader.GetString(5),
                             };
                             return artist;
                         }

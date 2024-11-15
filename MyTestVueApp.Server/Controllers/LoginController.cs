@@ -109,13 +109,5 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
-        [HttpGet]
-        [Route("GetEmail")]
-        public async Task<IActionResult> GetEmail()
-        {
-            Request.Cookies.TryGetValue("GoogleOAuth", out var subId);
-            return Ok(LoginService.GetEmail(subId)); 
-        }
     }
 }
