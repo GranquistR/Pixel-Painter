@@ -37,6 +37,10 @@ namespace MyTestVueApp.Server.Controllers
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 var artist = await LoginService.GetUserBySubId(userId);
+                if(artist == null)
+                {
+                    return comments;
+                }
                 foreach (var comment in comments)
                 {
                     comment.currentUserIsOwner = comment.artistId == artist.id;
