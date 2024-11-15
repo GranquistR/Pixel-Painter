@@ -45,6 +45,16 @@ namespace MyTestVueApp.Server.Controllers
 
             return comments;
         }
+
+        [HttpGet]
+        [Route("GetCommentByCommentId")]
+        public Comment GetCommentByCommentId(int CommentId)
+        {
+            var comment = CommentAccessService.GetCommentByCommentId(CommentId);
+
+            return comment;
+        }
+
         [HttpGet]
         [Route("EditComment")]
         public async Task<IActionResult> EditComment(int commentId, String newMessage)
@@ -53,21 +63,30 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                // You can add additional checks here if needed
-                var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
-                if (rowsChanged > 0) // If the comment has been sucessfuly edited
-                {
-                    return Ok();
+                var comment = CommentAccessService.GetCommentByCommentId(commentId);
+                var subid = await LoginService.GetUserBySubId(userId);
+                if(comment.artistId == subid.id)
+                {    // You can add additional checks here if needed
+                    var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
+                    if (rowsChanged > 0) // If the comment has been sucessfuly edited
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                    }
                 }
                 else
                 {
-                    return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                    return BadRequest("User does not match");
                 }
             }
             else
             {
                 return BadRequest("User is not logged in");
             }
+            
 
         }
 
@@ -80,16 +99,26 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                // You can add additional checks here if needed
-                var rowsChanged = await CommentAccessService.DeleteComment(commentId);
-                if (rowsChanged > 0) // If the comment has been deleted
+                var comment = CommentAccessService.GetCommentByCommentId(commentId);
+                var subid = await LoginService.GetUserBySubId(userId);
+                if (comment.artistId == subid.id)
                 {
-                    return Ok();
+                    // You can add additional checks here if needed
+                    var rowsChanged = await CommentAccessService.DeleteComment(commentId);
+                    if (rowsChanged > 0) // If the comment has been deleted
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to delte Comment");
+                    }
                 }
                 else
                 {
-                    return BadRequest("Failed to delte Comment");
+                    return BadRequest("User does not match");
                 }
+
             }
             else
             {

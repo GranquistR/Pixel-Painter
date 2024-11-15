@@ -82,4 +82,23 @@ export default class CommentAccessService {
             console.error;
         }
     }
+    public static async getCommentByCommentId(CommentId: number): Promise<any> {
+        try {
+            const response = await fetch(
+                `/comment/GetCommentByCommentId?CommentId=${CommentId}`
+            );
+            const jsonComments = await response.json();
+
+            const allComments: Comment[] = [];
+            for (const jsonComment of jsonComments) {
+                let comment = new Comment();
+                comment = jsonComment as Comment;
+                allComments.push(comment);
+            }
+
+            return allComments;
+        } catch (error) {
+            console.error;
+        }
+    }
 }
