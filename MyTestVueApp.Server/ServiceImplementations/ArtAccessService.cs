@@ -138,12 +138,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numLikes = reader.GetInt32(9),
                                 numComments = reader.GetInt32(10)
                             };
-
+                            return painting;
                         }
                     }
                 }
             }
-            return painting;
+            return null;
         }
 
         public async Task<Art> SaveArt(Artist artist, Art art)

@@ -60,9 +60,23 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtById")]
-        public Art GetArtById(int id)
+        public IActionResult GetArtById(int id)
         {
-            return ArtAccessService.GetArtById(id);
+            try
+            {
+                var art = ArtAccessService.GetArtById(id);
+
+                if (art == null)
+                {
+                    return BadRequest("Art not found");
+                }
+
+                return Ok(art);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -94,6 +108,6 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-    
+
     }
 }

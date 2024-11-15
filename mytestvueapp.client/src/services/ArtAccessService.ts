@@ -52,9 +52,15 @@ export default class ArtAccessService {
   public static async getArtById(artId: number): Promise<Art> {
     try {
       const response = await fetch(`/artaccess/GetArtById?id=${artId}`);
+
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+
       const json = await response.json();
 
       const artpiece = json as Art;
+
       artpiece.pixelGrid.backgroundColor = "#ffffff";
       artpiece.pixelGrid.grid = codec.Decode(
         artpiece.pixelGrid.encodedGrid || "",
@@ -64,23 +70,6 @@ export default class ArtAccessService {
       ).grid;
 
       return artpiece;
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
-
-  public static async getCommentsById(artId: number): Promise<Comment[]> {
-    try {
-      const response = await fetch(`/artaccess/GetCommentsById?id=${artId}`);
-      const json = await response.json();
-
-      const allComments: Comment[] = [];
-      for (const comment of json) {
-        allComments.push(comment as Comment);
-      }
-
-      return allComments;
     } catch (error) {
       console.error;
       throw error;

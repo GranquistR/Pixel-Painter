@@ -70,6 +70,7 @@ import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
 
 //scripts
 import LinkedList from "@/utils/undo";
@@ -78,6 +79,7 @@ import ArtAccessService from "@/services/ArtAccessService";
 //variables
 const route = useRoute();
 const canvas = ref();
+const toast = useToast();
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
@@ -120,14 +122,24 @@ onMounted(() => {
   ) as PixelGrid;
 
   if (route.params.id) {
+    localStorage.removeItem("working-art");
     const id: number = parseInt(route.params.id as string);
-    ArtAccessService.getArtById(id).then((data) => {
-      pixelGrid.value.DeepCopy(data.pixelGrid);
-      canvas.value?.recenter();
-      currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
-      undoList.append(currentGrid);
-      isEditing.value = true;
-    });
+    ArtAccessService.getArtById(id)
+      .then((data) => {
+        pixelGrid.value.DeepCopy(data.pixelGrid);
+        canvas.value?.recenter();
+        currentGrid = JSON.parse(JSON.stringify(pixelGrid.value.grid));
+        undoList.append(currentGrid);
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "You cannot edit this art",
+          life: 3000,
+        });
+        router.push("/new");
+      });
   } else if (workingGrid == null) {
     router.push("/new");
   } else {
