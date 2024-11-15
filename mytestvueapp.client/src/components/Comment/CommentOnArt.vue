@@ -43,7 +43,7 @@
         <span>{{ comment.creationDate }}</span>
       </div>
       <div class="mb-4 ml-2">
-        <span v-if="!editing" style="word-break: break-all">{{
+        <span v-if="!editing" style="word-break: break-word">{{
           comment.message
         }}</span>
         <div v-else>
