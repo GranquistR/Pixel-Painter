@@ -228,6 +228,60 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
+        public Comment GetCommentByCommentId(int id)
+        {
+            try
+            {
+                Comment comments = new Comment();
+                var connectionString = AppConfig.Value.ConnectionString;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                    var query = @$"
+                   SELECT 
+                        Comment.Id, 
+                        Comment.ArtistId, 
+                        Comment.ArtID, 
+                        Comment.[Message],
+	                    Artist.[Name] as CommenterName,
+                        Comment.CreationDate,
+                        Comment.ReplyId
+                    FROM Comment  
+                    JOIN Artist ON Artist.id = Comment.ArtistId
+                    WHERE Comment.Id = @id;";
+
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@id", id));
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var comment = new Comment
+                                { //Art Table + NumLikes and NumComments
+                                    id = reader.GetInt32(0),
+                                    artistId = reader.GetInt32(1),
+                                    artId = reader.GetInt32(2),
+                                    message = reader.GetString(3),
+                                    commenterName = reader.GetString(4),
+                                    creationDate = reader.GetDateTime(5),
+                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
+                                };
+                                comments = comment;
+                            }
+                        }
+                    }
+                }
+                return comments;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error retrieving comments");
+                throw;
+            }
+        }
     }
 }
 

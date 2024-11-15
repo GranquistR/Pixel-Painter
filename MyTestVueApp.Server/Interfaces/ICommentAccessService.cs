@@ -17,5 +17,6 @@ namespace MyTestVueApp.Server.Interfaces
         /// <returns>A list of all paintings</returns>
         public IEnumerable<Comment> GetCommentsById(int id);
         public Task<Comment> CreateComment(Artist commenter, Comment comment);
+        public Comment GetCommentByCommentId(int CommentId);
     }
 }
