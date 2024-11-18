@@ -30,6 +30,6 @@ function buttonClick() {
 
 function Login() {
   var url = new URL(window.location.href);
-  window.location.replace(`login/Login?returnUrl=${url.origin}/LoginRedirect`);
+  window.location.replace(`/login/Login?returnUrl=${url.origin}/LoginRedirect`);
 }
 </script>

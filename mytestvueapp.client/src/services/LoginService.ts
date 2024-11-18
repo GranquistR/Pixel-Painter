@@ -28,7 +28,7 @@ export default class LoginService {
 
   public static async GetCurrentUser(): Promise<Artist> {
     try {
-      const response = await fetch("login/GetCurrentUser");
+      const response = await fetch("/login/GetCurrentUser");
 
       if (!response.ok) {
         console.log("Response was not ok");

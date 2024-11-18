@@ -267,7 +267,7 @@ function DrawAtCoords(coords: Vector2[]) {
             art.value.pixelGrid.grid[cursor.value.position.x][
               cursor.value.position.y
             ];
-        } else if (cursor.value.selectedTool.label === "Paint-Bucket") {
+        } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
@@ -361,7 +361,7 @@ function handleKeyDown(event: KeyboardEvent) {
     canvas?.value.updateCursor();
   } else if (event.key === "f") {
     event.preventDefault();
-    cursor.value.selectedTool.label = "Paint-Bucket";
+    cursor.value.selectedTool.label = "Bucket";
     canvas?.value.updateCursor();
   } else if (event.key === "1") {
     event.preventDefault();

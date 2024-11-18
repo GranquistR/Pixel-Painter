@@ -17,7 +17,7 @@ export default class PainterTool {
       new PainterTool("Brush", "pi pi-pencil", "b", "crosshair"),
       new PainterTool("Eraser", "pi pi-eraser", "e", "crosshair"),
       new PainterTool("Pipette", "pi pi-eye dropper", "d", "crosshair"),
-      new PainterTool("Paint-Bucket", "pi pi-hammer", "f", "crosshair"),
+      new PainterTool("Bucket", "pi pi-hammer", "f", "crosshair"),
     ];
   }
 }
