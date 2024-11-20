@@ -199,17 +199,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
             comment.artistId = commenter.id;
             comment.commenterName = commenter.name;
             comment.creationDate = DateTime.UtcNow;
-           
+            comment.replyId = comment.replyId;
+
             using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
             {
                 try
                 {
                     connection.Open();
-                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@Message,@CreationDate)";
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,replyId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@replyID,@Message,@CreationDate)";
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
                         command.Parameters.AddWithValue("@ArtistID", commenter.id);
                         command.Parameters.AddWithValue("@ArtID", comment.artId);
+                        command.Parameters.AddWithValue("@replyID", comment.replyId);
                         command.Parameters.AddWithValue("@Message", comment.message);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
@@ -229,39 +231,58 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         }
 
-        public async Task<Comment> CreateReply(Artist commenter, Comment comment, Artist Replier)
+        public IEnumerable<Comment> GetCommentByReplyId(int replyId)
         {
-            comment.artistId = commenter.id;
-            comment.commenterName = commenter.name;
-            comment.creationDate = DateTime.UtcNow;
-            comment.replyId = Replier.id;
-
-            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
+            try
             {
-                try
+                var comments = new List<Comment>();
+                var connectionString = AppConfig.Value.ConnectionString;
+
+                using (var connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
-                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate,replyId) VALUES (@ArtistID,@ArtID,@Message,@CreationDate,@replyID)";
-                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                    var query = @$"
+                   SELECT 
+                        Comment.Id, 
+                        Comment.ArtistId, 
+                        Comment.ArtID, 
+                        Comment.[Message],
+	                    Artist.[Name] as CommenterName,
+                        Comment.CreationDate,
+                        Comment.ReplyId
+                    FROM Comment  
+                    JOIN Artist ON Artist.id = Comment.ArtistId
+                    WHERE Comment.ReplyId = @replyID;";
+
+                    using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@ArtistID", commenter.id);
-                        command.Parameters.AddWithValue("@ArtID", comment.artId);
-                        command.Parameters.AddWithValue("@Message", comment.message);
-                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
-                        command.Parameters.AddWithValue("@replyID", Replier.id);
-
-                        var newId = await command.ExecuteScalarAsync();
-                        comment.id = Convert.ToInt32(newId);
-
-                        return comment;
-
+                        command.Parameters.Add(new SqlParameter("@id", replyId));
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Comment comment = new Comment
+                                { //Art Table + NumLikes and NumComments
+                                    id = reader.GetInt32(0),
+                                    artistId = reader.GetInt32(1),
+                                    artId = reader.GetInt32(2),
+                                    message = reader.GetString(3),
+                                    commenterName = reader.GetString(4),
+                                    creationDate = reader.GetDateTime(5),
+                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
+                                };
+                                comments.Add(comment);
+                            }
+                        }
                     }
+                    return comments;
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogCritical(ex, "Failed to insert comment");
-                    throw;
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error retrieving replies");
+                throw;
             }
         }
         public Comment GetCommentByCommentId(int id)
