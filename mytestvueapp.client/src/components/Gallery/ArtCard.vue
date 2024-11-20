@@ -35,14 +35,12 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import LikeButton from "../LikeButton.vue";
-import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
 import router from "@/router";
 
 const props = defineProps<{
   art: Art;
-  size: number;
 }>();
 </script>
 
