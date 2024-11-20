@@ -42,7 +42,7 @@
         <span style="font-weight: bold">{{ comment.commenterName }}</span>
         <span>{{ comment.creationDate }}</span>
       </div>
-      <div class="mb-4 ml-2">
+      <div class="mb-2 ml-2">
         <span v-if="!editing" style="word-break: break-word">{{
           comment.message
         }}</span>
@@ -65,6 +65,15 @@
             ></Button>
           </div>
         </div>
+      </div>
+      <div>
+        <button class="ml-4 mb-2">Reply</button>
+        <!-- <InputText
+            v-model:="newMessage"
+            placeholder="Add a reply..."
+            class="w-full mb-2"
+        ></InputText> -->
+        <button class="ml-3 mb-2">Show Replies</button>
       </div>
     </div>
     <div style="width: 5rem">
