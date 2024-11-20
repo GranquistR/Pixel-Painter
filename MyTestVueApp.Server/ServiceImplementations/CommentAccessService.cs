@@ -228,6 +228,42 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
+
+        public async Task<Comment> CreateReply(Artist commenter, Comment comment, Artist Replier)
+        {
+            comment.artistId = commenter.id;
+            comment.commenterName = commenter.name;
+            comment.creationDate = DateTime.UtcNow;
+            comment.replyId = Replier.id;
+
+            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,Message,CreationDate,replyId) VALUES (@ArtistID,@ArtID,@Message,@CreationDate,@replyID)";
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@ArtistID", commenter.id);
+                        command.Parameters.AddWithValue("@ArtID", comment.artId);
+                        command.Parameters.AddWithValue("@Message", comment.message);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+                        command.Parameters.AddWithValue("@replyID", Replier.id);
+
+                        var newId = await command.ExecuteScalarAsync();
+                        comment.id = Convert.ToInt32(newId);
+
+                        return comment;
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, "Failed to insert comment");
+                    throw;
+                }
+            }
+        }
         public Comment GetCommentByCommentId(int id)
         {
             try

@@ -74,6 +74,7 @@
             class="w-full mb-2"
         ></InputText> -->
         <button class="ml-3 mb-2">Show Replies</button>
+        <button class="ml-3 mb-2">Close Replies</button>
       </div>
     </div>
     <div style="width: 5rem">
