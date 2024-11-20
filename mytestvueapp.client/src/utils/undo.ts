@@ -56,7 +56,6 @@ export default class LinkedList {
             }
             this.size--;
         }
-        console.log(this.size);
     }
 
     public isDifferent(pixelGrid:string[][]){
