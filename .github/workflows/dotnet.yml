@@ -62,7 +62,7 @@ jobs:
           
       - name: Transfer artifact to the remote server
         run: |
-          scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/published-app ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app
+          scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/ ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
           
     
 
