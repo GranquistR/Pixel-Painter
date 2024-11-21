@@ -16,6 +16,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    # Setup Node.js for npm install
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x' # Use the Node.js version compatible with your project
+
+    - name: Install npm dependencies
+      run: npm install
+
+    # Build and publish dotnet
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
