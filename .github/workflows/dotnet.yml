@@ -34,8 +34,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
-    - name: Build
+    - name: Build C#
       run: dotnet build --no-restore
+
+    - name: Build Vue
+      run: npm run build
       
     - name: Publish
       run: dotnet publish -c Release -o ./publish
