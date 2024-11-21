@@ -48,12 +48,14 @@ jobs:
         name: published-app
         path: ./publish
 
-    - name: Copy artifact to remote
-      uses: garygrossgarten/github-action-scp@release
+    - name: Upload artifact to server
+      uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
       with:
-        local: published-app.zip
-        remote: /var/www/app
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.SSH_USER }}
-        password: ${{ secrets.PASSWORD }}
+        ftp_host: ${{ secrets.HOST }}
+        ftp_username: ${{ secrets.USER }}
+        ftp_password: ${{ secrets.PASSWORD }}
+        local_source_dir: "./publish"
+        dist_target_dir: "var/www/app"
+        delete: "true"
+        exclude: "'^logs/' '^README.md'"
         
