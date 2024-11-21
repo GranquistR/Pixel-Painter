@@ -25,7 +25,7 @@ jobs:
 
     - name: Install npm dependencies
       working-directory: ./mytestvueapp.client
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     # Build and publish dotnet
     - name: Setup .NET
