@@ -11,9 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
 
@@ -48,14 +46,20 @@ jobs:
         name: published-app
         path: ./publish
 
-    - name: Upload artifact to server
-      uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
-      with:
-        ftp_host: ${{ secrets.HOST }}
-        ftp_username: ${{ secrets.USER }}
-        ftp_password: ${{ secrets.PASSWORD }}
-        local_source_dir: "./publish"
-        dist_target_dir: "var/www/app"
-        delete: "true"
-        exclude: "'^logs/' '^README.md'"
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download published files
+        uses: actions/download-artifact@v3
+        with:
+          name: published-app
+
+      - name: Set up SSH agent with Server
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+
+
         
