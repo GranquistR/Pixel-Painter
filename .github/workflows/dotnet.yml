@@ -24,6 +24,7 @@ jobs:
         node-version: '18.x' # Use the Node.js version compatible with your project
 
     - name: Install npm dependencies
+      working-directory: ./mytestvueapp.client
       run: npm install
 
     # Build and publish dotnet
