@@ -59,6 +59,12 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Debug
+        run: |
+          cd /var/www/app
+          echo "Hello, World!" > test.txt
+          
     
 
 
