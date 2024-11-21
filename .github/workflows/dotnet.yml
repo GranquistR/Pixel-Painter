@@ -62,8 +62,9 @@ jobs:
           
       - name: Debug
         run: |
-          cd /var/www/app
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "
           echo "Hello, World!" > test.txt
+          "
           
     
 
