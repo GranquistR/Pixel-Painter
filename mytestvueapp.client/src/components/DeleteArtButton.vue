@@ -10,7 +10,7 @@
   <Dialog
     v-model:visible="visible"
     modal
-    closable="false"
+    :closable="false"
     :style="{ width: '25rem' }"
     :header="'Delete ' + art.title + '?'"
   >

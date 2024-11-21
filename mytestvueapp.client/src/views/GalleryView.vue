@@ -8,7 +8,6 @@
           v-model.trim="search"
           type="text"
           placeholder="Search..."
-          size="30"
           width="100%"
         />
       </h1>
