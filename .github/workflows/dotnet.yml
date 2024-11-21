@@ -62,7 +62,7 @@ jobs:
           
       - name: Transfer artifact to the remote server
         run: |
-          scp -o StrictHostKeyChecking=no -r ./published-app ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app
+          scp -o StrictHostKeyChecking=no -r published-app ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app
           
     
 
