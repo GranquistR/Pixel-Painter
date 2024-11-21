@@ -51,7 +51,7 @@ jobs:
     - name: Copy artifact to remote
       uses: garygrossgarten/github-action-scp@release
       with:
-        local: published-app
+        local: published-app.zip
         remote: /var/www/app
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
