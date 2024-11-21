@@ -56,7 +56,7 @@ jobs:
           name: published-app
 
       - name: Set up SSH agent with Server
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     
