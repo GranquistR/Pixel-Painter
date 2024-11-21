@@ -34,11 +34,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
-    - name: Build C#
+    - name: Build
       run: dotnet build --no-restore
-
-    - name: Build Vue
-      run: npm run build --prefix ./mytestvueapp.client/
       
     - name: Publish
       run: dotnet publish -c Release -o ./publish
