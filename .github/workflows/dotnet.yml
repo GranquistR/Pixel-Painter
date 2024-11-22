@@ -75,7 +75,7 @@ jobs:
           script: |
             PID=$(pgrep -f 'dotnet /var/www/app/MyTestVueApp.Server.dll')
             if [ -n "$PID" ]; then
-              touch foundme.txt
+              echo "$PID" > foundme.txt            
             fi
           
 
