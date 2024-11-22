@@ -77,8 +77,5 @@ jobs:
             if [ -n "$PID" ]; then
               kill $PID           
             fi
-            
-          
-
-
-            
+            nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
+     
