@@ -65,16 +65,17 @@ jobs:
           
       - name: Transfer artifact to the remote server
         run: scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/* ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
-        
-      - name: Remove old process
-        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} "pkill -f MyTestVueApp.Server.dll || true"
-        
-      - name: Run new app
-        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} "nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &"
 
-          
-          
-    
+      - name: Run the dotnet app
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            pkill -f MyTestVueApp.Server.dll || true
+            nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
 
 
-        
+            
