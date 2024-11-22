@@ -67,10 +67,10 @@ jobs:
         run: scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/* ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
         
       - name: Remove old process
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "pkill -f MyTestVueApp.Server.dll || true"
+        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} "pkill -f MyTestVueApp.Server.dll || true"
         
       - name: Run new app
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &"
+        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} "nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &"
 
           
           
