@@ -67,15 +67,13 @@ jobs:
         run: scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/* ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
 
       - name: Run the dotnet app
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            pkill -f MyTestVueApp.Server.dll || true
-            nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
+          script: whoami
+          
 
 
             
