@@ -28,6 +28,14 @@ jobs:
     - name: Create directory for HTTPS certificate
       run: mkdir -p ~/.aspnet/https
 
+      #insert the appsettings.json
+    - name: Create secret config file
+      working-directory: ./MyTestVueApp.Server
+      env:
+        APPSETTINGS_SECRET: ${{ secrets.APPSETTINGS_SECRET }}
+      run: |
+        echo "$APPSETTINGS_SECRET" > appsettings.json
+
     # Build and publish dotnet
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
