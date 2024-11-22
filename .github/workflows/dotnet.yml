@@ -25,6 +25,9 @@ jobs:
       working-directory: ./mytestvueapp.client
       run: npm install --legacy-peer-deps
 
+    - name: Create directory for HTTPS certificate
+      run: mkdir -p ~/.aspnet/https
+
     # Build and publish dotnet
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
