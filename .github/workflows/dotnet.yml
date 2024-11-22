@@ -75,11 +75,11 @@ jobs:
           script: |
             PID=$(pgrep -f MyTestVueApp.Server.dll)
             if [ -n "$PID" ]; then
-              echo "Killing process $PID..."
-              kill $PID
+              touch found.txt
             else
-              echo "No matching process found."
+              touch notfound.txt
             fi
+            echo "Starting the application..."
             nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
           
 
