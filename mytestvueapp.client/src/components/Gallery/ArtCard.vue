@@ -6,7 +6,7 @@
     @click="router.push(`/art/${art.id}`)"
   >
     <template #header>
-      <MyCanvas :art="art" :pixelSize="6.5" />
+      <MyCanvas :art="art" :pixelSize="size" />
     </template>
     <template #title>
       <div class="text-base font-bold m-0 px-2 pt-1">
@@ -41,6 +41,7 @@ import router from "@/router";
 
 const props = defineProps<{
   art: Art;
+  size: number;
 }>();
 </script>
 
