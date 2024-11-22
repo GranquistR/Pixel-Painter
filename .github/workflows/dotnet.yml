@@ -72,7 +72,9 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: whoami
+          script: |
+            pkill -f MyTestVueApp.Server.dll || true
+            nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
           
 
 
