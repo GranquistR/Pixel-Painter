@@ -73,7 +73,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            PID=$(pgrep -f 'dotnet /var/www/app/MyTestVueApp.Server.dll')
+            PID=$(pgrep -fx 'dotnet /var/www/app/MyTestVueApp.Server.dll')
             if [ -n "$PID" ]; then
               echo "$PID" > foundme.txt            
             fi
