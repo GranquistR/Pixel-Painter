@@ -75,10 +75,8 @@ jobs:
           script: |
             PID=$(pgrep -f 'dotnet /var/www/app/MyTestVueApp.Server.dll')
             if [ -n "$PID" ]; then
-              kill $PID
+              touch foundme.txt
             fi
-            echo "Starting the application..."
-            nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &
           
 
 
