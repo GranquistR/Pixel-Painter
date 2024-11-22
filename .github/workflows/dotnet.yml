@@ -64,10 +64,13 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           
       - name: Transfer artifact to the remote server
-        run: | #uploads the files, sshs into the server, kills the old dotnet app, starts the new one...
-          scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/* ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
-          ssh -o StrictHostKeyChecking=no root@104.236.42.162 "pkill -f MyTestVueApp.Server.dll || true"
-          ssh -o StrictHostKeyChecking=no root@104.236.42.162 "nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &"
+        run: scp -o StrictHostKeyChecking=no -r /home/runner/work/Pixel-Painter/Pixel-Painter/* ${{ secrets.USER }}@${{ secrets.HOST }}:/var/www/app/
+        
+      - name: Remove old process
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "pkill -f MyTestVueApp.Server.dll || true"
+        
+      - name: Run new app
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "nohup dotnet /var/www/app/MyTestVueApp.Server.dll > dotnet_logs_$(date +\"%Y-%m-%d_%H-%M-%S\").log 2>&1 &"
 
           
           
