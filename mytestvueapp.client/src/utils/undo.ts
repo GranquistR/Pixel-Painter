@@ -71,10 +71,7 @@ export default class LinkedList {
           }            
 
         }
-        if (isDifferent){
-            this.append(pixelGrid);
-            
-        }
+        return isDifferent;
     }
 
     public getPrevious(){
@@ -98,4 +95,32 @@ export default class LinkedList {
          }
         }
     
+    public linkedListToArray(){
+        const array: string[][][]=[];
+        let iterator = this.head;
+        while(iterator && iterator.next){
+            array.push(iterator.elem);
+            iterator = iterator.next;
+        }
+        if(iterator){
+        array.push(iterator.elem);
+        }
+        return array;
+
+    }
+    public arrayToLinkedList(array: string[][][]){
+        const list = new LinkedList();
+        for(let i=0; i < array.length; i++){
+            list.append(array[i]);
+        }
+        return list;
+    }
+    public updateCurrent(pixelGrid: string[][]){
+       this.current = this.head;
+       
+       while(this.isDifferent(pixelGrid) && this.current){
+        this.current= this.current.next;
+       }
+       
+    }
 }
