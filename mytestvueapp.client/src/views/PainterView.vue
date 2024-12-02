@@ -4,9 +4,13 @@
     :pixelGrid="art.pixelGrid"
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
-    @mousedown="mouseButtonHeldDown = true"
+    @mousedown="
+      mouseButtonHeldDown = true;
+      setStartVector();
+      "
     @mouseup="
       mouseButtonHeldDown = false;
+      setEndVector();
       onMouseUp();
     "
     @contextmenu.prevent
@@ -87,6 +91,9 @@ const cursor = ref<Cursor>(
 );
 
 const mouseButtonHeldDown = ref<boolean>(false);
+
+const startPix = ref<Vector2>(new Vector2(0,0));
+const endPix = ref<Vector2>(new Vector2(0,0));
 
 const art = ref<Art>(new Art());
 
@@ -176,13 +183,18 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    DrawAtCoords(GetLinePixels(start, end));
+    if (cursor.value.selectedTool.label !== "Rectangle") {
+      DrawAtCoords(GetLinePixels(start, end));
+    }
   },
   { deep: true }
 );
 
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
+  if (cursor.value.selectedTool.label === "Rectangle") {
+    DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+  }
 });
 
 //functions
@@ -275,6 +287,18 @@ function DrawAtCoords(coords: Vector2[]) {
           }
         }
       }
+    } else {
+      if (cursor.value.selectedTool.label === "Rectangle") {
+        if(
+        coord.x >= 0 &&
+        coord.x < art.value.pixelGrid.width &&
+        coord.y >= 0 &&
+        coord.y < art.value.pixelGrid.height
+      ) {
+        art.value.pixelGrid.grid[coord.x][coord.y] =
+        cursor.value.color;
+        }
+      }
     }
   });
 }
@@ -312,6 +336,67 @@ function fill(x: number, y: number) {
   }
 }
 
+function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+  let leftBound = Math.min(start.x, end.x);
+  let rightBound = Math.max(start.x, end.x);
+  let lowerBound = Math.min(start.y, end.y);
+  let upperBound = Math.max(start.y, end.y);
+  //let cursorSize = cursor.value.size;
+
+  //coords = CalculateRectangle(start, end);
+  
+  for (let i = 0; i < cursor.value.size; i++) {
+    if (
+      leftBound + i <= rightBound &&
+      rightBound - i >= leftBound &&
+      upperBound - i >= lowerBound &&
+      lowerBound + i <= upperBound
+    ) {
+      coords = coords.concat(CalculateRectangle(
+        new Vector2(leftBound + i, lowerBound + i), 
+        new Vector2(rightBound - i,upperBound - i)
+      )
+      );
+    }
+  }
+
+  return coords;
+}
+function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+
+  // generate x coordinates
+  let stepX = start.x;
+  while (stepX != end.x){
+    coords.push(new Vector2(stepX,start.y));
+    coords.push(new Vector2(stepX,end.y));
+
+    if (stepX < end.x) stepX++;
+    if (stepX > end.x) stepX--;
+  }
+
+  // generate y coordinates
+  let stepY = start.y;
+  while (stepY != end.y){
+    coords.push(new Vector2(start.x,stepY));
+    coords.push(new Vector2(end.x,stepY));
+
+    if (stepY < end.y) stepY++;
+    if (stepY > end.y) stepY--;
+  }
+
+  coords.push(end);
+  return coords;
+}
+
+function setStartVector() {
+  startPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+}
+function setEndVector() {
+  endPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+}
+
 function ResetArt() {
   localStorage.removeItem("working-art");
   router.push("/new");
@@ -321,6 +406,7 @@ function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
   undoList.isDifferent(currentGrid);
 }
+
 function undo() {
   let previousGrid = undoList.getPrevious();
   if (previousGrid) {
