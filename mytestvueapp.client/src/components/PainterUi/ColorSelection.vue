@@ -3,13 +3,22 @@ qwww
   <FloatingCard
     position="left"
     header="Brush Settings"
-    width="11rem"
+    width="13rem"
     button-icon="pi pi-palette"
     button-label=""
     :default-open="true"
+    
   >
-    Color:
-    <div class="flex flex-wrap">
+  <Tabs value="0">
+    <TabList>
+        <Tab value="0">Default</Tab>
+        <Tab value="1">Custom</Tab>
+       
+    </TabList>
+    <TabPanels>
+        <TabPanel value="0">
+          
+    <div class="flex flex-wrap w-9rem">
       <div v-for="color in DefaultColor.getDefaultColors()" :key="color.hex">
         <div
           @click="selectedColor = color.hex"
@@ -20,7 +29,23 @@ qwww
       </div>
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
     </div>
-    <div class="mt-1">Size: {{ size }}</div>
+    
+        </TabPanel>
+        <TabPanel value="1">
+      <div v-for="color in CustomColor.getCustomColors()" :key="color.hex">
+        <div
+          @click="selectedColor = color.hex"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+          :style="{ backgroundColor: color.hex }"
+          v-tooltip.bottom="color.shortcut"
+        ></div>
+      </div>
+        </TabPanel>
+        
+    </TabPanels>
+</Tabs>
+<div class="mt-1">Size: {{ size }}</div>
+    
 
     <div class="px-2">
       <Slider
@@ -38,6 +63,13 @@ import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
 import Slider from "primevue/slider";
 import DefaultColor from "@/entities/DefaultColors";
+import CustomColor from "@/entities/CustomColors";
+
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
 
 const selectedColor = defineModel<string>("color", { default: "#000000" });
 const size = defineModel<number>("size", { default: 1 });
