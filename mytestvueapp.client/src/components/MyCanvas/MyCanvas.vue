@@ -50,6 +50,7 @@ function render() {
       ) {
         context.value.fillStyle = "#" + imageServe.substring(hexBegin, hexEnd);
         context.value.fillRect(column, row, props.pixelSize, props.pixelSize);
+        context.value.globalCompositeOperation = "lighter";
         hexBegin += 6;
         hexEnd += 6;
       }

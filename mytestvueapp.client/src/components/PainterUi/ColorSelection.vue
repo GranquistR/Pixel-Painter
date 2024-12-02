@@ -51,8 +51,8 @@ qwww
       <Slider
         class="mt-2"
         v-model="size"
-        min="1"
-        max="32"
+        :min="1"
+        :max="32"
         v-tooltip.bottom="'Decrease(q),Increase(w)'"
       />
     </div>
