@@ -84,7 +84,7 @@ function drawCanvas() {
     for (var j = 0; j < props.pixelGrid.height; j++) {
       const sprite = viewport.addChild(new Sprite(Texture.WHITE));
       sprite.tint = props.pixelGrid.grid[i][j];
-
+    
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;

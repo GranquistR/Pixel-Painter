@@ -342,9 +342,6 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   let rightBound = Math.max(start.x, end.x);
   let lowerBound = Math.min(start.y, end.y);
   let upperBound = Math.max(start.y, end.y);
-  //let cursorSize = cursor.value.size;
-
-  //coords = CalculateRectangle(start, end);
   
   for (let i = 0; i < cursor.value.size; i++) {
     if (
@@ -363,6 +360,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
 
   return coords;
 }
+
 function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
@@ -409,6 +407,7 @@ function onMouseUp() {
 
 function undo() {
   let previousGrid = undoList.getPrevious();
+  
   if (previousGrid) {
     for (let i = 0; i < art.value.pixelGrid.width; i++) {
       for (let j = 0; j < art.value.pixelGrid.height; j++) {
