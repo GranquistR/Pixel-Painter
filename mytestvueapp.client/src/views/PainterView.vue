@@ -41,7 +41,7 @@
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="art.pixelGrid.randomizeGrid()"
+        @click="art.pixelGrid.randomizeGrid(); currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid)); undoList.append(currentGrid);"
       />
     </template>
   </Toolbar>
@@ -90,7 +90,9 @@ const mouseButtonHeldDown = ref<boolean>(false);
 
 const art = ref<Art>(new Art());
 
+//initialize linked list to allow undo and redo
 var undoList = new LinkedList();
+
 var currentGrid: string[][] = [];
 
 const cursorPositionComputed = computed(
@@ -133,8 +135,18 @@ onMounted(() => {
         art.value.isPublic = data.isPublic;
 
         canvas.value?.recenter();
+        
+        var storedList = localStorage.getItem("working-list");
         currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+
+        if(storedList){
+           const deserializedData = JSON.parse(storedList);
+           undoList = undoList.arrayToLinkedList(deserializedData);
+           undoList.updateCurrent(currentGrid);
+          }
+          else{
         undoList.append(currentGrid);
+          }
       })
       .catch(() => {
         toast.add({
@@ -150,8 +162,19 @@ onMounted(() => {
   } else {
     art.value.pixelGrid.DeepCopy(workingGrid);
     canvas.value?.recenter();
+    
+    var storedList = localStorage.getItem("working-list");
     currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+
+    if(storedList){
+      const deserializedData = JSON.parse(storedList);
+      undoList = undoList.arrayToLinkedList(deserializedData);
+      undoList.updateCurrent(currentGrid);
+
+  }
+  else{
     undoList.append(currentGrid);
+  }
   }
 });
 
@@ -314,12 +337,15 @@ function fill(x: number, y: number) {
 
 function ResetArt() {
   localStorage.removeItem("working-art");
+  localStorage.removeItem("working-list");
   router.push("/new");
 }
 
 function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  undoList.isDifferent(currentGrid);
+  if(undoList.isDifferent(currentGrid)){
+  undoList.append(currentGrid);
+  }
 }
 function undo() {
   let previousGrid = undoList.getPrevious();
@@ -418,6 +444,8 @@ function handleKeyDown(event: KeyboardEvent) {
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
+  const stringUndo = undoList.linkedListToArray();
+  localStorage.setItem("working-list", JSON.stringify(stringUndo));
 }
 </script>
 <style scoped>
