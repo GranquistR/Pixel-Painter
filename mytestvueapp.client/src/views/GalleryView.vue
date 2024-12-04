@@ -8,13 +8,12 @@
           v-model.trim="search"
           type="text"
           placeholder="Search..."
-          size="30"
           width="100%"
         />
       </h1>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
-      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6.5" />
+      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6.5"/>
     </div>
   </div>
 </template>

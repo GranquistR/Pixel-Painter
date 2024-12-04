@@ -46,7 +46,6 @@ BEGIN
         ArtistId INT,
         ArtId INT,
         PRIMARY KEY (ArtistId, ArtId),
-        CONSTRAINT FK_Likes_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id),
         CONSTRAINT FK_Likes_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE
     );
 END
@@ -61,9 +60,7 @@ BEGIN
         [Message] VARCHAR(2222),
         CreationDate DATETIME DEFAULT GETDATE(),
         PRIMARY KEY (Id),
-        CONSTRAINT FK_Comment_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id),
         CONSTRAINT FK_Comment_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE,
-        CONSTRAINT FK_Comment_Comment FOREIGN KEY (ReplyId) REFERENCES Comment(Id)
     );
 END
 GO
@@ -89,7 +86,27 @@ GO
     
 --);
 --END
-GO
+
+CREATE TRIGGER CommentDeleteTrigger ON dbo.Comment
+	for delete
+AS 
+	delete from Comment
+	where ReplyId in(select deleted.id from deleted)
+	GO
+CREATE TRIGGER UserDeleteTrigger ON dbo.Artist
+	for delete
+AS 
+	delete from Comment
+	where Comment.ArtistId in(select deleted.id from deleted)
+	delete from Likes
+	where Likes.ArtistId in(select deleted.id from deleted)
+	delete from Art
+	where Art.ArtistId in(select deleted.id from deleted)
+	delete from likes
+	where likes.ArtistId in(select deleted.id from deleted)
+	GO
+
+    ---------------------------------------------------------------------------------------------------------------
 IF NOT EXISTS (SELECT * FROM Artist)
 BEGIN
 	insert into Artist (SubId, [Name], IsAdmin, CreationDate) values (38122958058531183631, 'Philis Morritt', 0, '3/9/2024');
