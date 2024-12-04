@@ -5,7 +5,7 @@
         v-if="art"
         :key="art.id"
         :art="art"
-        :pixelSize="20 * (32 / art.pixelGrid.width)"
+        :pixelSize="20"
       ></my-canvas>
     </div>
     <Card class="w-20rem ml-5">
