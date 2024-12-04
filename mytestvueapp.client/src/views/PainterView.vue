@@ -217,6 +217,7 @@ watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
   if (cursor.value.selectedTool.label === "Rectangle") {
     DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+    onMouseUp()
   }
 });
 
