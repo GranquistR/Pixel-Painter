@@ -389,7 +389,24 @@ function handleKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     cursor.value.selectedTool.label = "Bucket";
     canvas?.value.updateCursor();
-  } else if (event.key === "1") {
+  } else if (event.key === "q" && cursor.value.size > 1) {
+    event.preventDefault();
+    cursor.value.size -= 1;
+    canvas?.value.updateCursor();
+  } else if (event.key === "w" && cursor.value.size < 32) {
+    event.preventDefault();
+    cursor.value.size += 1;
+    canvas?.value.updateCursor();
+  } else if (event.ctrlKey && event.key === "z") {
+    event.preventDefault();
+    undo();
+  } else if (event.ctrlKey && event.key === "y") {
+    event.preventDefault();
+    redo();
+  }
+
+
+   else if (event.key === "1") {
     event.preventDefault();
     cursor.value.color = DefaultColor.getDefaultColors()[0].hex;
   } else if (event.key === "2") {
@@ -424,23 +441,10 @@ function handleKeyDown(event: KeyboardEvent) {
     cursor.value.color = DefaultColor.getDefaultColors()[10].hex;
   } else if (event.key === "=") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[11].hex;
-  } else if (event.key === "q" && cursor.value.size > 1) {
-    event.preventDefault();
-    cursor.value.size -= 1;
-    canvas?.value.updateCursor();
-  } else if (event.key === "w" && cursor.value.size < 32) {
-    event.preventDefault();
-    cursor.value.size += 1;
-    canvas?.value.updateCursor();
-  } else if (event.ctrlKey && event.key === "z") {
-    event.preventDefault();
-    undo();
-  } else if (event.ctrlKey && event.key === "y") {
-    event.preventDefault();
-    redo();
-  }
+    cursor.value.color = DefaultColor.getDefaultColors()[11].hex;}
 }
+
+
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));

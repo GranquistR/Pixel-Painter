@@ -45,62 +45,74 @@ qwww
         <div
         id = "custom1"
           @click="updateColors('custom1',0)"
+          @dblclick="deleteColor('custom1',0)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
 
         <div
         id = "custom2"
           @click="updateColors('custom2',1)"
+          @dblclick="deleteColor('custom2',1)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom3"
           @click="updateColors('custom3',2)"
+          @dblclick="deleteColor('custom3',2)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom4"
-          @click="updateColors('custom4',3)"
+          @click="updateColors('custom4',3)" 
+          @dblclick="deleteColor('custom4',3)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom5"
           @click="updateColors('custom5',4)"
+          @dblclick="deleteColor('custom5',4)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom6"
           @click="updateColors('custom6',5)"
+          @dblclick="deleteColor('custom6',5)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom7"
           @click="updateColors('custom7',6)"
+          @dblclick="deleteColor('custom7',6)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom8"
           @click="updateColors('custom8',7)"
+          @dblclick="deleteColor('custom8',7)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom9"
           @click="updateColors('custom9',8)"
+          @dblclick="deleteColor('custom9',8)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom0"
           @click="updateColors('custom0',9)"
+          @dblclick="deleteColor('custom0',9)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom-"
           @click="updateColors('custom-',10)"
+          @dblclick="deleteColor('custom-',10)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
         <div
         id = "custom="
           @click="updateColors('custom=',11)"
+          @dblclick="deleteColor('custom=',11)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
         ></div>
       
@@ -159,6 +171,15 @@ function updateColors(id: string, index: number){
 if(customColors[index]){
     selectedColor.value=customColors[index];
   }
+}
+
+function deleteColor( id: string, index: number){
+  customColors[index]="";
+  const currentCustom= document.getElementById(id);
+  if(currentCustom){
+   currentCustom.style.backgroundColor = "transparent";
+  }
+
 }
 </script>
 
