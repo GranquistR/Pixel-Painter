@@ -83,7 +83,7 @@ const canvas = ref();
 const toast = useToast();
 
 const cursor = ref<Cursor>(
-  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
+  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
 );
 
 const mouseButtonHeldDown = ref<boolean>(false);

@@ -21,7 +21,7 @@ qwww
         <div
           @click="selectedColor = color.hex"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
-          :style="{ backgroundColor: color.hex }"
+          :style="{ backgroundColor: '#' + color.hex }"
           v-tooltip.bottom="color.shortcut"
         ></div>
       </div>
@@ -41,14 +41,69 @@ qwww
         </TabPanel>
         <TabPanel value="1">
           <div class="flex flex-wrap">
-      <div >
         
         <div
-          @click=""
+        id = "custom1"
+          @click="updateColors('custom1',0)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
-        :style="{ backgroundColor: theColor}"
         ></div>
-      </div>
+
+        <div
+        id = "custom2"
+          @click="updateColors('custom2',1)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom3"
+          @click="updateColors('custom3',2)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom4"
+          @click="updateColors('custom4',3)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom5"
+          @click="updateColors('custom5',4)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom6"
+          @click="updateColors('custom6',5)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom7"
+          @click="updateColors('custom7',6)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom8"
+          @click="updateColors('custom8',7)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom9"
+          @click="updateColors('custom9',8)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom0"
+          @click="updateColors('custom0',9)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom-"
+          @click="updateColors('custom-',10)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+        <div
+        id = "custom="
+          @click="updateColors('custom=',11)"
+          class="border-1 m-1 w-2rem h-2rem border-round-md"
+        ></div>
+      
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
     </div>
     <div class="mt-1">Size: {{ size }}</div>
@@ -74,21 +129,37 @@ import FloatingCard from "./FloatingCard.vue";
 import ColorPicker from "primevue/colorpicker";
 import Slider from "primevue/slider";
 import DefaultColor from "@/entities/DefaultColors";
-import CustomColor from "@/entities/CustomColors";
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 
-const selectedColor = defineModel<string>("color", { default: "#000000" });
+const selectedColor = defineModel<string>("color", { default: "000000" });
 const size = defineModel<number>("size", { default: 1 });
 
 
 let customColors: string[] = new Array(12); 
 
-const theColor = selectedColor;
-
+function updateColors(id: string, index: number){
+  let unique = true
+  for (let i=0; i < customColors.length; i++){
+    if(customColors[i]===selectedColor.value)
+    unique=false;
+  }
+  if(unique){
+  if(!customColors[index]){
+  customColors[index]=selectedColor.value;
+  const currentCustom= document.getElementById(id);
+  if(currentCustom){
+   currentCustom.style.backgroundColor = '#' + selectedColor.value;
+  }
+}
+}
+if(customColors[index]){
+    selectedColor.value=customColors[index];
+  }
+}
 </script>
 
 <style>
