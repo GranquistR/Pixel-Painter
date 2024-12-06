@@ -94,6 +94,7 @@ const mouseButtonHeldDown = ref<boolean>(false);
 
 const startPix = ref<Vector2>(new Vector2(0,0));
 const endPix = ref<Vector2>(new Vector2(0,0));
+let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 
@@ -172,6 +173,7 @@ onMounted(() => {
     
     var storedList = localStorage.getItem("working-list");
     currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 
     if(storedList){
       const deserializedData = JSON.parse(storedList);
@@ -206,7 +208,10 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    if (cursor.value.selectedTool.label !== "Rectangle") {
+    if (cursor.value.selectedTool.label === "Rectangle") {
+      setEndVector();
+      DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+    } else {
       DrawAtCoords(GetLinePixels(start, end));
     }
   },
@@ -216,8 +221,8 @@ watch(
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
   if (cursor.value.selectedTool.label === "Rectangle") {
-    DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
-    onMouseUp()
+    //DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+    //onMouseUp()
   }
 });
 
@@ -260,6 +265,16 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function DrawAtCoords(coords: Vector2[]) {
+  if (cursor.value.selectedTool.label === "Rectangle") {
+    if (tempGrid) {
+    for (let i = 0; i < art.value.pixelGrid.width; i++) {
+      for (let j = 0; j < art.value.pixelGrid.height; j++) {
+        art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+      }
+    }
+  }
+  }
+
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
@@ -309,21 +324,12 @@ function DrawAtCoords(coords: Vector2[]) {
           ) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
+        } else if (cursor.value.selectedTool.label === "Rectangle") {
+          art.value.pixelGrid.grid[coord.x][coord.y] =
+          cursor.value.color;
         }
       }
-    } else {
-      if (cursor.value.selectedTool.label === "Rectangle") {
-        if(
-        coord.x >= 0 &&
-        coord.x < art.value.pixelGrid.width &&
-        coord.y >= 0 &&
-        coord.y < art.value.pixelGrid.height
-      ) {
-        art.value.pixelGrid.grid[coord.x][coord.y] =
-        cursor.value.color;
-        }
-      }
-    }
+    } 
   });
 }
 
@@ -413,10 +419,15 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function setStartVector() {
-  startPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+  startPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y);
+  tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 }
 function setEndVector() {
-  endPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+  if (mouseButtonHeldDown.value){
+    endPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+  } else {
+    tempGrid = art.value.pixelGrid.grid
+  }
 }
 
 function ResetArt() {
