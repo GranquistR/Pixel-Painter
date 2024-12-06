@@ -9,6 +9,8 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
+using MyTestVueApp.Server.ServiceImplementations;
+using MyTestVueApp.Server.Entities;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -108,6 +110,39 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
+        }
+
+
+        [HttpGet]
+        [Route("DeleteArtist")]
+        public async Task<IActionResult> DeleteArtist(string ArtistName)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if(artist.name == ArtistName)
+                    {
+                        await LoginService.DeleteArtist(artist.id);
+                        Response.Cookies.Delete("GoogleOAuth");
+                        return Ok();
+                    }
+                    else { return BadRequest("Username is incorrect"); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
         }
     }
 }
