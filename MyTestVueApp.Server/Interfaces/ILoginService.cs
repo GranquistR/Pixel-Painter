@@ -10,5 +10,6 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<Artist> SignupActions(string subId, string email);
         public Task<bool> UpdateUsername(string newUsername, string subId);
         public Task<Artist> GetUserBySubId(string SubId);
+        Task DeleteArtist(int artistId);
     }
 }
