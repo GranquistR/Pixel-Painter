@@ -7,22 +7,35 @@
                        v-model.trim="search"
                        type="text"
                        placeholder="Search..." />
-            <Dropdown class="pl mt-2 text-base w-1.5 font-normal" 
-                      v-model="sortType" 
-                      :options="sortBy" 
-                      optionLabel="sort" 
-                      optionValue="code" 
+            <Dropdown class="pl mt-2 text-base w-1.5 font-normal"
+                      v-model="sortType"
+                      :options="sortBy"
+                      optionLabel="sort"
+                      optionValue="code"
                       placeholder="Sort by" />
-            <Checkbox v-if="isSorted" 
-                      class="mt-2 text-base w-0 font-normal" 
-                      id="orderCheckbox" 
-                      v-model="checkAscending" binary 
-                      @change="handleCheckBox()"/>
-            <label v-if="isSorted" class="mt-1 text-base w-0 font-normal">{{ label }}</label>
+            <ToggleButton v-if="isSorted"
+                          id="toggle"
+                          class="mt-2 text-base w-0 font-normal"
+                          v-model="checkAscending"
+                          onLabel="Ascending"
+                          onIcon="pi pi-arrow-up"
+                          offLabel="Descending"
+                          offIcon="pi pi-arrow-down"
+                          @click="handleCheckBox()" />
+
+            <ToggleButton v-if="isSortedByDate"
+                          id="toggle"
+                          class="mt-2 text-base w-0 font-normal"
+                          v-model="checkAscending"
+                          onLabel="Oldest First"
+                          onIcon="pi pi-arrow-up"
+                          offLabel="Newest First"
+                          offIcon="pi pi-arrow-down"
+                          @click="handleCheckBox()" />
         </h1>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
-      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6.5" />
+      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6" />
     </div>
   </div>
 </template>
@@ -36,6 +49,8 @@ import ArtAccessService from "@/services/ArtAccessService";
 import InputText from "primevue/inputtext";
     import Dropdown from 'primevue/dropdown';
     import Checkbox from 'primevue/checkbox';
+    import ToggleButton from 'primevue/togglebutton';
+
 
 const publicArt = ref<Art[]>();
 const displayArt = ref<Art[]>();
@@ -48,7 +63,7 @@ const loading = ref(true);
     ]);
     const sortType = ref(""); // Value binded to sort drop down
     const isSorted = ref(false); // Renders the Descending checkbox while true
-    const label = ref(""); // Label displayed next to the check box
+    const isSortedByDate = ref(false);
     const checkAscending = ref(false);
 
 onMounted(() => {
@@ -79,13 +94,16 @@ watch(search, () => {
     }
 
     function sortGallery() {
-        isSorted.value = true;
+        //isSorted.value = true;
         var sortCode = sortType.value;
-        if (sortCode == "D") {
-            label.value = "Oldest First";
+
+        if (sortCode == 'D') {
+            isSorted.value = false;
+            isSortedByDate.value = true;
         }
         else {
-            label.value = "Ascending";
+            isSorted.value = true;
+            isSortedByDate.value = false;
         }
 
         switch (sortCode) {
