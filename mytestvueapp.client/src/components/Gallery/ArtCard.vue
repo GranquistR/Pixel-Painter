@@ -3,11 +3,10 @@
   <!-- Container -->
   <Card
     class="art-card flex-shrink-0 overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
-    :style="{ width: 32 * size + 'px' }"
     @click="router.push(`/art/${art.id}`)"
   >
     <template #header>
-      <MyCanvas :art="art" :pixelSize="(32 / art.pixelGrid?.height) * size" />
+      <MyCanvas :art="art" :pixelSize="size" />
     </template>
     <template #title>
       <div class="text-base font-bold m-0 px-2 pt-1">
@@ -36,7 +35,6 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import LikeButton from "../LikeButton.vue";
-import { ref } from "vue";
 import MyCanvas from "../MyCanvas/MyCanvas.vue";
 import Art from "@/entities/Art";
 import router from "@/router";
