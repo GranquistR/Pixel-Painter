@@ -23,7 +23,16 @@ import { onMounted, ref } from "vue";
 const openDialog = ref(false);
 
 const props = defineProps<{
-  position: string;
+  position:
+    | "center"
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "topleft"
+    | "topright"
+    | "bottomleft"
+    | "bottomright";
   header: string;
   width: string;
   buttonLabel: string;

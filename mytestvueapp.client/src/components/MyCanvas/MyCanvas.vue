@@ -25,8 +25,9 @@ onMounted(() => {
     let contextInit = canvasInit.getContext("2d");
     if (contextInit) {
       context.value = contextInit;
-      canvas.value.width = props?.art?.pixelGrid.width * props.pixelSize;
-      canvas.value.height = props.art.pixelGrid.height * props.pixelSize;
+      canvas.value.width = 32 * props.pixelSize;
+      canvas.value.height = 32 * props.pixelSize;
+      context.value.scale(32/props?.art?.pixelGrid.width, 32/props?.art?.pixelGrid.width)
     }
   }
 
