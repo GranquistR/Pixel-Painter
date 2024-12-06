@@ -14,6 +14,9 @@ namespace MyTestVueApp.Server.Interfaces
         /// </summary>
         /// <returns>A list of all paintings</returns>
         public IEnumerable<Art> GetAllArt();
+        // public IEnumerable<Art> GetArtByLikes(bool order); // Gets art sorted by likes either in ascending or descending order
+        // public IEnumerable<Art> GetArtByComments(bool order);
+       // public IEnumerable<Art> GetArtByDate(bool order);
         public Art GetArtById(int id);
         public Task DeleteArt(int artId);
         public Task<Art> SaveNewArt(Artist artist, Art art);

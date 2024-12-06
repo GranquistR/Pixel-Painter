@@ -30,6 +30,39 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetArtByLikes")]
+        public IEnumerable<Art> GetArtByLikes(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
+        }
+
+        [HttpGet]
+        [Route("GetArtByComments")]
+        public IEnumerable<Art> GetArtByComments(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
+        }
+
+        [HttpGet]
+        [Route("GetArtByDate")]
+        public IEnumerable<Art> GetArtByDate(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+        }
+
+        [HttpGet]
         [Route("GetCurrentUsersArt")]
         public async Task<IActionResult> GetCurrentUsersArt()
         {
