@@ -179,7 +179,6 @@ onMounted(() => {
       const deserializedData = JSON.parse(storedList);
       undoList = undoList.arrayToLinkedList(deserializedData);
       undoList.updateCurrent(currentGrid);
-
   }
   else{
     undoList.append(currentGrid);
@@ -220,10 +219,6 @@ watch(
 
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
-  if (cursor.value.selectedTool.label === "Rectangle") {
-    //DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
-    //onMouseUp()
-  }
 });
 
 //functions
@@ -485,6 +480,10 @@ function handleKeyDown(event: KeyboardEvent) {
   } else if (event.key === "f") {
     event.preventDefault();
     cursor.value.selectedTool.label = "Bucket";
+    canvas?.value.updateCursor();
+  } else if (event.key === "r") {
+    event.preventDefault();
+    cursor.value.selectedTool.label = "Rectangle";
     canvas?.value.updateCursor();
   } else if (event.key === "1") {
     event.preventDefault();
