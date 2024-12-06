@@ -262,12 +262,12 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 function DrawAtCoords(coords: Vector2[]) {
   if (cursor.value.selectedTool.label === "Rectangle") {
     if (tempGrid) {
-    for (let i = 0; i < art.value.pixelGrid.width; i++) {
-      for (let j = 0; j < art.value.pixelGrid.height; j++) {
-        art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+      for (let i = 0; i < art.value.pixelGrid.width; i++) {
+        for (let j = 0; j < art.value.pixelGrid.height; j++) {
+          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+        }
       }
     }
-  }
   }
 
   coords.forEach((coord: Vector2) => {
