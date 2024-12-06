@@ -95,6 +95,16 @@ var undoList = new LinkedList();
 
 var currentGrid: string[][] = [];
 
+let currentPallet: string[];
+function updatePallet(){
+  let temp = localStorage.getItem('currentPallet');
+  if (temp)
+  currentPallet = JSON.parse(temp)
+  for( let i = 0; i < currentPallet.length; i++)
+  if(currentPallet[i]===null){
+    currentPallet[i]="000000";
+  }
+}
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
   //it can only watch individual references to the object specified
@@ -195,6 +205,7 @@ const ToggleKeybinds = (disable: boolean) => {
 function handleBeforeUnload(event: BeforeUnloadEvent) {
   LocalSave();
 }
+
 
 watch(
   cursorPositionComputed,
@@ -408,40 +419,53 @@ function handleKeyDown(event: KeyboardEvent) {
 
    else if (event.key === "1") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[0].hex;
+    updatePallet();
+    cursor.value.color = currentPallet[0];
   } else if (event.key === "2") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[1].hex;
+    updatePallet();
+    cursor.value.color = currentPallet[1];
   } else if (event.key === "3") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[2].hex;
+    updatePallet();
+    cursor.value.color = currentPallet[2];
   } else if (event.key === "4") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[3].hex;
-  } else if (event.key === "5") {
+    updatePallet();
+    cursor.value.color = currentPallet[3];
+    } else if (event.key === "5") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[4].hex;
-  } else if (event.key === "6") {
+    updatePallet();
+    cursor.value.color = currentPallet[4];
+    } else if (event.key === "6") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[5].hex;
-  } else if (event.key === "7") {
+    updatePallet();
+    cursor.value.color = currentPallet[5];
+    } else if (event.key === "7") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[6].hex;
-  } else if (event.key === "8") {
+    updatePallet();
+    cursor.value.color = currentPallet[6];
+    } else if (event.key === "8") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[7].hex;
-  } else if (event.key === "9") {
+    updatePallet();
+    cursor.value.color = currentPallet[7];
+    } else if (event.key === "9") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[8].hex;
-  } else if (event.key === "0") {
+    updatePallet();
+    cursor.value.color = currentPallet[8];
+    } else if (event.key === "0") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[9].hex;
-  } else if (event.key === "-") {
+    updatePallet();
+    cursor.value.color = currentPallet[9];
+    } else if (event.key === "-") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[10].hex;
-  } else if (event.key === "=") {
+    updatePallet();
+    cursor.value.color = currentPallet[10];
+    } else if (event.key === "=") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[11].hex;}
+    updatePallet();
+    cursor.value.color = currentPallet[11];  
+}
 }
 
 

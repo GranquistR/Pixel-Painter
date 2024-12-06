@@ -11,8 +11,8 @@ qwww
     
   <Tabs value="0">
     <TabList>
-        <Tab value="0">Default</Tab>
-        <Tab value="1">Custom</Tab>
+        <Tab value="0" @click="setCurrentPallet(0)">Default</Tab>
+        <Tab value="1" @click="setCurrentPallet(1)" v-tooltip.right="'Click to add custom color. Double click to remove color.'">Custom</Tab>
     </TabList>
     <TabPanels>
         <TabPanel value="0">
@@ -47,6 +47,8 @@ qwww
           @click="updateColors('custom1',0)"
           @dblclick="deleteColor('custom1',0)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 1'"
+
         ></div>
 
         <div
@@ -54,66 +56,77 @@ qwww
           @click="updateColors('custom2',1)"
           @dblclick="deleteColor('custom2',1)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 2'"
         ></div>
         <div
         id = "custom3"
           @click="updateColors('custom3',2)"
           @dblclick="deleteColor('custom3',2)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 3'"
         ></div>
         <div
         id = "custom4"
           @click="updateColors('custom4',3)" 
           @dblclick="deleteColor('custom4',3)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 4'"
         ></div>
         <div
         id = "custom5"
           @click="updateColors('custom5',4)"
           @dblclick="deleteColor('custom5',4)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 5'"
         ></div>
         <div
         id = "custom6"
           @click="updateColors('custom6',5)"
           @dblclick="deleteColor('custom6',5)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 6'"
         ></div>
         <div
         id = "custom7"
           @click="updateColors('custom7',6)"
           @dblclick="deleteColor('custom7',6)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 7'"
         ></div>
         <div
         id = "custom8"
           @click="updateColors('custom8',7)"
           @dblclick="deleteColor('custom8',7)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 8'"
         ></div>
         <div
         id = "custom9"
           @click="updateColors('custom9',8)"
           @dblclick="deleteColor('custom9',8)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 9'"
         ></div>
         <div
         id = "custom0"
           @click="updateColors('custom0',9)"
           @dblclick="deleteColor('custom0',9)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: 0'"
         ></div>
         <div
         id = "custom-"
           @click="updateColors('custom-',10)"
           @dblclick="deleteColor('custom-',10)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: -'"
         ></div>
         <div
         id = "custom="
           @click="updateColors('custom=',11)"
           @dblclick="deleteColor('custom=',11)"
           class="border-1 m-1 w-2rem h-2rem border-round-md"
+          v-tooltip.bottom="'Shortcut: ='"
         ></div>
       
       <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
@@ -147,11 +160,18 @@ import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 
+
+
 const selectedColor = defineModel<string>("color", { default: "000000" });
 const size = defineModel<number>("size", { default: 1 });
 
 
 let customColors: string[] = new Array(12); 
+let arrayDefault: string[] = new Array(12);
+for(let i = 0; i < arrayDefault.length; i++){
+  arrayDefault[i]=DefaultColor.getDefaultColors()[i].hex;
+}
+
 
 function updateColors(id: string, index: number){
   let unique = true
@@ -171,6 +191,7 @@ function updateColors(id: string, index: number){
 if(customColors[index]){
     selectedColor.value=customColors[index];
   }
+  setCurrentPallet(1);
 }
 
 function deleteColor( id: string, index: number){
@@ -181,6 +202,15 @@ function deleteColor( id: string, index: number){
   }
 
 }
+
+function setCurrentPallet(tab: number){
+if(tab === 0){
+  localStorage.setItem('currentPallet', JSON.stringify(arrayDefault))
+}
+else
+  localStorage.setItem('currentPallet', JSON.stringify(customColors))
+}
+
 </script>
 
 <style>
