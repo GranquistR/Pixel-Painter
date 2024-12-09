@@ -61,7 +61,6 @@ import UploadButton from "@/components/PainterUi/UploadButton.vue";
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
 import { Vector2 } from "@/entities/Vector2";
-import DefaultColor from "@/entities/DefaultColors";
 import PainterTool from "@/entities/PainterTool";
 import Cursor from "@/entities/Cursor";
 
