@@ -33,6 +33,7 @@
       >
     </div>
   </div> -->
+
   <div class="flex align-items-center">
     <div class="flex-grow-1">
       <div class="flex gap-3">
@@ -67,14 +68,10 @@
         </div>
       </div>
       <div>
-        <button class="ml-4 mb-2">Reply</button>
-        <!-- <InputText
-            v-model:="newMessage"
-            placeholder="Add a reply..."
-            class="w-full mb-2"
-        ></InputText> -->
-        <button class="ml-3 mb-2">Show Replies</button>
-        <button class="ml-3 mb-2">Close Replies</button>
+        <!-- Reply to comments -->
+        <NewComment class="ml-4 mb-2" :comment="comment"></NewComment>
+        <!-- Show replies to comments -->
+        <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
       </div>
     </div>
     <div style="width: 5rem">
@@ -89,16 +86,26 @@
       <Menu ref="menu" :model="items" :popup="true" />
     </div>
   </div>
+  <div class="ml-6 mb-2">
+    <CommentOnArt
+      v-for="Comment in comment.replies"
+      :key="Comment.id"
+      :comment="Comment"
+    ></CommentOnArt>
+  </div>
 </template>
 
 <script setup lang="ts">
 import CommentAccessService from "../../services/CommentAccessService";
+// import updateComments from "ImageViewerView.vue";
 import type Comment from "@/entities/Comment";
 import { ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
+import NewComment from "./NewComment.vue";
+import type ImageViewerView from "@/views/ImageViewerView.vue";
 
 const emit = defineEmits(["deleteComment"]);
 const editing = ref(false);
@@ -154,6 +161,7 @@ const SubmitEdit = () => {
       });
   }
 };
+
 const DeleteComment = () => {
   if (props.comment.id != null) {
     CommentAccessService.DeleteComment(props.comment.id).then(() => {

@@ -63,7 +63,7 @@ BEGIN
         PRIMARY KEY (Id),
         CONSTRAINT FK_Comment_Artist FOREIGN KEY (ArtistId) REFERENCES Artist(Id),
         CONSTRAINT FK_Comment_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE,
-        CONSTRAINT FK_Comment_Comment FOREIGN KEY (ReplyId) REFERENCES Comment(Id)
+        
     );
 END
 GO
@@ -89,7 +89,12 @@ GO
     
 --);
 --END
-GO
+CREATE TRIGGER test_trigger ON dbo.Comment
+	for delete
+AS 
+	delete from Comment
+	where ReplyId in(select deleted.id from deleted)
+	GO
 IF NOT EXISTS (SELECT * FROM Artist)
 BEGIN
 	insert into Artist (SubId, [Name], IsAdmin, CreationDate) values (38122958058531183631, 'Philis Morritt', 0, '3/9/2024');

@@ -36,7 +36,12 @@
   <h2 class="px-4">{{ allComments.length }} Comments</h2>
 
   <div class="px-6">
-    <NewComment @newComment="updateComments" class="mb-4"></NewComment>
+    <!-- Initial comment. Reply to image -->
+    <NewComment
+      @newComment="updateComments"
+      class="mb-4"
+      :allComments="allComments"
+    ></NewComment>
     <CommentOnArt
       v-for="Comment in allComments"
       :key="Comment.id"
@@ -61,6 +66,7 @@ import LikeButton from "@/components/LikeButton.vue";
 import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
+import type { RefSymbol } from "@vue/reactivity";
 
 const route = useRoute();
 const toast = useToast();
@@ -90,7 +96,46 @@ onMounted(() => {
 
 function updateComments() {
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
-    allComments.value = promise;
+    allComments.value = buildCommentTree(promise);
+    // console.log(allComments.value);
+    // console.log(promise);
   });
 }
+
+function buildCommentTree(comments: Comment[]): Comment[] {
+  const commentMap: { [id: number]: Comment } = {};
+  const roots: Comment[] = [];
+
+  // Create a map of comments by their ID
+  for (const comment of comments) {
+    commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
+  }
+
+  // Build the tree by associating replies with their parents
+  for (const comment of comments) {
+    const currentComment = commentMap[comment.id!];
+    if (!comment.replyId || comment.replyId === 0) {
+      // No parent, so it's a root-level comment
+      roots.push(currentComment);
+    } else {
+      // Add as a reply to its parent
+      const parentComment = commentMap[comment.replyId];
+      if (parentComment) {
+        parentComment.replies!.push(currentComment);
+      } else {
+        console.warn(
+          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`
+        );
+      }
+    }
+  }
+
+  return roots;
+}
+
+// function hide-comments() {
+//   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
+//     if (allComments.value)
+//   });
+// }
 </script>

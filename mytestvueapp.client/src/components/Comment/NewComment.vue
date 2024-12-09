@@ -1,10 +1,12 @@
 <template>
   <div>
+    <!-- {{ comment }} -->
     <InputText
       v-model:="comment.message"
       placeholder="Add a comment..."
       class="w-full"
       @click="open = true"
+      :comment.value.replyId="props.comment?.id"
     ></InputText>
     <div class="flex flex-row-reverse mt-2" v-if="open">
       <Button class="ml-2" @click="PostComment()">Post Comment</Button>
@@ -21,17 +23,20 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Comment from "@/entities/Comment";
 import { useToast } from "primevue/usetoast";
+import { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 
 const route = useRoute();
 const open = ref(false);
+const allComments = ref<Comment[]>([]);
 const comment = ref<Comment>(new Comment());
 
 const emit = defineEmits(["newComment"]);
 
 function PostComment() {
   comment.value.artId = parseInt(route.params.id as string);
+  comment.value.replyId = props.comment?.id;
   CommentAccessService.PostComment(comment.value)
     .then(() => {
       emit("newComment");
@@ -46,6 +51,10 @@ function PostComment() {
       });
     });
 }
+
+const props = defineProps<{
+  comment?: Comment;
+}>();
 
 function Cancel() {
   open.value = false;

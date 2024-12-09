@@ -64,7 +64,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                     message = reader.GetString(3),
                                     commenterName = reader.GetString(4),
                                     creationDate = reader.GetDateTime(5),
-                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
+                                    replyId = reader.IsDBNull(6) ? 0 : reader.GetInt32(6)
                                 };
                                 comments.Add(comment);
                             }
@@ -199,14 +199,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
             comment.artistId = commenter.id;
             comment.commenterName = commenter.name;
             comment.creationDate = DateTime.UtcNow;
-            comment.replyId = comment.replyId;
 
             using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
             {
                 try
                 {
                     connection.Open();
-                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,replyId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@replyID,@Message,@CreationDate)";
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,ReplyId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@replyID,@Message,@CreationDate)";
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
                         command.Parameters.AddWithValue("@ArtistID", commenter.id);
@@ -215,10 +214,47 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@Message", comment.message);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
-                        var newId = await command.ExecuteScalarAsync();
+                        var newId = await command.ExecuteNonQueryAsync();
                         comment.id = Convert.ToInt32(newId);
 
                         return comment;
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, "Failed to insert comment");
+                    throw;
+                }
+            }
+
+        }
+
+        public async Task<Comment> CreateReply(Artist commenter, Comment comment1, Comment comment2)
+        {
+            comment1.artistId = commenter.id;
+            comment1.commenterName = commenter.name;
+            comment1.creationDate = DateTime.UtcNow;
+            comment1.replyId = comment2.id;
+
+            using (SqlConnection connection = new SqlConnection(AppConfig.Value.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    var insertQuery = "INSERT INTO Comment (ArtistId,ArtId,ReplyId,Message,CreationDate) VALUES (@ArtistID,@ArtID,@replyID,@Message,@CreationDate)";
+                    using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@ArtistID", commenter.id);
+                        command.Parameters.AddWithValue("@ArtID", comment1.artId);
+                        command.Parameters.AddWithValue("@replyID", comment1.replyId);
+                        command.Parameters.AddWithValue("@Message", comment1.message);
+                        command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
+
+                        var newId = await command.ExecuteNonQueryAsync();
+                        comment1.id = Convert.ToInt32(newId);
+
+                        return comment1;
 
                     }
                 }
