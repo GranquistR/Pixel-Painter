@@ -1,7 +1,5 @@
 # MyTestVueApp
 
-TEST
-
 ## Required IDE Setup
 
 [Node.JS](https://nodejs.org/en)
