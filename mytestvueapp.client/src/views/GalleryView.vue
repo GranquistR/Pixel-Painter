@@ -35,7 +35,7 @@
         </h1>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
-      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6" />
+      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6"/>
     </div>
   </div>
 </template>
