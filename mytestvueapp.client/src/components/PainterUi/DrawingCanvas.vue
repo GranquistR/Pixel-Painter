@@ -56,7 +56,6 @@ var viewport = new Viewport({
   screenHeight: window.innerHeight,
   worldWidth: 100,
   worldHeight: 100,
-  events: app.renderer.events,
 });
 
 // add the viewport to the stage
