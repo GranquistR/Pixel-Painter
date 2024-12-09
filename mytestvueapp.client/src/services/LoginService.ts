@@ -48,7 +48,7 @@ export default class LoginService {
   public static async updateUsername(newUsername: any): Promise<boolean> {
     try {
       const response = await fetch(
-        `login/UpdateUsername?newUsername=${newUsername}`
+        `login/UpdateUsername?newUsername=${newUsername}`,
       );
 
       if (!response.ok) {
@@ -62,6 +62,21 @@ export default class LoginService {
     } catch (error) {
       console.error(error);
       return false;
+    }
+  }
+
+  public static async DeleteArtist(ArtistName: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `/login/DeleteArtist?ArtistName=${ArtistName}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
     }
   }
 }

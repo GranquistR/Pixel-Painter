@@ -4,9 +4,13 @@
     :pixelGrid="art.pixelGrid"
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
-    @mousedown="mouseButtonHeldDown = true"
+    @mousedown="
+      mouseButtonHeldDown = true;
+      setStartVector();
+      "
     @mouseup="
       mouseButtonHeldDown = false;
+      setEndVector();
       onMouseUp();
     "
     @contextmenu.prevent
@@ -86,6 +90,10 @@ const cursor = ref<Cursor>(
 );
 
 const mouseButtonHeldDown = ref<boolean>(false);
+
+const startPix = ref<Vector2>(new Vector2(0,0));
+const endPix = ref<Vector2>(new Vector2(0,0));
+let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 
@@ -174,12 +182,12 @@ onMounted(() => {
     
     var storedList = localStorage.getItem("working-list");
     currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 
     if(storedList){
       const deserializedData = JSON.parse(storedList);
       undoList = undoList.arrayToLinkedList(deserializedData);
       undoList.updateCurrent(currentGrid);
-
   }
   else{
     undoList.append(currentGrid);
@@ -209,7 +217,12 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    DrawAtCoords(GetLinePixels(start, end));
+    if (cursor.value.selectedTool.label === "Rectangle") {
+      setEndVector();
+      DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+    } else {
+      DrawAtCoords(GetLinePixels(start, end));
+    }
   },
   { deep: true }
 );
@@ -257,6 +270,16 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function DrawAtCoords(coords: Vector2[]) {
+  if (cursor.value.selectedTool.label === "Rectangle") {
+    if (tempGrid) {
+      for (let i = 0; i < art.value.pixelGrid.width; i++) {
+        for (let j = 0; j < art.value.pixelGrid.height; j++) {
+          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+        }
+      }
+    }
+  }
+
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
@@ -306,9 +329,12 @@ function DrawAtCoords(coords: Vector2[]) {
           ) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
+        } else if (cursor.value.selectedTool.label === "Rectangle") {
+          art.value.pixelGrid.grid[coord.x][coord.y] =
+          cursor.value.color;
         }
       }
-    }
+    } 
   });
 }
 
@@ -345,6 +371,70 @@ function fill(x: number, y: number) {
   }
 }
 
+function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+  let leftBound = Math.min(start.x, end.x);
+  let rightBound = Math.max(start.x, end.x);
+  let lowerBound = Math.min(start.y, end.y);
+  let upperBound = Math.max(start.y, end.y);
+  
+  for (let i = 0; i < cursor.value.size; i++) {
+    if (
+      leftBound + i <= rightBound &&
+      rightBound - i >= leftBound &&
+      upperBound - i >= lowerBound &&
+      lowerBound + i <= upperBound
+    ) {
+      coords = coords.concat(CalculateRectangle(
+        new Vector2(leftBound + i, lowerBound + i), 
+        new Vector2(rightBound - i,upperBound - i)
+      )
+      );
+    }
+  }
+
+  return coords;
+}
+
+function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+
+  // generate x coordinates
+  let stepX = start.x;
+  while (stepX != end.x){
+    coords.push(new Vector2(stepX,start.y));
+    coords.push(new Vector2(stepX,end.y));
+
+    if (stepX < end.x) stepX++;
+    if (stepX > end.x) stepX--;
+  }
+
+  // generate y coordinates
+  let stepY = start.y;
+  while (stepY != end.y){
+    coords.push(new Vector2(start.x,stepY));
+    coords.push(new Vector2(end.x,stepY));
+
+    if (stepY < end.y) stepY++;
+    if (stepY > end.y) stepY--;
+  }
+
+  coords.push(end);
+  return coords;
+}
+
+function setStartVector() {
+  startPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y);
+  tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+}
+function setEndVector() {
+  if (mouseButtonHeldDown.value){
+    endPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+  } else {
+    tempGrid = art.value.pixelGrid.grid
+  }
+}
+
 function ResetArt() {
   localStorage.removeItem("working-art");
   localStorage.removeItem("working-list");
@@ -357,8 +447,10 @@ function onMouseUp() {
   undoList.append(currentGrid);
   }
 }
+
 function undo() {
   let previousGrid = undoList.getPrevious();
+  
   if (previousGrid) {
     for (let i = 0; i < art.value.pixelGrid.width; i++) {
       for (let j = 0; j < art.value.pixelGrid.height; j++) {
@@ -398,6 +490,10 @@ function handleKeyDown(event: KeyboardEvent) {
   } else if (event.key === "f") {
     event.preventDefault();
     cursor.value.selectedTool.label = "Bucket";
+    canvas?.value.updateCursor();
+  } else if (event.key === "r") {
+    event.preventDefault();
+    cursor.value.selectedTool.label = "Rectangle";
     canvas?.value.updateCursor();
   } else if (event.key === "q" && cursor.value.size > 1) {
     event.preventDefault();

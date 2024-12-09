@@ -72,6 +72,7 @@
             </div>
 
             <Button label="logout" icon="pi pi-sign-out" @click="logout()" />
+            <DeleteArtistButton></DeleteArtistButton>
           </template>
         </Card>
       </div>
@@ -101,6 +102,7 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
+import DeleteArtistButton from "@/components/DeleteArtistButton.vue";
 
 const toast = useToast();
 const route = useRoute();
