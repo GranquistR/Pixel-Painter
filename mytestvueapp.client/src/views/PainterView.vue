@@ -7,7 +7,7 @@
     @mousedown="
       mouseButtonHeldDown = true;
       setStartVector();
-      "
+    "
     @mouseup="
       mouseButtonHeldDown = false;
       setEndVector();
@@ -42,10 +42,21 @@
         @click="canvas?.recenter()"
       />
       <Button
+        :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
+        class="mr-2 Rainbow"
+        label="Gravity"
+        @click="runGravity()"
+      />
+
+      <Button
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="art.pixelGrid.randomizeGrid(); currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid)); undoList.append(currentGrid);"
+        @click="
+          art.pixelGrid.randomizeGrid();
+          currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid));
+          undoList.append(currentGrid);
+        "
       />
     </template>
   </Toolbar>
@@ -80,11 +91,13 @@ import { useToast } from "primevue/usetoast";
 import LinkedList from "@/utils/undo";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
+import fallingSand from "@/utils/fallingSand";
 
 //variables
 const route = useRoute();
 const canvas = ref();
 const toast = useToast();
+const intervalId = ref<number>(-1);
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
@@ -92,8 +105,8 @@ const cursor = ref<Cursor>(
 
 const mouseButtonHeldDown = ref<boolean>(false);
 
-const startPix = ref<Vector2>(new Vector2(0,0));
-const endPix = ref<Vector2>(new Vector2(0,0));
+const startPix = ref<Vector2>(new Vector2(0, 0));
+const endPix = ref<Vector2>(new Vector2(0, 0));
 let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
@@ -143,18 +156,17 @@ onMounted(() => {
         art.value.isPublic = data.isPublic;
 
         canvas.value?.recenter();
-        
+
         var storedList = localStorage.getItem("working-list");
         currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 
-        if(storedList){
-           const deserializedData = JSON.parse(storedList);
-           undoList = undoList.arrayToLinkedList(deserializedData);
-           undoList.updateCurrent(currentGrid);
-          }
-          else{
-        undoList.append(currentGrid);
-          }
+        if (storedList) {
+          const deserializedData = JSON.parse(storedList);
+          undoList = undoList.arrayToLinkedList(deserializedData);
+          undoList.updateCurrent(currentGrid);
+        } else {
+          undoList.append(currentGrid);
+        }
       })
       .catch(() => {
         toast.add({
@@ -170,19 +182,18 @@ onMounted(() => {
   } else {
     art.value.pixelGrid.DeepCopy(workingGrid);
     canvas.value?.recenter();
-    
+
     var storedList = localStorage.getItem("working-list");
     currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
     tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 
-    if(storedList){
+    if (storedList) {
       const deserializedData = JSON.parse(storedList);
       undoList = undoList.arrayToLinkedList(deserializedData);
       undoList.updateCurrent(currentGrid);
-  }
-  else{
-    undoList.append(currentGrid);
-  }
+    } else {
+      undoList.append(currentGrid);
+    }
   }
 });
 
@@ -191,7 +202,6 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
-//functions
 const ToggleKeybinds = (disable: boolean) => {
   if (disable) {
     document.removeEventListener("keydown", handleKeyDown);
@@ -222,6 +232,15 @@ watch(mouseButtonHeldDown, async () => {
 });
 
 //functions
+function runGravity() {
+  if (intervalId.value != -1) {
+    clearInterval(intervalId.value);
+    intervalId.value = -1;
+  } else {
+    intervalId.value = setInterval(fallingSand, 30, art.value.pixelGrid);
+  }
+}
+
 function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   const pixels: Vector2[] = [];
 
@@ -320,11 +339,10 @@ function DrawAtCoords(coords: Vector2[]) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
         } else if (cursor.value.selectedTool.label === "Rectangle") {
-          art.value.pixelGrid.grid[coord.x][coord.y] =
-          cursor.value.color;
+          art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
-    } 
+    }
   });
 }
 
@@ -367,7 +385,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   let rightBound = Math.max(start.x, end.x);
   let lowerBound = Math.min(start.y, end.y);
   let upperBound = Math.max(start.y, end.y);
-  
+
   for (let i = 0; i < cursor.value.size; i++) {
     if (
       leftBound + i <= rightBound &&
@@ -375,10 +393,11 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
       upperBound - i >= lowerBound &&
       lowerBound + i <= upperBound
     ) {
-      coords = coords.concat(CalculateRectangle(
-        new Vector2(leftBound + i, lowerBound + i), 
-        new Vector2(rightBound - i,upperBound - i)
-      )
+      coords = coords.concat(
+        CalculateRectangle(
+          new Vector2(leftBound + i, lowerBound + i),
+          new Vector2(rightBound - i, upperBound - i)
+        )
       );
     }
   }
@@ -391,9 +410,9 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
 
   // generate x coordinates
   let stepX = start.x;
-  while (stepX != end.x){
-    coords.push(new Vector2(stepX,start.y));
-    coords.push(new Vector2(stepX,end.y));
+  while (stepX != end.x) {
+    coords.push(new Vector2(stepX, start.y));
+    coords.push(new Vector2(stepX, end.y));
 
     if (stepX < end.x) stepX++;
     if (stepX > end.x) stepX--;
@@ -401,9 +420,9 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
 
   // generate y coordinates
   let stepY = start.y;
-  while (stepY != end.y){
-    coords.push(new Vector2(start.x,stepY));
-    coords.push(new Vector2(end.x,stepY));
+  while (stepY != end.y) {
+    coords.push(new Vector2(start.x, stepY));
+    coords.push(new Vector2(end.x, stepY));
 
     if (stepY < end.y) stepY++;
     if (stepY > end.y) stepY--;
@@ -414,14 +433,20 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function setStartVector() {
-  startPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y);
+  startPix.value = new Vector2(
+    cursor.value.position.x,
+    cursor.value.position.y
+  );
   tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 }
 function setEndVector() {
-  if (mouseButtonHeldDown.value){
-    endPix.value = new Vector2(cursor.value.position.x, cursor.value.position.y)
+  if (mouseButtonHeldDown.value) {
+    endPix.value = new Vector2(
+      cursor.value.position.x,
+      cursor.value.position.y
+    );
   } else {
-    tempGrid = art.value.pixelGrid.grid
+    tempGrid = art.value.pixelGrid.grid;
   }
 }
 
@@ -433,14 +458,14 @@ function ResetArt() {
 
 function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  if(undoList.isDifferent(currentGrid)){
-  undoList.append(currentGrid);
+  if (undoList.isDifferent(currentGrid)) {
+    undoList.append(currentGrid);
   }
 }
 
 function undo() {
   let previousGrid = undoList.getPrevious();
-  
+
   if (previousGrid) {
     for (let i = 0; i < art.value.pixelGrid.width; i++) {
       for (let j = 0; j < art.value.pixelGrid.height; j++) {
