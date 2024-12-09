@@ -101,7 +101,7 @@ function updatePallet(){
   if (temp)
   currentPallet = JSON.parse(temp)
   for( let i = 0; i < currentPallet.length; i++)
-  if(currentPallet[i]===null){
+  if(currentPallet[i]===null || currentPallet[i]===""){
     currentPallet[i]="000000";
   }
 }
