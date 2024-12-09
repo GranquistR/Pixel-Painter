@@ -5,11 +5,13 @@
 class LinkedNode {
     private _elem: string[][];
     public next: LinkedNode | null;
+    public prev: LinkedNode | null;
    
+
     constructor(elem: string[][])  {
         this._elem = elem;
         this.next = null;
-        
+        this.prev = null;
     }
 
     get elem(): string[][] {
@@ -17,15 +19,17 @@ class LinkedNode {
     }
 }
 
-export default class LinkedList<T> {
+export default class LinkedList {
     private head: LinkedNode | null = null;
     private tail: LinkedNode | null = null;
     private current: LinkedNode | null = null;
+    public size :number;
 
     constructor(headElement?: LinkedNode, tailElement?: LinkedNode,currentElement?: LinkedNode) {
         this.head = headElement || null;
         this.tail = tailElement || null;
         this.current = currentElement || null;
+        this.size = 0; 
     }
 
     public append(pixelGrid: string[][]) {
@@ -38,9 +42,19 @@ export default class LinkedList<T> {
         } else {
             if(this.current){
            this.current.next=node;
+           node.prev = this.current;
             this.tail = node;
             this.current = node;
             }
+        }
+       
+        this.size++;
+        if (this.size ===301 && this.head ){
+            this.head = this.head.next
+            if(this.head){
+            this.head.prev=null;
+            }
+            this.size--;
         }
     }
 
@@ -57,13 +71,7 @@ export default class LinkedList<T> {
           }            
 
         }
-        if (isDifferent){
-            this.append(pixelGrid);
-            
-        }
-       
-
-       
+        return isDifferent;
     }
 
     public getPrevious(){
@@ -71,26 +79,48 @@ export default class LinkedList<T> {
          if (!this.head) {
             return null; // Empty list
           }
-          let previous = this.head;
-          if(previous === this.current){
-            return this.head.elem;
+          if(this.current && this.current.prev){
+            this.current = this.current.prev;
+            this.size--;
+            return this.current.elem;
           }
-          while (previous.next && previous.next.next && previous.next != this.current) {
-            previous = previous.next;
-          }
-         
-
-          this.current = previous;
-        return this.current.elem;
-          
            
         }
 
     public getNext(){
         if(this.current && this.current.next){
             this.current = this.current.next
-        return this.current.elem;
+            this.size++;
+            return this.current.elem;
          }
         }
     
+    public linkedListToArray(){
+        const array: string[][][]=[];
+        let iterator = this.head;
+        while(iterator && iterator.next){
+            array.push(iterator.elem);
+            iterator = iterator.next;
+        }
+        if(iterator){
+        array.push(iterator.elem);
+        }
+        return array;
+
+    }
+    public arrayToLinkedList(array: string[][][]){
+        const list = new LinkedList();
+        for(let i=0; i < array.length; i++){
+            list.append(array[i]);
+        }
+        return list;
+    }
+    public updateCurrent(pixelGrid: string[][]){
+       this.current = this.head;
+       
+       while(this.isDifferent(pixelGrid) && this.current){
+        this.current= this.current.next;
+       }
+       
+    }
 }
