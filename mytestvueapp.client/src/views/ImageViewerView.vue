@@ -97,8 +97,6 @@ onMounted(() => {
 function updateComments() {
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
-    // console.log(allComments.value);
-    // console.log(promise);
   });
 }
 

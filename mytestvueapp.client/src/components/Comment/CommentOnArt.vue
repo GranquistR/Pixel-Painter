@@ -69,7 +69,11 @@
       </div>
       <div>
         <!-- Reply to comments -->
-        <NewComment class="ml-4 mb-2" :comment="comment"></NewComment>
+        <NewComment
+          class="ml-4 mb-2"
+          :comment="comment"
+          @new-comment="emit('deleteComment')"
+        ></NewComment>
         <!-- Show replies to comments -->
         <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
       </div>
@@ -91,13 +95,14 @@
       v-for="Comment in comment.replies"
       :key="Comment.id"
       :comment="Comment"
+      @delete-comment="emit('deleteComment')"
     ></CommentOnArt>
   </div>
 </template>
 
 <script setup lang="ts">
 import CommentAccessService from "../../services/CommentAccessService";
-// import updateComments from "ImageViewerView.vue";
+
 import type Comment from "@/entities/Comment";
 import { ref, watch } from "vue";
 import Button from "primevue/button";
@@ -107,14 +112,17 @@ import { useToast } from "primevue/usetoast";
 import NewComment from "./NewComment.vue";
 import type ImageViewerView from "@/views/ImageViewerView.vue";
 
-const emit = defineEmits(["deleteComment"]);
+const emit = defineEmits(["deleteComment", "updateComments"]);
+
 const editing = ref(false);
 const newMessage = ref("");
 const toast = useToast();
+const allComments = ref<Comment[]>([]);
 
 function openMenu() {
   menu.value.toggle(event);
 }
+const showReply = ref(true);
 const menu = ref();
 const items = ref([
   {
@@ -169,4 +177,6 @@ const DeleteComment = () => {
     });
   }
 };
+
+const updateComments = () => {};
 </script>
