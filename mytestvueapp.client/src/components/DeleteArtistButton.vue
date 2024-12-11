@@ -4,7 +4,7 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block"
+    class="block m-2"
   ></Button>
 
   <Dialog
