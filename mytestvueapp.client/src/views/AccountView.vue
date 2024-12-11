@@ -70,9 +70,15 @@
                 >{{ errorMessage }}</Message
               >
             </div>
-
-            <Button label="logout" icon="pi pi-sign-out" @click="logout()" />
-            <DeleteArtistButton></DeleteArtistButton>
+            <div class="align-items-stretch flex">
+              <Button
+                class="block m-2"
+                label="logout"
+                icon="pi pi-sign-out"
+                @click="logout()"
+              />
+              <DeleteArtistButton></DeleteArtistButton>
+            </div>
           </template>
         </Card>
       </div>
