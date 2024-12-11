@@ -62,31 +62,49 @@
             <Button
               label="Cancel"
               severity="secondary"
-              @click="editing = false"
+              @click="
+                (editing = false), (showReply = false), (showButton = true)
+              "
             ></Button>
+            {{ showButton }}
+            {{ showReply }}
+            {{ editing }}
           </div>
         </div>
       </div>
       <div>
         <!-- Reply to comments -->
+        <Button
+          v-if="showButton == true"
+          @click="(showReply = true), (showButton = false)"
+          icon="pi pi-comment"
+          rounded
+          text
+          label="Reply"
+          severity="secondary"
+        ></Button>
+        <Button
+          v-if="comment.currentUserIsOwner"
+          icon="pi pi-ellipsis-h"
+          rounded
+          text
+          severity="secondary"
+          @click="openMenu()"
+        />
         <NewComment
+          v-if="showReply == true"
           class="ml-4 mb-2"
           :comment="comment"
-          @new-comment="emit('deleteComment')"
+          @new-comment="
+            emit('deleteComment'), (showReply = false), (showButton = true)
+          "
         ></NewComment>
+
         <!-- Show replies to comments -->
         <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
       </div>
     </div>
     <div style="width: 5rem">
-      <Button
-        v-if="comment.currentUserIsOwner"
-        icon="pi pi-ellipsis-h"
-        rounded
-        text
-        severity="secondary"
-        @click="openMenu()"
-      />
       <Menu ref="menu" :model="items" :popup="true" />
     </div>
   </div>
@@ -122,7 +140,8 @@ const allComments = ref<Comment[]>([]);
 function openMenu() {
   menu.value.toggle(event);
 }
-const showReply = ref(true);
+const showReply = ref(false);
+const showButton = ref(true);
 const menu = ref();
 const items = ref([
   {
