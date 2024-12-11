@@ -107,6 +107,11 @@ namespace MyTestVueApp.Server.Controllers
 
                 if (art.isPublic)
                 {
+                    if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                    {
+                        var artist = await LoginService.GetUserBySubId(userId);
+                        art.currentUserIsOwner = (art.artistId == artist.id);
+                    }
                     return Ok(art);
                 }
                 else
