@@ -1,38 +1,4 @@
 <template>
-  <!-- <div class="m-2" v-if="Deleted == false">
-    <Button
-      severity="danger"
-      v-if="editing == true"
-      @click="DeleteComment(), (Deleted = true)"
-      >Delete Comment</Button
-    >
-    <div class="flex gap-3">
-      <span v-if="comment.currentUserIsOwner">
-        <i class="pi pi-star-fill" style="color: yellow"></i>
-      </span>
-      <span style="font-weight: bold">{{ comment.commenterName }}</span>
-      <span>{{ comment.creationDate }}</span>
-    </div>
-    <div class="mb-4 ml-2" v-if="editing == false && changedComment == false">
-      <span>{{ comment.message }}</span>
-    </div>
-    <div class="mb-4 ml-2" v-if="editing == false && changedComment == true">
-      <span>{{ editBox }}</span>
-    </div>
-    <div class="mb-4 ml-2" v-if="editing == true">
-      <span><textarea placeholder="" v-model:="editBox"></textarea></span>
-    </div>
-    <div v-if="comment.currentUserIsOwner">
-      <Button @click="editing = !editing" v-if="editing == false"
-        >Edit Comment</Button
-      >
-      <Button
-        v-if="editing == true"
-        @click="SubmitEdit(), (editing = false), (changedComment = true)"
-        >Submit</Button
-      >
-    </div>
-  </div> -->
   <div class="flex align-items-center">
     <div class="flex-grow-1">
       <div class="flex gap-3">
@@ -42,7 +8,7 @@
         <span style="font-weight: bold">{{ comment.commenterName }}</span>
         <span>{{ comment.creationDate }}</span>
       </div>
-      <div class="mb-4 ml-2">
+      <div class="ml-2">
         <span v-if="!editing" style="word-break: break-word">{{
           comment.message
         }}</span>
@@ -66,39 +32,73 @@
           </div>
         </div>
       </div>
+      <div>
+        <!-- Reply to comments -->
+        <Button
+          @click="showReply = true"
+          icon="pi pi-comment"
+          rounded
+          text
+          label="Reply"
+          severity="secondary"
+        ></Button>
+        <Button
+          v-if="comment.currentUserIsOwner"
+          icon="pi pi-ellipsis-h"
+          rounded
+          text
+          severity="secondary"
+          @click="openMenu()"
+        />
+        <NewComment
+          v-if="showReply == true"
+          class="ml-4 mb-2"
+          :parent-comment="comment"
+          @new-comment="emit('deleteComment'), (showReply = false)"
+          @close-reply="showReply = false"
+        ></NewComment>
+
+        <!-- Show replies to comments -->
+        <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
+      </div>
     </div>
     <div style="width: 5rem">
-      <Button
-        v-if="comment.currentUserIsOwner"
-        icon="pi pi-ellipsis-h"
-        rounded
-        text
-        severity="secondary"
-        @click="openMenu()"
-      />
       <Menu ref="menu" :model="items" :popup="true" />
     </div>
+  </div>
+  <div class="ml-4 pl-3 mb-2" style="border-left: solid 1px gray">
+    <CommentOnArt
+      v-for="Comment in comment.replies"
+      :key="Comment.id"
+      :comment="Comment"
+      @delete-comment="emit('deleteComment')"
+    ></CommentOnArt>
   </div>
 </template>
 
 <script setup lang="ts">
 import CommentAccessService from "../../services/CommentAccessService";
+
 import type Comment from "@/entities/Comment";
 import { ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
+import NewComment from "./NewComment.vue";
 
-const emit = defineEmits(["deleteComment"]);
+const emit = defineEmits(["deleteComment", "updateComments"]);
+
 const editing = ref(false);
 const newMessage = ref("");
 const toast = useToast();
+const showReply = ref(false);
+const menu = ref();
 
 function openMenu() {
   menu.value.toggle(event);
 }
-const menu = ref();
+
 const items = ref([
   {
     label: "Delete",
@@ -124,9 +124,6 @@ const props = defineProps<{
   comment: Comment;
 }>();
 
-//for textarea
-const editBox = ref(props.comment.message); // needed to be able to edit comments
-
 const SubmitEdit = () => {
   if (props.comment.id != null) {
     CommentAccessService.EditComment(props.comment.id, newMessage.value)
@@ -144,6 +141,7 @@ const SubmitEdit = () => {
       });
   }
 };
+
 const DeleteComment = () => {
   if (props.comment.id != null) {
     CommentAccessService.DeleteComment(props.comment.id).then(() => {
