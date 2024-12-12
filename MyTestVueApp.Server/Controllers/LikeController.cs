@@ -112,7 +112,7 @@ namespace MyTestVueApp.Server.Controllers
             }
             else
             {
-                return BadRequest("User is not logged in!");
+                return Ok(false);
             }
         }
     }

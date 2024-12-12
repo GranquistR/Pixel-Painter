@@ -4,9 +4,13 @@
     :pixelGrid="art.pixelGrid"
     :style="{ cursor: cursor.selectedTool.cursor }"
     v-model="cursor"
-    @mousedown="mouseButtonHeldDown = true"
+    @mousedown="
+      mouseButtonHeldDown = true;
+      setStartVector();
+    "
     @mouseup="
       mouseButtonHeldDown = false;
+      setEndVector();
       onMouseUp();
     "
     @contextmenu.prevent
@@ -38,10 +42,21 @@
         @click="canvas?.recenter()"
       />
       <Button
+        :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
+        class="mr-2 Rainbow"
+        label="Gravity"
+        @click="runGravity()"
+      />
+
+      <Button
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="art.pixelGrid.randomizeGrid()"
+        @click="
+          art.pixelGrid.randomizeGrid();
+          currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid));
+          undoList.append(currentGrid);
+        "
       />
     </template>
   </Toolbar>
@@ -61,7 +76,6 @@ import UploadButton from "@/components/PainterUi/UploadButton.vue";
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
 import { Vector2 } from "@/entities/Vector2";
-import DefaultColor from "@/entities/DefaultColors";
 import PainterTool from "@/entities/PainterTool";
 import Cursor from "@/entities/Cursor";
 
@@ -76,23 +90,41 @@ import { useToast } from "primevue/usetoast";
 import LinkedList from "@/utils/undo";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
+import fallingSand from "@/utils/fallingSand";
 
 //variables
 const route = useRoute();
 const canvas = ref();
 const toast = useToast();
+const intervalId = ref<number>(-1);
 
 const cursor = ref<Cursor>(
-  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "#000000")
+  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
 );
 
 const mouseButtonHeldDown = ref<boolean>(false);
 
+const startPix = ref<Vector2>(new Vector2(0, 0));
+const endPix = ref<Vector2>(new Vector2(0, 0));
+let tempGrid: string[][] = [];
+
 const art = ref<Art>(new Art());
 
+//initialize linked list to allow undo and redo
 var undoList = new LinkedList();
+
 var currentGrid: string[][] = [];
 
+let currentPallet: string[];
+function updatePallet(){
+  let temp = localStorage.getItem('currentPallet');
+  if (temp)
+  currentPallet = JSON.parse(temp)
+  for( let i = 0; i < currentPallet.length; i++)
+  if(currentPallet[i]===null || currentPallet[i]===""){
+    currentPallet[i]="000000";
+  }
+}
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
   //it can only watch individual references to the object specified
@@ -133,8 +165,17 @@ onMounted(() => {
         art.value.isPublic = data.isPublic;
 
         canvas.value?.recenter();
+
+        var storedList = localStorage.getItem("working-list");
         currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-        undoList.append(currentGrid);
+
+        if (storedList) {
+          const deserializedData = JSON.parse(storedList);
+          undoList = undoList.arrayToLinkedList(deserializedData);
+          undoList.updateCurrent(currentGrid);
+        } else {
+          undoList.append(currentGrid);
+        }
       })
       .catch(() => {
         toast.add({
@@ -150,8 +191,18 @@ onMounted(() => {
   } else {
     art.value.pixelGrid.DeepCopy(workingGrid);
     canvas.value?.recenter();
+
+    var storedList = localStorage.getItem("working-list");
     currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-    undoList.append(currentGrid);
+    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+
+    if (storedList) {
+      const deserializedData = JSON.parse(storedList);
+      undoList = undoList.arrayToLinkedList(deserializedData);
+      undoList.updateCurrent(currentGrid);
+    } else {
+      undoList.append(currentGrid);
+    }
   }
 });
 
@@ -160,7 +211,6 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
-//functions
 const ToggleKeybinds = (disable: boolean) => {
   if (disable) {
     document.removeEventListener("keydown", handleKeyDown);
@@ -173,10 +223,16 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
   LocalSave();
 }
 
+
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
-    DrawAtCoords(GetLinePixels(start, end));
+    if (cursor.value.selectedTool.label === "Rectangle") {
+      setEndVector();
+      DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+    } else {
+      DrawAtCoords(GetLinePixels(start, end));
+    }
   },
   { deep: true }
 );
@@ -186,6 +242,15 @@ watch(mouseButtonHeldDown, async () => {
 });
 
 //functions
+function runGravity() {
+  if (intervalId.value != -1) {
+    clearInterval(intervalId.value);
+    intervalId.value = -1;
+  } else {
+    intervalId.value = setInterval(fallingSand, 30, art.value.pixelGrid);
+  }
+}
+
 function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   const pixels: Vector2[] = [];
 
@@ -224,6 +289,16 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function DrawAtCoords(coords: Vector2[]) {
+  if (cursor.value.selectedTool.label === "Rectangle") {
+    if (tempGrid) {
+      for (let i = 0; i < art.value.pixelGrid.width; i++) {
+        for (let j = 0; j < art.value.pixelGrid.height; j++) {
+          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+        }
+      }
+    }
+  }
+
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
@@ -273,6 +348,8 @@ function DrawAtCoords(coords: Vector2[]) {
           ) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
+        } else if (cursor.value.selectedTool.label === "Rectangle") {
+          art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
     }
@@ -312,17 +389,93 @@ function fill(x: number, y: number) {
   }
 }
 
+function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+  let leftBound = Math.min(start.x, end.x);
+  let rightBound = Math.max(start.x, end.x);
+  let lowerBound = Math.min(start.y, end.y);
+  let upperBound = Math.max(start.y, end.y);
+
+  for (let i = 0; i < cursor.value.size; i++) {
+    if (
+      leftBound + i <= rightBound &&
+      rightBound - i >= leftBound &&
+      upperBound - i >= lowerBound &&
+      lowerBound + i <= upperBound
+    ) {
+      coords = coords.concat(
+        CalculateRectangle(
+          new Vector2(leftBound + i, lowerBound + i),
+          new Vector2(rightBound - i, upperBound - i)
+        )
+      );
+    }
+  }
+
+  return coords;
+}
+
+function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
+  let coords: Vector2[] = [];
+
+  // generate x coordinates
+  let stepX = start.x;
+  while (stepX != end.x) {
+    coords.push(new Vector2(stepX, start.y));
+    coords.push(new Vector2(stepX, end.y));
+
+    if (stepX < end.x) stepX++;
+    if (stepX > end.x) stepX--;
+  }
+
+  // generate y coordinates
+  let stepY = start.y;
+  while (stepY != end.y) {
+    coords.push(new Vector2(start.x, stepY));
+    coords.push(new Vector2(end.x, stepY));
+
+    if (stepY < end.y) stepY++;
+    if (stepY > end.y) stepY--;
+  }
+
+  coords.push(end);
+  return coords;
+}
+
+function setStartVector() {
+  startPix.value = new Vector2(
+    cursor.value.position.x,
+    cursor.value.position.y
+  );
+  tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+}
+function setEndVector() {
+  if (mouseButtonHeldDown.value) {
+    endPix.value = new Vector2(
+      cursor.value.position.x,
+      cursor.value.position.y
+    );
+  } else {
+    tempGrid = art.value.pixelGrid.grid;
+  }
+}
+
 function ResetArt() {
   localStorage.removeItem("working-art");
+  localStorage.removeItem("working-list");
   router.push("/new");
 }
 
 function onMouseUp() {
   currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  undoList.isDifferent(currentGrid);
+  if (undoList.isDifferent(currentGrid)) {
+    undoList.append(currentGrid);
+  }
 }
+
 function undo() {
   let previousGrid = undoList.getPrevious();
+
   if (previousGrid) {
     for (let i = 0; i < art.value.pixelGrid.width; i++) {
       for (let j = 0; j < art.value.pixelGrid.height; j++) {
@@ -363,42 +516,10 @@ function handleKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     cursor.value.selectedTool.label = "Bucket";
     canvas?.value.updateCursor();
-  } else if (event.key === "1") {
+  } else if (event.key === "r") {
     event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[0].hex;
-  } else if (event.key === "2") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[1].hex;
-  } else if (event.key === "3") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[2].hex;
-  } else if (event.key === "4") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[3].hex;
-  } else if (event.key === "5") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[4].hex;
-  } else if (event.key === "6") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[5].hex;
-  } else if (event.key === "7") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[6].hex;
-  } else if (event.key === "8") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[7].hex;
-  } else if (event.key === "9") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[8].hex;
-  } else if (event.key === "0") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[9].hex;
-  } else if (event.key === "-") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[10].hex;
-  } else if (event.key === "=") {
-    event.preventDefault();
-    cursor.value.color = DefaultColor.getDefaultColors()[11].hex;
+    cursor.value.selectedTool.label = "Rectangle";
+    canvas?.value.updateCursor();
   } else if (event.key === "q" && cursor.value.size > 1) {
     event.preventDefault();
     cursor.value.size -= 1;
@@ -414,10 +535,65 @@ function handleKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     redo();
   }
+
+
+   else if (event.key === "1") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[0];
+  } else if (event.key === "2") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[1];
+  } else if (event.key === "3") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[2];
+  } else if (event.key === "4") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[3];
+    } else if (event.key === "5") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[4];
+    } else if (event.key === "6") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[5];
+    } else if (event.key === "7") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[6];
+    } else if (event.key === "8") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[7];
+    } else if (event.key === "9") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[8];
+    } else if (event.key === "0") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[9];
+    } else if (event.key === "-") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[10];
+    } else if (event.key === "=") {
+    event.preventDefault();
+    updatePallet();
+    cursor.value.color = currentPallet[11];  
 }
+}
+
+
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
+  const stringUndo = undoList.linkedListToArray();
+  localStorage.setItem("working-list", JSON.stringify(stringUndo));
 }
 </script>
 <style scoped>

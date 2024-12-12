@@ -1,10 +1,10 @@
 <template>
   <Button
-    label="Delete Art"
+    label="Delete Artist"
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block"
+    class="block m-2"
   ></Button>
 
   <Dialog
@@ -12,15 +12,15 @@
     modal
     :closable="false"
     :style="{ width: '25rem' }"
-    :header="'Delete ' + art.title + '?'"
+    :header="'Delete Account'"
   >
     <Message icon="pi pi-times-circle" severity="error">
       This action cannot be undone.
     </Message>
 
-    <div class="mt-4 mb-2">Confirm the title to continue.</div>
+    <div class="mt-4 mb-2">Confirm your Username to continue.</div>
     <InputText
-      placeholder="Title"
+      placeholder="Username"
       class="w-full"
       v-model="confirmText"
       autofocus
@@ -33,12 +33,7 @@
         severity="secondary"
         @click="visible = false"
       />
-      <Button
-        label="Confirm"
-        severity="danger"
-        @click="ConfirmDelete()"
-        :disabled="confirmText != art.title"
-      />
+      <Button label="Confirm" severity="danger" @click="ConfirmDelete()" />
     </template>
   </Dialog>
 </template>
@@ -48,17 +43,14 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { ref, watch } from "vue";
-import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import { useRoute } from "vue-router";
-import type Art from "@/entities/Art";
+
 import Message from "primevue/message";
+import LoginService from "@/services/LoginService";
 
 const toast = useToast();
-const props = defineProps<{
-  art: Art;
-}>();
 const visible = ref(false);
 const confirmText = ref("");
 
@@ -69,13 +61,13 @@ watch(visible, (newVal) => {
 });
 
 function ConfirmDelete() {
-  ArtAccessService.DeleteArt(props.art.id)
+  LoginService.DeleteArtist(confirmText.value)
     .then(() => {
-      router.push("/account#art");
+      window.location.href = "/";
       toast.add({
         severity: "success",
-        summary: "Art Deleted",
-        detail: "The art has been deleted successfully",
+        summary: "User Deleted",
+        detail: "The User has been deleted successfully",
         life: 3000,
       });
     })
@@ -83,7 +75,8 @@ function ConfirmDelete() {
       toast.add({
         severity: "error",
         summary: "Error",
-        detail: "An error occurred while deleting the art",
+        detail:
+          "error deleting user, please make sure you have spelt it correctly",
         life: 3000,
       });
     });
