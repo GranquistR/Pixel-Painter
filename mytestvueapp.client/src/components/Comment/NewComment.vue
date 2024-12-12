@@ -3,12 +3,12 @@
     <!-- {{ comment }} -->
     <InputText
       v-model:="comment.message"
-      placeholder="Add a comment..."
+      :placeholder="placeholder"
       class="w-full"
       @click="open = true"
-      :comment.value.replyId="props.comment?.id"
+      :disabled="!loggedIn"
     ></InputText>
-    <div class="flex flex-row-reverse mt-2" v-if="open">
+    <div class="flex flex-row-reverse mt-2" v-if="open || parentComment">
       <Button class="ml-2" @click="PostComment()">Post Comment</Button>
       <Button severity="secondary" @click="Cancel()">Cancel</Button>
     </div>
@@ -16,27 +16,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import CommentAccessService from "@/services/CommentAccessService";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Comment from "@/entities/Comment";
 import { useToast } from "primevue/usetoast";
-import { RefSymbol } from "@vue/reactivity";
+import LoginService from "@/services/LoginService";
 
 const toast = useToast();
 
 const route = useRoute();
 const open = ref(false);
-const allComments = ref<Comment[]>([]);
 const comment = ref<Comment>(new Comment());
+const loggedIn = ref(false);
 
-const emit = defineEmits(["newComment"]);
+const emit = defineEmits(["newComment", "closeReply"]);
+
+const placeholder = computed(() => {
+  if (!loggedIn.value) {
+    return "Login to comment";
+  } else if (props.parentComment) {
+    return "Reply to comment";
+  } else {
+    return "Add a comment...";
+  }
+});
 
 function PostComment() {
   comment.value.artId = parseInt(route.params.id as string);
-  comment.value.replyId = props.comment?.id;
+  comment.value.replyId = props.parentComment?.id;
   CommentAccessService.PostComment(comment.value)
     .then(() => {
       emit("newComment");
@@ -52,12 +62,21 @@ function PostComment() {
     });
 }
 
+onMounted(() => {
+  LoginService.GetCurrentUser().then((user) => {
+    if (user != null) {
+      loggedIn.value = true;
+    }
+  });
+});
+
 const props = defineProps<{
-  comment?: Comment;
+  parentComment?: Comment;
 }>();
 
 function Cancel() {
   open.value = false;
   comment.value.message = "";
+  emit("closeReply");
 }
 </script>
