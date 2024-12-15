@@ -149,7 +149,6 @@ onBeforeRouteLeave((to, from, next) => {
 onMounted(() => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
-  CalculateEllipse(new Vector2(2,2), new Vector2(10,8));
 
   const workingGrid = JSON.parse(
     localStorage.getItem("working-art") as string
@@ -479,7 +478,6 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
     }
   }
 
-
   return coords;
 }
 
@@ -493,27 +491,30 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let xOffset = rightBound - leftBound;
   let yOffset = upperBound - lowerBound;
 
-  let center = new Vector2(leftBound + (xOffset/2), lowerBound + (yOffset/2));
+  let center = new Vector2(
+    leftBound + (xOffset/2), 
+    lowerBound + (yOffset/2)
+  );
 
-  console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
+  //console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
 
   let a = Math.max(xOffset,yOffset) / 2; //Major Axis length
   let b = Math.min(xOffset,yOffset) / 2; //Minor Axis length
 
-  console.log(`MajorAxis: ${a}, MinorAxis: ${b}`);
+  //console.log(`MajorAxis: ${a}, MinorAxis: ${b}`);
 
   if (xOffset > yOffset) { // Major Axis is Horrizontal
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
       let yN = (center.y - (yP - center.y));
-      console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
+      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     } 
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center,b,a,i));
       let xN = (center.x - (xP - center.x));
-      console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
+      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
@@ -521,14 +522,14 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center,a,b,i));
       let xN = (center.x - (xP - center.x));
-      console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
+      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
       let yN = (center.y - (yP - center.y));
-      console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
+      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     } 
@@ -537,34 +538,16 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function ellipseXtoY(center:Vector2, majorAxis: number, minorAxis: number, x: number): number{   
-  console.log(
-    `Center:(${center.x}, ${center.y}), 
-    MajorA: ${majorAxis},
-    MinorA: ${minorAxis},
-    x:${x}`
-  )  
   let yPow = Math.pow((x - center.x) / majorAxis, 2);
-  console.log(`yPow: ${yPow}`);
   let ySqrt = Math.sqrt(1 - yPow)
-  console.log(`ySqrt: ${ySqrt}`)
   let y = (minorAxis * ySqrt) + center.y;
-  console.log(`y: ${y}`);
   return y;
 }
 
 function ellipseYtoX(center:Vector2, majorAxis: number, minorAxis: number, y: number): number{   
-  console.log(
-    `Center:(${center.x}, ${center.y}), 
-    MajorA: ${majorAxis},
-    MinorA: ${minorAxis},
-    y:${y}`
-  )  
   let xPow = Math.pow((y - center.y) / majorAxis, 2);
-  console.log(`yPow: ${xPow}`);
   let xSqrt = Math.sqrt(1 - xPow)
-  console.log(`ySqrt: ${xSqrt}`)
   let x = (minorAxis * xSqrt) + center.x;
-  console.log(`x: ${x}`);
   return x;
 }
 
