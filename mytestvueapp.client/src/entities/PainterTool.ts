@@ -18,6 +18,8 @@ export default class PainterTool {
       new PainterTool("Eraser", "pi pi-eraser", "e", "crosshair"),
       new PainterTool("Pipette", "pi pi-eye dropper", "d", "crosshair"),
       new PainterTool("Bucket", "pi pi-hammer", "f", "crosshair"),
+      new PainterTool("Rectangle", "pi pi-stop", "r", "crosshair"),
+      new PainterTool("Ellipse", "pi pi-circle", "l", "crosshair")
     ];
   }
 }

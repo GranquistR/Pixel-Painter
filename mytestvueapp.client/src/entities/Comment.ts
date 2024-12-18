@@ -1,3 +1,5 @@
+import type { ListFormat } from "typescript";
+
 export default class Comment {
   id?: number;
   artistId?: number;
@@ -7,6 +9,7 @@ export default class Comment {
   creationDate?: string;
   replyId?: number;
   currentUserIsOwner?: boolean;
+  replies: Comment[];
 
   constructor() {
     this.id = 0;
@@ -17,5 +20,6 @@ export default class Comment {
     this.creationDate = "";
     this.replyId = 0;
     this.currentUserIsOwner = false;
+    this.replies=[];
   }
 }

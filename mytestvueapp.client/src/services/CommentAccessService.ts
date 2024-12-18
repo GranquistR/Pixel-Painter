@@ -21,6 +21,26 @@ export default class CommentAccessService {
     }
   }
 
+  public static async getCommentsByReplyId(ReplyId: number): Promise<any> {
+    try {
+      const response = await fetch(
+        `/comment/GetCommentsByReplyId?replyId=${ReplyId}`
+      );
+      const jsonComments = await response.json();
+
+      const allComments: Comment[] = [];
+      for (const jsonComment of jsonComments) {
+        let comment = new Comment();
+        comment = jsonComment as Comment;
+        allComments.push(comment);
+      }
+
+      return allComments;
+    } catch (error) {
+      console.error;
+    }
+  }
+
   public static async PostComment(comment: Comment): Promise<Comment> {
     try {
       comment.creationDate = new Date().toISOString();
