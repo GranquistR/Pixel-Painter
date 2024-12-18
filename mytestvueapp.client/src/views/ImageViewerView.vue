@@ -17,17 +17,26 @@
         <div>By {{ art.artistName }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
-        <div class="flex flex-row align-items-center gap-2 mt-4">
-          <LikeButton class="" :art-id="id" :likes="art.numLikes"></LikeButton>
-          <Button
-            v-if="art.currentUserIsOwner"
-            label="Edit"
-            icon="pi pi-pencil"
-            severity="secondary"
-            @click="router.push(`/paint/${id}`)"
-          ></Button>
-          <DeleteArtButton v-if="art.currentUserIsOwner" :art="art">
-          </DeleteArtButton>
+        <div class="flex flex-column gap-2 mt-4">
+          <div class="flex gap-2">
+            <LikeButton
+              class=""
+              :art-id="id"
+              :likes="art.numLikes"
+            ></LikeButton>
+            <SaveImageToFile :art="art"></SaveImageToFile>
+          </div>
+          <div class="flex gap-2">
+            <Button
+              v-if="art.currentUserIsOwner"
+              label="Edit"
+              icon="pi pi-pencil"
+              severity="secondary"
+              @click="router.push(`/paint/${id}`)"
+            ></Button>
+            <DeleteArtButton v-if="art.currentUserIsOwner" :art="art">
+            </DeleteArtButton>
+          </div>
         </div>
       </template>
     </Card>
@@ -51,6 +60,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
@@ -66,7 +76,6 @@ import LikeButton from "@/components/LikeButton.vue";
 import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
-import type { RefSymbol } from "@vue/reactivity";
 
 const route = useRoute();
 const toast = useToast();

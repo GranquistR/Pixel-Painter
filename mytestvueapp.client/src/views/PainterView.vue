@@ -17,15 +17,17 @@
   />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
-      <Button
-        icon="pi pi-ban"
-        label="Quit"
-        severity="secondary"
-        class="mr-2"
-        @click="ResetArt()"
-      >
-      </Button>
-      <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
+      <div class="flex gap-2">
+        <Button
+          icon="pi pi-ban"
+          label="Quit"
+          severity="secondary"
+          @click="ResetArt()"
+        >
+        </Button>
+        <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
+        <SaveImageToFile :art="art"></SaveImageToFile>
+      </div>
     </template>
 
     <template #center>
@@ -72,6 +74,7 @@ import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue";
 import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
+import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -116,14 +119,13 @@ var undoList = new LinkedList();
 var currentGrid: string[][] = [];
 
 let currentPallet: string[];
-function updatePallet(){
-  let temp = localStorage.getItem('currentPallet');
-  if (temp)
-  currentPallet = JSON.parse(temp)
-  for( let i = 0; i < currentPallet.length; i++)
-  if(currentPallet[i]===null || currentPallet[i]===""){
-    currentPallet[i]="000000";
-  }
+function updatePallet() {
+  let temp = localStorage.getItem("currentPallet");
+  if (temp) currentPallet = JSON.parse(temp);
+  for (let i = 0; i < currentPallet.length; i++)
+    if (currentPallet[i] === null || currentPallet[i] === "") {
+      currentPallet[i] = "000000";
+    }
 }
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -223,7 +225,6 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
   LocalSave();
 }
 
-
 watch(
   cursorPositionComputed,
   (start: Vector2, end: Vector2) => {
@@ -233,7 +234,7 @@ watch(
         DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
       }
     } else if (cursor.value.selectedTool.label === "Ellipse") {
-      if (mouseButtonHeldDown.value){
+      if (mouseButtonHeldDown.value) {
         setEndVector();
         DrawAtCoords(GetEllipsePixels(startPix.value, endPix.value));
       }
@@ -297,8 +298,8 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function DrawAtCoords(coords: Vector2[]) {
   if (
-    cursor.value.selectedTool.label === "Rectangle" || 
-    cursor.value.selectedTool.label === "Ellipse" 
+    cursor.value.selectedTool.label === "Rectangle" ||
+    cursor.value.selectedTool.label === "Ellipse"
   ) {
     if (tempGrid) {
       for (let i = 0; i < art.value.pixelGrid.width; i++) {
@@ -359,7 +360,7 @@ function DrawAtCoords(coords: Vector2[]) {
             fill(cursor.value.position.x, cursor.value.position.y);
           }
         } else if (
-          cursor.value.selectedTool.label === "Rectangle" || 
+          cursor.value.selectedTool.label === "Rectangle" ||
           cursor.value.selectedTool.label === "Ellipse"
         ) {
           art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
@@ -491,63 +492,72 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let xOffset = rightBound - leftBound;
   let yOffset = upperBound - lowerBound;
 
-  let center = new Vector2(
-    leftBound + (xOffset/2), 
-    lowerBound + (yOffset/2)
-  );
+  let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
 
   //console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
 
-  let a = Math.max(xOffset,yOffset) / 2; //Major Axis length
-  let b = Math.min(xOffset,yOffset) / 2; //Minor Axis length
+  let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
+  let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
 
   //console.log(`MajorAxis: ${a}, MinorAxis: ${b}`);
 
-  if (xOffset > yOffset) { // Major Axis is Horrizontal
+  if (xOffset > yOffset) {
+    // Major Axis is Horrizontal
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
-      let yN = (center.y - (yP - center.y));
+      let yN = center.y - (yP - center.y);
       //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
-    } 
+    }
     for (let i = lowerBound; i <= upperBound; i++) {
-      let xP = Math.round(ellipseYtoX(center,b,a,i));
-      let xN = (center.x - (xP - center.x));
+      let xP = Math.round(ellipseYtoX(center, b, a, i));
+      let xN = center.x - (xP - center.x);
       //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
-  } else { // Major Axis is vertical
+  } else {
+    // Major Axis is vertical
     for (let i = lowerBound; i <= upperBound; i++) {
-      let xP = Math.round(ellipseYtoX(center,a,b,i));
-      let xN = (center.x - (xP - center.x));
+      let xP = Math.round(ellipseYtoX(center, a, b, i));
+      let xN = center.x - (xP - center.x);
       //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
-      let yN = (center.y - (yP - center.y));
+      let yN = center.y - (yP - center.y);
       //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
-    } 
+    }
   }
   return coords;
 }
 
-function ellipseXtoY(center:Vector2, majorAxis: number, minorAxis: number, x: number): number{   
+function ellipseXtoY(
+  center: Vector2,
+  majorAxis: number,
+  minorAxis: number,
+  x: number
+): number {
   let yPow = Math.pow((x - center.x) / majorAxis, 2);
-  let ySqrt = Math.sqrt(1 - yPow)
-  let y = (minorAxis * ySqrt) + center.y;
+  let ySqrt = Math.sqrt(1 - yPow);
+  let y = minorAxis * ySqrt + center.y;
   return y;
 }
 
-function ellipseYtoX(center:Vector2, majorAxis: number, minorAxis: number, y: number): number{   
+function ellipseYtoX(
+  center: Vector2,
+  majorAxis: number,
+  minorAxis: number,
+  y: number
+): number {
   let xPow = Math.pow((y - center.y) / majorAxis, 2);
-  let xSqrt = Math.sqrt(1 - xPow)
-  let x = (minorAxis * xSqrt) + center.x;
+  let xSqrt = Math.sqrt(1 - xPow);
+  let x = minorAxis * xSqrt + center.x;
   return x;
 }
 
@@ -643,10 +653,7 @@ function handleKeyDown(event: KeyboardEvent) {
   } else if (event.ctrlKey && event.key === "y") {
     event.preventDefault();
     redo();
-  }
-
-
-   else if (event.key === "1") {
+  } else if (event.key === "1") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[0];
@@ -662,42 +669,40 @@ function handleKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[3];
-    } else if (event.key === "5") {
+  } else if (event.key === "5") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[4];
-    } else if (event.key === "6") {
+  } else if (event.key === "6") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[5];
-    } else if (event.key === "7") {
+  } else if (event.key === "7") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[6];
-    } else if (event.key === "8") {
+  } else if (event.key === "8") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[7];
-    } else if (event.key === "9") {
+  } else if (event.key === "9") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[8];
-    } else if (event.key === "0") {
+  } else if (event.key === "0") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[9];
-    } else if (event.key === "-") {
+  } else if (event.key === "-") {
     event.preventDefault();
     updatePallet();
     cursor.value.color = currentPallet[10];
-    } else if (event.key === "=") {
+  } else if (event.key === "=") {
     event.preventDefault();
     updatePallet();
-    cursor.value.color = currentPallet[11];  
+    cursor.value.color = currentPallet[11];
+  }
 }
-}
-
-
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
