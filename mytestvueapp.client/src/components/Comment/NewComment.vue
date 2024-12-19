@@ -7,6 +7,7 @@
       class="w-full"
       @click="open = true"
       :disabled="!loggedIn"
+      @keyup.enter="PostComment()"
     ></InputText>
     <div class="flex flex-row-reverse mt-2" v-if="open || parentComment">
       <Button class="ml-2" @click="PostComment()">Post Comment</Button>
