@@ -7,6 +7,10 @@
                        v-model.trim="search"
                        type="text"
                        placeholder="Search..." />
+            <InputText class="mt-2 w-2"
+                       v-model.trim="filter"
+                       type="text"
+                       placeholder="Filter artists..." />
             <Dropdown class="pl mt-2 text-base w-1.5 font-normal"
                       v-model="sortType"
                       :options="sortBy"
@@ -50,11 +54,13 @@ import InputText from "primevue/inputtext";
     import Dropdown from 'primevue/dropdown';
     import Checkbox from 'primevue/checkbox';
     import ToggleButton from 'primevue/togglebutton';
+    import Button from 'primevue/button';
 
 
 const publicArt = ref<Art[]>();
 const displayArt = ref<Art[]>();
 const search = ref("");
+const filter = ref("");
 const loading = ref(true);
     const sortBy = ref([
         { sort: 'Likes', code: 'L'},
@@ -65,6 +71,8 @@ const loading = ref(true);
     const isSorted = ref(false); // Renders the Descending checkbox while true
     const isSortedByDate = ref(false);
     const checkAscending = ref(false);
+    const isModified = ref(false);
+    const tempArt = ref([]);
 
 onMounted(() => {
     ArtAccessService.getAllArt() // Get All Art
@@ -79,9 +87,14 @@ onMounted(() => {
 
 watch(search, () => {
     if (publicArt.value) {
+        isModified.value = true;
         displayArt.value = publicArt.value.filter((Art) =>
-        Art.title.toLowerCase().includes(search.value.toLowerCase())
-    );
+            Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+        );
+
+        displayArt.value = displayArt.value.filter((Art) =>
+            Art.title.toLowerCase().includes(search.value.toLowerCase())
+        );
     }
 });
 
@@ -89,13 +102,36 @@ watch(search, () => {
         sortGallery();
     });
 
+    watch(filter, () => {
+        if (publicArt.value) {
+            isModified.value = true;
+            displayArt.value = publicArt.value.filter((Art) =>
+                Art.title.toLowerCase().includes(search.value.toLowerCase())
+            );
+
+            displayArt.value = displayArt.value.filter((Art) =>
+                Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+            );
+        }
+    });
+
+    function searchAndFilter() {
+        displayArt.value = displayArt.value.filter((Art) =>
+            Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+        );
+
+        displayArt.value = displayArt.value.filter((Art) =>
+            Art.title.toLowerCase().includes(search.value.toLowerCase())
+        );
+    }
+
     function handleCheckBox() { // Gets called when the ascending checkbox is clicked
         sortGallery();
     }
 
     function sortGallery() {
-        //isSorted.value = true;
         var sortCode = sortType.value;
+        isModified.value = true;
 
         if (sortCode == 'D') {
             isSorted.value = false;
@@ -115,9 +151,7 @@ watch(search, () => {
                     .finally(() => {
                         loading.value = false;
                         if (publicArt.value) {
-                            displayArt.value = publicArt.value.filter((Art) =>
-                                Art.title.toLowerCase().includes(search.value.toLowerCase())
-                            );
+                            searchAndFilter();
                         }
                     });
                 break;
@@ -130,9 +164,7 @@ watch(search, () => {
                     .finally(() => {
                         loading.value = false;
                         if (publicArt.value) {
-                            displayArt.value = publicArt.value.filter((Art) =>
-                                Art.title.toLowerCase().includes(search.value.toLowerCase())
-                            );
+                            searchAndFilter();
                         }
                     });
                 break;
@@ -145,9 +177,7 @@ watch(search, () => {
                     .finally(() => {
                         loading.value = false;
                         if (publicArt.value) {
-                            displayArt.value = publicArt.value.filter((Art) =>
-                                Art.title.toLowerCase().includes(search.value.toLowerCase())
-                            );
+                            searchAndFilter();
                         }
                     });
                 break;
