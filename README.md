@@ -1,4 +1,6 @@
-# MyTestVueApp
+# PixelPainter
+
+A browser-based pixel art editor that allows users to create pixel art and share it with others. It is built with Vue.js and .NET Core.
 
 ## Required IDE Setup
 
@@ -28,7 +30,7 @@ vscode-icons
 1. Open terminal with 'ctrl+`' *The key left of 1*
 1. Run the following commands:
 	```
-	npm install
+	npm install --legacy-peer-deps
 	```
 
 ### Database Setup in Visual Studio
@@ -57,10 +59,6 @@ vscode-icons
 	- ClientSecret
 	- HomeUrl
 1. Run the project with the Start button in Visual Studio
-
-## Testing the application
-
-WIP
 
 ## Missing HTTPS Certificates
 
