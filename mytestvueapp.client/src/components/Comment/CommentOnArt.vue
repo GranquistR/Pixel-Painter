@@ -6,7 +6,7 @@
           <i class="pi pi-star-fill" style="color: yellow"></i>
         </span>
         <span style="font-weight: bold">{{ comment.commenterName }}</span>
-        <span>{{ comment.creationDate }}</span>
+        <span style="font-style: italic">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
         <span v-if="!editing" style="word-break: break-word">{{
@@ -80,7 +80,7 @@
 import CommentAccessService from "../../services/CommentAccessService";
 
 import type Comment from "@/entities/Comment";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Menu from "primevue/menu";
@@ -94,6 +94,7 @@ const newMessage = ref("");
 const toast = useToast();
 const showReply = ref(false);
 const menu = ref();
+const dateFormatted = ref();
 
 function openMenu() {
   menu.value.toggle(event);
@@ -121,7 +122,7 @@ watch(editing, () => {
 });
 
 const props = defineProps<{
-  comment: Comment;
+    comment: Comment;
 }>();
 
 const SubmitEdit = () => {
@@ -149,4 +150,26 @@ const DeleteComment = () => {
     });
   }
 };
+
+onMounted(() => {
+  const creationDate = new Date(props.comment.creationDate);
+  const today = new Date();
+
+  const differenceMs = today.getTime() - creationDate.getTime();
+  const differenceDays = Math.round(differenceMs / (1000 * 60 * 60 * 24));
+  
+  dateFormatted.value = getRelativeTime(differenceDays);
+});
+
+function getRelativeTime(days: number): string {
+  if (days === 0) return "Posted today";
+  if (days === 1) return "Posted yesterday";
+  if (days < 7) return `Posted ${days} days ago`;
+  if (days < 30) return `Posted ${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
+  if (days < 365) return `Posted ${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
+
+
+  const years = Math.floor(days / 365);
+  return `Posted ${years} year${years > 1 ? "s" : ""} ago`;
+}
 </script>

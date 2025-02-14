@@ -42,7 +42,7 @@
     </Card>
   </div>
 
-  <h2 class="px-4">{{ allComments.length }} Comments</h2>
+  <h2 class="px-4">{{ numberTotalComments }} Comments</h2>
 
   <div class="px-6">
     <!-- Initial comment. Reply to image -->
@@ -84,6 +84,7 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
+var numberTotalComments = Number(0);
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -104,6 +105,7 @@ onMounted(() => {
 });
 
 function updateComments() {
+  numberTotalComments=0;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -116,6 +118,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
   // Create a map of comments by their ID
   for (const comment of comments) {
     commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
+    numberTotalComments++;
   }
 
   // Build the tree by associating replies with their parents
