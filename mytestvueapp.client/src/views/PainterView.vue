@@ -27,6 +27,7 @@
         </Button>
         <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art"></SaveImageToFile>
+        <ConnectButton @OpenModal="ToggleKeybinds" />
       </div>
     </template>
 
@@ -94,6 +95,7 @@ import LinkedList from "@/utils/undo";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
 import fallingSand from "@/utils/fallingSand";
+import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //variables
 const route = useRoute();
