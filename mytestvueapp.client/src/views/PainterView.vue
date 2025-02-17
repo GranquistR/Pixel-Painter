@@ -33,6 +33,7 @@
     <template #center>
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
       <BrushSelection v-model="cursor.selectedTool" />
+      <FrameSelection v-if="art.pixelGrid.isGif" v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -75,6 +76,7 @@ import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
+import FrameSelection from "@/components/PainterUi/FrameSelection.vue"
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -297,7 +299,7 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function DrawAtCoords(coords: Vector2[]) {
-  if (
+    if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
   ) {
