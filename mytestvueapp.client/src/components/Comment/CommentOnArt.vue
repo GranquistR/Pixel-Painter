@@ -6,7 +6,7 @@
           <i class="pi pi-star-fill" style="color: yellow"></i>
         </span>
         <span style="font-weight: bold">{{ comment.commenterName }}</span>
-        <span style="font-style: italic">{{ dateFormatted }}</span>
+        <span style="font-style: italic; color: gray">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
         <span v-if="!editing" style="word-break: break-word">{{
@@ -168,18 +168,18 @@ function adjustForTimezone(date: Date): Date{
 }
 
 function getRelativeTime(minutes: number): string {  
-  if (minutes === 0) return `Posted just now`;
-  if (minutes < 60) return `Posted ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-  if (minutes < 1440) return `Posted ${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) === 1 ? "" : "s"} ago`;
+  if (minutes === 0) return `Just now`;
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) === 1 ? "" : "s"} ago`;
 
   const days = Math.round(minutes / (60 * 24));
 
-  if (days < 7) return `Posted ${days} day${days === 1 ? "" : "s"} ago`;
-  if (days < 30) return `Posted ${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
-  if (days < 365) return `Posted ${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
+  if (days < 365) return `${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
 
 
   const years = Math.floor(days / 365);
-  return `Posted ${years} year${years > 1 ? "s" : ""} ago`;
+  return `${years} year${years > 1 ? "s" : ""} ago`;
 }
 </script>
