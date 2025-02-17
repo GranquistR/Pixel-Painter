@@ -106,7 +106,7 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        return BadRequest("Failed to delte Comment");
+                        return BadRequest("Failed to delete Comment");
                     }
                 }
                 else
