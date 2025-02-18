@@ -43,20 +43,50 @@
     import Button from "primevue/button";
     import Dialog from "primevue/dialog";
     import InputText from "primevue/inputtext";
+    import * as SignalR from "@microsoft/signalr"
 
-    const emit = defineEmits(["OpenModal"]);
+    const emit = defineEmits(["OpenModal","Connect"]);
 
     const visible = ref(false)
     const connected = ref(false);
     const groupname = ref("");
 
+    let connection = new SignalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7154/signalhub", {
+                skipNegotiation: true,
+                transport: SignalR.HttpTransportType.WebSockets
+            })
+            .build();
+
+    connection.on("ReceiveMessage", (user: string, msg: string) => {
+        console.log("Received Message", user + " " + msg);
+    });
+
     function ToggleModal() {
-        visible.value = !visible.value;
-        connected.value = !connected.value;
+        if (!connected.value) {
+            visible.value = !visible.value;
+        } else {
+            disconnect();
+        }
     }
 
     function connect() {
-        visible.value = !visible.value;
+
+        connection.start()
+            .then(
+                () => {
+                    console.log("Connected to SignalR!");
+                    connection.invoke("JoinGroup", groupname.value);
+                    connected.value = !connected.value;
+                    visible.value = !visible.value;
+                }
+            ).catch(err => console.error("Error connecting to Hub:",err));
+    }
+
+    function disconnect() {
+        connection.invoke("LeaveGroup",groupname.value);
+        //call after connection is terminated
+        connected.value = !connected.value;
     }
 
     watch(visible, () => {
