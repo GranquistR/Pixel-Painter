@@ -43,7 +43,7 @@
           severity="secondary"
         ></Button>
         <Button
-          v-if="comment.currentUserIsOwner"
+          v-if="comment.currentUserIsOwner || user"
           icon="pi pi-ellipsis-h"
           rounded
           text
@@ -80,12 +80,13 @@
 import CommentAccessService from "../../services/CommentAccessService";
 
 import type Comment from "@/entities/Comment";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
 import NewComment from "./NewComment.vue";
+import LoginService from "../../services/LoginService";
 
 const emit = defineEmits(["deleteComment", "updateComments"]);
 
@@ -94,6 +95,7 @@ const newMessage = ref("");
 const toast = useToast();
 const showReply = ref(false);
 const menu = ref();
+const user = ref<boolean>(false);
 
 function openMenu() {
   menu.value.toggle(event);
@@ -120,9 +122,18 @@ watch(editing, () => {
   newMessage.value = props.comment.message ?? "";
 });
 
+onMounted(() => {
+  getIsAdmin();
+});
 const props = defineProps<{
   comment: Comment;
 }>();
+
+function getIsAdmin() {
+  LoginService.GetIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
+}
 
 const SubmitEdit = () => {
   if (props.comment.id != null) {

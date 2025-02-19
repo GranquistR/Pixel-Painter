@@ -104,7 +104,7 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
-  console.log(user.value);
+  //console.log(user.value);
 });
 
 function updateComments() {
