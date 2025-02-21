@@ -85,9 +85,9 @@ const sortBy = ref([
   { sort: "Date", code: "D" },
 ]);
 const paginationOptions = ref<Number[]>([12, 24, 36]);
-const sortType = ref(""); // Value binded to sort drop down
+const sortType = ref("D"); // Value binded to sort drop down
 const isSorted = ref(false); // Renders the Descending checkbox while true
-const isSortedByDate = ref(false);
+const isSortedByDate = ref(true);
 const checkAscending = ref(false);
 const isModified = ref(false);
 const tempArt = ref([]);
