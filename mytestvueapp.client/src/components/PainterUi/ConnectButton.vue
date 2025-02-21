@@ -43,27 +43,18 @@
     import Button from "primevue/button";
     import Dialog from "primevue/dialog";
     import InputText from "primevue/inputtext";
-    import * as SignalR from "@microsoft/signalr"
 
-    const emit = defineEmits(["OpenModal","Connect"]);
+    const emit = defineEmits(["OpenModal","Connect", "Disconnect"]);
 
-    const visible = ref(false)
-    const connected = ref(false);
+    const props = defineProps<{
+        connected: boolean;
+    }>();
+
+    const visible = ref(false);
     const groupname = ref("");
 
-    let connection = new SignalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7154/signalhub", {
-                skipNegotiation: true,
-                transport: SignalR.HttpTransportType.WebSockets
-            })
-            .build();
-
-    connection.on("ReceiveMessage", (user: string, msg: string) => {
-        console.log("Received Message", user + " " + msg);
-    });
-
     function ToggleModal() {
-        if (!connected.value) {
+        if (!props.connected) {
             visible.value = !visible.value;
         } else {
             disconnect();
@@ -71,22 +62,15 @@
     }
 
     function connect() {
-
-        connection.start()
-            .then(
-                () => {
-                    console.log("Connected to SignalR!");
-                    connection.invoke("JoinGroup", groupname.value);
-                    connected.value = !connected.value;
-                    visible.value = !visible.value;
-                }
-            ).catch(err => console.error("Error connecting to Hub:",err));
+        emit("Connect", groupname.value);
+        visible.value = !visible.value;
     }
 
     function disconnect() {
-        connection.invoke("LeaveGroup",groupname.value);
-        //call after connection is terminated
-        connected.value = !connected.value;
+        emit("Disconnect", groupname.value);
+        if (!props.connected) {
+            ToggleModal();
+        }
     }
 
     watch(visible, () => {

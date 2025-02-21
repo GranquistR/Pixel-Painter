@@ -27,7 +27,7 @@
         </Button>
         <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" />
+        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" />
       </div>
     </template>
 
@@ -97,12 +97,50 @@ import Art from "@/entities/Art";
 import fallingSand from "@/utils/fallingSand";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
+//Other
+import * as SignalR from "@microsoft/signalr";
+
 //variables
 const route = useRoute();
 const canvas = ref();
 const toast = useToast();
 const intervalId = ref<number>(-1);
 
+// Connection Information
+const connected = ref(false);
+let connection = new SignalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7154/signalhub", {
+                skipNegotiation: true,
+                transport: SignalR.HttpTransportType.WebSockets
+            })
+            .build();
+
+connection.on("Send", (user: string, msg: string) => {
+        console.log("Received Message", user + " " + msg);
+    });
+
+const connect = (groupname: string) => {
+  connection.start()
+      .then(
+          () => {
+              console.log("Connected to SignalR!");
+              connection.invoke("JoinGroup", groupname);
+              connected.value = !connected.value;
+          }
+      ).catch(err => console.error("Error connecting to Hub:",err));
+}
+
+const disconnect = (groupname: string) => {
+  connection.invoke("LeaveGroup",groupname)
+    .then(() => {
+      connection.stop()
+        .then(() => {
+          connected.value = !connected.value;
+        }).catch(err => console.error("Error Disconnecting:", err));
+    }
+    ).catch(err => console.error("Error Leaving Group:",err));
+}
+//End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
 );
