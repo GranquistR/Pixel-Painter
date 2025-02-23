@@ -139,7 +139,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return null;
         }
 
-        public async Task<Art> SaveNewArt(Artist artist, Art art)
+        public async Task<Art> SaveNewArt(Artist artist, Art art)//single artist
         {
             try
             {
@@ -151,17 +151,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     connection.Open();
 
                     var query = @"
-                    INSERT INTO Art (Title,ArtistId, Width, Height, Encode, CreationDate, IsPublic)
-                    VALUES (@Title, @ArtistId, @Width, @Height, @Encode, @CreationDate, @IsPublic);
-                    INSERT INTO ContributingArtists(ArtistID,ArtId) values (@@IDENTITY,@ArtistId);
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
                     SELECT SCOPE_IDENTITY();
+                    INSERT INTO ContributingArtists(ArtistID,ArtId) values (@@IDENTITY,@ArtistId);
                 ";
-                    for (int i = 0; i < art.artistId.Length; i++)
-                    {
                         using (var command = new SqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@Title", art.title);
-                            command.Parameters.AddWithValue("@ArtistId", art.artistId[i]);
+                            command.Parameters.AddWithValue("@ArtistId", artist.id);
                             command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
                             command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
                             command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
@@ -172,7 +170,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             art.id = Convert.ToInt32(newArtId);
                         }
                     }
-                }
 
                 return art;
             }
