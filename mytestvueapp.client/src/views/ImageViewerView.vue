@@ -14,7 +14,7 @@
           {{ art.title }}
         </h3>
 
-        <div>By {{ art.artistName }}</div>
+        <div>By {{ art.artistName.toString() }}</div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
         <div class="flex flex-column gap-2 mt-4">
@@ -84,12 +84,14 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
+const Names = ref<String[]>([]);
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
       art.value = promise as Art;
       uploadDate.value = new Date(promise.creationDate);
+      Names.value = art.value.artistName;
     })
     .catch(() => {
       router.push("/gallery");
@@ -131,7 +133,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
         parentComment.replies!.push(currentComment);
       } else {
         console.warn(
-          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`
+          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`,
         );
       }
     }
@@ -139,7 +141,6 @@ function buildCommentTree(comments: Comment[]): Comment[] {
 
   return roots;
 }
-
 // function hide-comments() {
 //   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
 //     if (allComments.value)

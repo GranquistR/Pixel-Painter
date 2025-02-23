@@ -79,7 +79,7 @@ namespace MyTestVueApp.Server.Controllers
 
                     var result = ArtAccessService.GetAllArt();
 
-                    return Ok(result.Where(art => art.artistId == artist.id).OrderByDescending(art => art.creationDate));
+                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
                 }
                 else
                 {
@@ -110,7 +110,7 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId == artist.id);
+                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
                     }
                     return Ok(art);
                 }
@@ -119,7 +119,7 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId == artist.id);
+                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
                         if (art.currentUserIsOwner)
                         {
 
@@ -199,7 +199,7 @@ namespace MyTestVueApp.Server.Controllers
             {
                 var artist = await LoginService.GetUserBySubId(userId);
 
-                ismine = (art.artistId == artist.id);
+                ismine = (art.artistId.Contains(artist.id));
             }
             return ismine;
         }
@@ -218,7 +218,7 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = ArtAccessService.GetArtById(artId);
 
-                    if (art.artistId != artist.id)
+                    if (!art.artistId.Contains(artist.id))
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
