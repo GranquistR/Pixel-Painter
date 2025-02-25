@@ -67,7 +67,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numComments = reader.GetInt32(8),
                                 pixelGrid = pixelGrid,
                             };
-                            painting.SetArtists(GetArtistOnArtID(painting.id));
+                            painting.SetArtists(GetArtists(painting.id));
                             paintings.Add(painting);
                         }
                     }
@@ -121,7 +121,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 encodedGrid = reader.GetString(4)
                             };
                             painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            { //ArtId, ArtName, Width, ArtLength, Encode, Date, IsPublic
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
                                 pixelGrid = pixelGrid,
@@ -130,7 +130,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numLikes = reader.GetInt32(7),
                                 numComments = reader.GetInt32(8)
                             };
-                            painting.SetArtists(GetArtistOnArtID(painting.id));
+                            painting.SetArtists(GetArtists(painting.id));
                             return painting;
                         }
                     }
@@ -143,7 +143,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                //art.artistId = artist.id; fix and add it into contributing artists SHOULD BE FIXED IN DATABASE
                 art.creationDate = DateTime.UtcNow;
 
                 using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
@@ -154,7 +153,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
                     VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
                     SELECT SCOPE_IDENTITY();
-                    INSERT INTO ContributingArtists(ArtistID,ArtId) values (@@IDENTITY,@ArtistId);
+                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);
                 ";
                         using (var command = new SqlCommand(query, connection))
                         {
@@ -233,7 +232,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         }
 
-        public async Task DeleteArt(int ArtId)
+        public async Task DeleteArt(int ArtId) //change to admin only and have it so users can remove themselves from art pieces
         {
             try
             {
@@ -257,7 +256,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public Artist[] GetArtistOnArtID(int id)
+        public Artist[] GetArtists(int id)
         {
             var ContributingArtists = new Artist();
             var Artists = new List<Artist>();
@@ -288,6 +287,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         return Artists.ToArray();
                     }
                 }
+            }
+        }
+        public async Task DeleteContributingArtist(int ArtId,int ArtistId)
+        {
+            try
+            {
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    var deleteConArtQuery = "DELETE ContributingArtists where ArtId = @ArtId and ArtistId = @ArtistId;";
+                    using (SqlCommand deleteConArtCommand = new SqlCommand(deleteConArtQuery, connection))
+                    {
+                        deleteConArtCommand.Parameters.AddWithValue("@ArtId", ArtId);
+                        deleteConArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);
+                        deleteConArtCommand.ExecuteNonQuery();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error in DeleteContributingArtist");
+                throw;
             }
         }
     }

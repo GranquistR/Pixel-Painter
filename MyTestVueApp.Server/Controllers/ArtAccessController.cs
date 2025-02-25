@@ -30,6 +30,13 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetArtists")]
+        public IEnumerable<Artist> GetAllArt(int artId)
+        {
+            return ArtAccessService.GetArtists(artId);
+        }
+
+        [HttpGet]
         [Route("GetArtByLikes")]
         public IEnumerable<Art> GetArtByLikes(bool isAscending)
         {
@@ -224,6 +231,47 @@ namespace MyTestVueApp.Server.Controllers
                     }
 
                     await ArtAccessService.DeleteArt(artId);
+
+                    return Ok();
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+        }
+        [HttpGet]
+        [Route("DeleteContributingArtist")]
+        public async Task<IActionResult> DeleteContrbutingArtist(int artId)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var isanartist = false;
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    var artists = ArtAccessService.GetArtists(artId);
+                    foreach (var item in artists)
+                    {
+                        if(item.id == artist.id)
+                        {
+                            isanartist = true;
+                        }
+                    }
+                    if(isanartist == false)
+                    {
+                        return Unauthorized("User is not authorized for this action");
+                    }
+
+                    await ArtAccessService.DeleteContributingArtist(artId,artist.id);
 
                     return Ok();
 

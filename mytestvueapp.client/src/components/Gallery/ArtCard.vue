@@ -14,7 +14,9 @@
         </div>
       </template>
       <template #subtitle>
-        <div class="text-sm m-0 px-2">@{{ art.artistName.toString() }}</div>
+        <div class="text-sm m-0 px-2 max-w-11rem text-overflow-ellipsis">
+          @{{ art.artistName.toString() }}
+        </div>
       </template>
       <template #content>
         <div class="flex gap-2 m-2">
