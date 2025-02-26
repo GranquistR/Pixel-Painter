@@ -29,12 +29,15 @@
     </template>
 
     <template #center>
-      <ColorSelection
-        v-model:color="cursor.color"
-        v-model:size="cursor.size"
-        @enable-key-binds="keyBindActive = true"
-        @disable-key-binds="keyBindActive = false" />
+      <ColorSelection 
+      v-model:color="cursor.color"
+      v-model:size="cursor.size"
+      @enable-key-binds="keyBindActive = true"
+      @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
+      <BackgroundSelection 
+      @enable-key-binds="keyBindActive = true"
+      @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
@@ -75,7 +78,8 @@ import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
-import FrameSelection from "@/components/PainterUi/FrameSelection.vue"
+import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
+import BackgroundSelection from "@/components/PainterUi/BackgroundSelection.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
