@@ -6,7 +6,7 @@
       @click="router.push(`/art/${art.id}`)"
     >
       <template #header>
-        <MyCanvas :art="art" :pixelSize="size" />
+        <MyCanvas :art="art" :pixelSize="size" :canvasNumber="position"/>
       </template>
       <template #title>
         <div class="text-base font-bold m-0 px-2 pt-1">
