@@ -155,7 +155,7 @@ watch(filter, () => {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
   }
 });
