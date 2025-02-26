@@ -100,6 +100,7 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
 import * as SignalR from "@microsoft/signalr";
+import { FillStyle } from "pixi.js";
 
 //variables
 const route = useRoute();
@@ -130,6 +131,11 @@ connection.on("ReceivePixel", (color: string, coord: Vector2) => {
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
         console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
         DrawPixels(color, coords);
+});
+
+connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
+        console.log("Fill Color: " + color + "Pixl: X-" + coord.x + " Y-" + coord.y);
+        fill(coord.x, coord.y, color);
 });
 
 const connect = (groupname: string) => {
@@ -382,6 +388,17 @@ function SendPixels(color: string, coords: Vector2[]) {
   }
 }
 
+function SendBucket(color: string, coord: Vector2) {
+  if (connected.value) {
+    connection.invoke(
+      "SendBucket",
+      groupName.value,
+      color,
+      coord
+    )
+  }
+}
+
 function DrawAtCoords(coords: Vector2[]) {
     let coordinates: Vector2[] = [];
 
@@ -449,6 +466,7 @@ function DrawAtCoords(coords: Vector2[]) {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
+            SendBucket(cursor.value.color, coord);
             fill(cursor.value.position.x, cursor.value.position.y);
           }
         } else if (
@@ -462,33 +480,33 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number) {
+function fill(x: number, y: number, color: string = cursor.value.color) {
   if (y >= 0 && y < art.value.pixelGrid.height) {
     const oldColor = art.value.pixelGrid.grid[x][y];
-    art.value.pixelGrid.grid[x][y] = cursor.value.color;
-    if (oldColor != cursor.value.color) {
+    art.value.pixelGrid.grid[x][y] = color;
+    if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
           //alert(x+1 + ", " + y);
-          fill(x + 1, y);
+          fill(x + 1, y, color);
         }
       }
       if (y + 1 < art.value.pixelGrid.height) {
         if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
           //alert(x + ", " + y+1);
-          fill(x, y + 1);
+          fill(x, y + 1, color);
         }
       }
       if (x - 1 >= 0) {
         if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
           //alert(x-1 + ", " + y);
-          fill(x - 1, y);
+          fill(x - 1, y, color);
         }
       }
       if (y - 1 >= 0) {
         if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
           //alert(x + ", " + (y-1));
-          fill(x, y - 1);
+          fill(x, y - 1, color);
         }
       }
     }

@@ -36,6 +36,11 @@ namespace MyTestVueApp.Server.Hubs
             await Clients.OthersInGroup(room).SendAsync("ReceivePixels", color, coords);
         }
 
+        public async Task SendBucket(string room, string color, Vector2 coord)
+        {
+            await Clients.OthersInGroup(room).SendAsync("ReceiveBucket", color, coord);
+        }
+
         public async Task SendMessage(string user, string room, string message)
         {
             await Clients.Group(room).SendAsync(user, message);
