@@ -110,6 +110,7 @@ const keyBindActive = ref<boolean>(true);
 
 // Connection Information
 const connected = ref(false);
+const groupName = ref("");
 let connection = new SignalR.HubConnectionBuilder()
             .withUrl("https://localhost:7154/signalhub", {
                 skipNegotiation: true,
@@ -119,7 +120,17 @@ let connection = new SignalR.HubConnectionBuilder()
 
 connection.on("Send", (user: string, msg: string) => {
         console.log("Received Message", user + " " + msg);
-    });
+});
+
+connection.on("ReceivePixel", (color: string, coord: Vector2) => {
+        console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
+        DrawPixel(color, coord);
+});
+
+connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
+        console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
+        DrawPixels(color, coords);
+});
 
 const connect = (groupname: string) => {
   connection.start()
@@ -127,6 +138,7 @@ const connect = (groupname: string) => {
           () => {
               console.log("Connected to SignalR!");
               connection.invoke("JoinGroup", groupname);
+              groupName.value = groupname;
               connected.value = !connected.value;
           }
       ).catch(err => console.error("Error connecting to Hub:",err));
@@ -338,7 +350,41 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   return pixels;
 }
 
+function DrawPixel(color: string, coord: Vector2) {
+  art.value.pixelGrid.grid[coord.x][coord.y] = color;
+}
+
+function DrawPixels(color: string, coords: Vector2[]) {
+  for (const coord of coords) {
+    art.value.pixelGrid.grid[coord.x][coord.y] = color;
+  }
+}
+
+function SendPixel(color: string, coord: Vector2) {
+  if (connected.value) {
+        connection.invoke(
+            "SendPixel", 
+            groupName.value,
+            color,
+            coord
+          );
+      }
+}
+
+function SendPixels(color: string, coords: Vector2[]) {
+  if (connected.value) {
+    connection.invoke(
+        "SendPixels",
+        groupName.value,
+        color,
+        coords
+    )
+  }
+}
+
 function DrawAtCoords(coords: Vector2[]) {
+    let coordinates: Vector2[] = [];
+
     if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
@@ -351,7 +397,6 @@ function DrawAtCoords(coords: Vector2[]) {
       }
     }
   }
-
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
@@ -363,11 +408,14 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j >= 0 &&
               coord.y + j < art.value.pixelGrid.height
             ) {
+              coordinates.push(new Vector2(coord.x + i, coord.y + j));
+              //SendPixel(cursor.value.color, new Vector2(coord.x + i, coord.y + j));
               art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
             }
           }
         }
+        SendPixels(cursor.value.color, coordinates);
       } else if (cursor.value.selectedTool.label === "Eraser") {
         for (let i = 0; i < cursor.value.size; i++) {
           for (let j = 0; j < cursor.value.size; j++) {
@@ -378,12 +426,14 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j < art.value.pixelGrid.height
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
+                coordinates.push(new Vector2(coord.x + i, coord.y + j));
                 art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                   art.value.pixelGrid.backgroundColor;
               }
             }
           }
         }
+        SendPixels(art.value.pixelGrid.backgroundColor, coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < art.value.pixelGrid.width &&
