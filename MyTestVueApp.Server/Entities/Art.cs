@@ -32,6 +32,8 @@ namespace MyTestVueApp.Server.Entities
             artistName = names.ToArray();
         }
 
+         public bool currentUserIsAdmin { get; set; } = false;
+
     }
 
 }

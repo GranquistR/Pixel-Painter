@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { defineProps } from "vue";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import LikeButton from "../LikeButton.vue";
@@ -44,6 +45,7 @@ import router from "@/router";
 const props = defineProps<{
   art: Art;
   size: number;
+  position: number;
 }>();
 </script>
 
