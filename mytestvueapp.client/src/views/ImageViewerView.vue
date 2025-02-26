@@ -145,7 +145,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
         parentComment.replies!.push(currentComment);
       } else {
         console.warn(
-          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`,
+          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`
         );
       }
     }
