@@ -174,7 +174,7 @@ function searchAndFilter() {
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase()),
+      Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
   }
 }
