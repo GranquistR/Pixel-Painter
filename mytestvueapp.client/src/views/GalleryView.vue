@@ -170,7 +170,7 @@ function searchAndFilter() {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
