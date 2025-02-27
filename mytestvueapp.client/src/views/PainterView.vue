@@ -7,6 +7,7 @@
     @mousedown="
       mouseButtonHeldDown = true;
       setStartVector();
+      setEndVector();
     "
     @mouseup="
       mouseButtonHeldDown = false;
@@ -124,17 +125,17 @@ connection.on("Send", (user: string, msg: string) => {
 });
 
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
+        //console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
         DrawPixel(color, coord);
 });
 
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
+        //console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
         DrawPixels(color, coords);
 });
 
 connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        console.log("Fill Color: " + color + "Pixl: X-" + coord.x + " Y-" + coord.y);
+        //console.log("Fill Color: " + color + "Pixl: X-" + coord.x + " Y-" + coord.y);
         fill(coord.x, coord.y, color);
 });
 
@@ -426,7 +427,6 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j < art.value.pixelGrid.height
             ) {
               coordinates.push(new Vector2(coord.x + i, coord.y + j));
-              //SendPixel(cursor.value.color, new Vector2(coord.x + i, coord.y + j));
               art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
             }
@@ -473,6 +473,7 @@ function DrawAtCoords(coords: Vector2[]) {
           cursor.value.selectedTool.label === "Rectangle" ||
           cursor.value.selectedTool.label === "Ellipse"
         ) {
+          //SendPixels(cursor.value.color,coords);
           art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
@@ -594,6 +595,10 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
+  if (start.x == end.x && start.y == end.y) {
+    coords.push(start);
+    return coords;
+  }
   let leftBound = Math.min(start.x, end.x);
   let rightBound = Math.max(start.x, end.x);
   let lowerBound = Math.min(start.y, end.y);
@@ -616,14 +621,14 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
       let yN = center.y - (yP - center.y);
-      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
+      console.log(`HorXtoY: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
-    for (let i = lowerBound; i <= upperBound; i++) {
+    for (let i = lowerBound; i < upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, b, a, i));
       let xN = center.x - (xP - center.x);
-      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
+      console.log(`HorYtoX: (${xP},${i}),(${xN},${i}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
@@ -632,14 +637,14 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, a, b, i));
       let xN = center.x - (xP - center.x);
-      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
+      console.log(`VertYtoX: (${xP},${i}),(${xN},${i}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
-    for (let i = leftBound; i <= rightBound; i++) {
+    for (let i = leftBound; i < rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
       let yN = center.y - (yP - center.y);
-      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
+      console.log(`VertXtoY: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
@@ -700,6 +705,26 @@ function onMouseUp() {
   if (undoList.isDifferent(currentGrid)) {
     undoList.append(currentGrid);
   }
+  if (
+    cursor.value.selectedTool.label == "Rectangle"
+  ) {
+    SendPixels(
+      cursor.value.color,
+      GetRectanglePixels(startPix.value, endPix.value)
+    );
+  }
+  if (
+    cursor.value.selectedTool.label == "Ellipse"
+  ) {
+    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
+      console.log(vector.x + " " + vector.y);
+    });
+    SendPixels(
+      cursor.value.color,
+      GetEllipsePixels(startPix.value, endPix.value)
+    );
+  }
+
 }
 
 function undo() {
@@ -821,6 +846,7 @@ function LocalSave() {
   const stringUndo = undoList.linkedListToArray();
   localStorage.setItem("working-list", JSON.stringify(stringUndo));
 }
+
 </script>
 <style scoped>
 .Rainbow,
