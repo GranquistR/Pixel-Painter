@@ -33,7 +33,7 @@
     <template #center>
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
       <BrushSelection v-model="cursor.selectedTool" />
-      <FrameSelection v-if="art.pixelGrid.isGif" v-model="cursor.selectedTool" />
+      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame"/>
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -115,6 +115,9 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 
+let selectedFrame = ref(1);
+let lastFrame = ref(1);
+
 //initialize linked list to allow undo and redo
 var undoList = new LinkedList();
 
@@ -145,8 +148,12 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-    LocalSave();
-  }
+      if (art.value.pixelGrid.isGif) {
+          LocalSaveGif();
+      } else {
+          LocalSave();
+      }
+    }
   next();
 });
 
@@ -224,7 +231,11 @@ const ToggleKeybinds = (disable: boolean) => {
 };
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-  LocalSave();
+    if (art.value.pixelGrid.isGif) {
+        LocalSaveGif();
+    } else { 
+        LocalSave();
+    }
 }
 
 watch(
@@ -250,6 +261,32 @@ watch(
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
+
+    
+    watch(selectedFrame, () => {
+        localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+
+        const workingGrid = JSON.parse(
+            localStorage.getItem(`frame${selectedFrame.value}`) as string
+        ) as PixelGrid;
+
+        if (workingGrid == null) {
+            const newGrid = new PixelGrid(
+                art.value.pixelGrid.width,
+                art.value.pixelGrid.height,
+                art.value.pixelGrid.backgroundColor,
+                art.value.pixelGrid.isGif
+            );
+            art.value.pixelGrid.DeepCopy(newGrid);
+            canvas.value?.recenter();
+            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+
+        } else {
+            art.value.pixelGrid.DeepCopy(workingGrid);
+            canvas.value?.recenter();
+            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+        }
+    })
 
 //functions
 function runGravity() {
@@ -711,6 +748,16 @@ function LocalSave() {
   const stringUndo = undoList.linkedListToArray();
   localStorage.setItem("working-list", JSON.stringify(stringUndo));
 }
+
+    function LocalSaveGif() {
+        const workingGrid = JSON.parse(
+            localStorage.getItem("frame1") as string
+        ) as PixelGrid;
+
+        localStorage.setItem("working-art", JSON.stringify(workingGrid));
+        localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    }
+
 </script>
 <style scoped>
 .Rainbow,

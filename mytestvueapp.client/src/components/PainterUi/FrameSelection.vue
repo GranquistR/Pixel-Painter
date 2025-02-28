@@ -1,16 +1,21 @@
 <template>
-    <FloatingCard class="pb-10"
-                  position="bottom"
+    <FloatingCard position="bottom"
                   header="Frames"
-                  width="10rem"
                   button-icon="pi pi-images"
                   button-label=""
                   :default-open="true">
 
-        <button
-            class="w-full mb-2">
+        <Button class="mr-1" icon="pi pi-minus" size="small" rounded @click="removeFrame()" />
 
-        </button>
+        <template v-for="(frame, index) in frames" :key="frame.id">
+            <Button :icon="frame.icon" 
+                    :class="frame.class" 
+                    severity="secondary"
+                    @click="switchFrame(frame.id)" 
+                    />
+        </template>
+
+        <Button class="ml-1" icon="pi pi-plus" size="small" rounded @click="addFrame()" />
     </FloatingCard>
 </template>
 
@@ -18,5 +23,55 @@
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 import FloatingCard from "./FloatingCard.vue";
+import { ref, onBeforeMount } from 'vue';
+
+    let selectedFrame = defineModel<number>("selFrame", { default: 1 });
+    let oldFrame = defineModel<number>("lastFrame", { default: 1 });
+
+    let frameCount = 1;
+    const frames = ref([
+        { id: 1, icon: 'pi pi-image', class: 'm-1' }
+    ]);
+
+    onBeforeMount(() => {
+        var count = 2;
+        while (localStorage.getItem(`frame${count}`) != null) {
+            frames.value.push({
+                id: count,
+                icon: 'pi pi-image',
+                class: 'mr-1'
+            });
+
+            frameCount++;
+            count++;
+        }
+    });
+
+    function addFrame() {
+        frameCount++;
+        frames.value.push({
+            id: frameCount,
+            icon: 'pi pi-image',
+            class: 'mr-1'
+        });
+    }
+
+    function removeFrame() {
+        if (frames.value.length > 1) {
+            frames.value.pop();
+            frameCount--;
+        }
+    }
+
+    function switchFrame(frameID: number) {
+        oldFrame.value = selectedFrame.value;
+        selectedFrame.value = frameID;
+    }
 
 </script>
+
+<style>
+    .p-dialog.p-component {
+        margin-bottom: 75px !important;
+    }
+</style>
