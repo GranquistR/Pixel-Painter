@@ -10,9 +10,7 @@
     "
     @mouseup="
       mouseButtonHeldDown = false;
-      setEndVector();
-      onMouseUp();
-    "
+      setEndVector();"
     @contextmenu.prevent />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
@@ -36,7 +34,6 @@
         @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model="cursor.selectedTool" />
-      <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
       <Button
@@ -56,10 +53,7 @@
         class="Rainbow"
         label="Give Me Color!"
         @click="
-          art.pixelGrid.randomizeGrid();
-          currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid));
-          undoList.append(currentGrid);
-        " />
+        art.pixelGrid.randomizeGrid();"/>
     </template>
   </Toolbar>
 </template>
@@ -91,7 +85,7 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
 //scripts
-import LinkedList from "@/utils/undo";
+import DoublyLinkedList from "@/utils/DoublyLinkedList";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
 import fallingSand from "@/utils/fallingSand";
@@ -114,11 +108,6 @@ const endPix = ref<Vector2>(new Vector2(0, 0));
 let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
-
-//initialize linked list to allow undo and redo
-var undoList = new LinkedList();
-
-var currentGrid: string[][] = [];
 
 let currentPallet: string[];
 function updatePallet() {
@@ -169,17 +158,6 @@ onMounted(() => {
         art.value.isPublic = data.isPublic;
 
         canvas.value?.recenter();
-
-        var storedList = localStorage.getItem("working-list");
-        currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-
-        if (storedList) {
-          const deserializedData = JSON.parse(storedList);
-          undoList = undoList.arrayToLinkedList(deserializedData);
-          undoList.updateCurrent(currentGrid);
-        } else {
-          undoList.append(currentGrid);
-        }
       })
       .catch(() => {
         toast.add({
@@ -196,17 +174,7 @@ onMounted(() => {
     art.value.pixelGrid.DeepCopy(workingGrid);
     canvas.value?.recenter();
 
-    var storedList = localStorage.getItem("working-list");
-    currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
     tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-
-    if (storedList) {
-      const deserializedData = JSON.parse(storedList);
-      undoList = undoList.arrayToLinkedList(deserializedData);
-      undoList.updateCurrent(currentGrid);
-    } else {
-      undoList.append(currentGrid);
-    }
   }
 });
 
@@ -583,37 +551,7 @@ function setEndVector() {
 
 function ResetArt() {
   localStorage.removeItem("working-art");
-  localStorage.removeItem("working-list");
   router.push("/new");
-}
-
-function onMouseUp() {
-  currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  if (undoList.isDifferent(currentGrid)) {
-    undoList.append(currentGrid);
-  }
-}
-
-function undo() {
-  let previousGrid = undoList.getPrevious();
-
-  if (previousGrid) {
-    for (let i = 0; i < art.value.pixelGrid.width; i++) {
-      for (let j = 0; j < art.value.pixelGrid.height; j++) {
-        art.value.pixelGrid.grid[i][j] = previousGrid[i][j];
-      }
-    }
-  }
-}
-
-function redo() {
-  let nextGrid = undoList.getNext();
-  if (nextGrid)
-    for (let i = 0; i < art.value.pixelGrid.width; i++) {
-      for (let j = 0; j < art.value.pixelGrid.height; j++) {
-        art.value.pixelGrid.grid[i][j] = nextGrid[i][j];
-      }
-    }
 }
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -650,12 +588,6 @@ function handleKeyDown(event: KeyboardEvent) {
       event.preventDefault();
       cursor.value.size += 1;
       canvas?.value.updateCursor();
-    } else if (event.ctrlKey && event.key === "z") {
-      event.preventDefault();
-      undo();
-    } else if (event.ctrlKey && event.key === "y") {
-      event.preventDefault();
-      redo();
     } else if (event.key === "1") {
       event.preventDefault();
       updatePallet();
@@ -710,8 +642,6 @@ function handleKeyDown(event: KeyboardEvent) {
 
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
-  const stringUndo = undoList.linkedListToArray();
-  localStorage.setItem("working-list", JSON.stringify(stringUndo));
 }
 </script>
 <style scoped>
