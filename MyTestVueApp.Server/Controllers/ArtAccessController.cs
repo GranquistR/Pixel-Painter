@@ -256,7 +256,7 @@ namespace MyTestVueApp.Server.Controllers
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
-                    var isanartist = false;
+                    var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
                     var artists = ArtAccessService.GetArtists(artId);
                     foreach (var item in artists)

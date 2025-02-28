@@ -148,14 +148,14 @@ watch(filter, () => {
   if (publicArt.value) {
     isModified.value = true;
     displayArt.value = publicArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase()),
+      Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
   }
 });
@@ -170,11 +170,11 @@ function searchAndFilter() {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase()),
+      Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
   }
 }
