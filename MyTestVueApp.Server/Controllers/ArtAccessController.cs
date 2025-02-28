@@ -246,7 +246,6 @@ namespace MyTestVueApp.Server.Controllers
             }
 
         }
-      
 
         [HttpGet]
         [Route("DeleteContributingArtist")]
