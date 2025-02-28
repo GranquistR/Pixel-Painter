@@ -263,10 +263,10 @@ namespace MyTestVueApp.Server.Controllers
                     {
                         if(item.id == artist.id)
                         {
-                            isanartist = true;
+                            isAnArtist = true;
                         }
                     }
-                    if(isanartist == false)
+                    if(isAnArtist == false)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }

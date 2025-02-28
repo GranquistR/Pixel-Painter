@@ -88,7 +88,6 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
 //scripts
-import DoublyLinkedList from "@/utils/DoublyLinkedList";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
 import fallingSand from "@/utils/fallingSand";
