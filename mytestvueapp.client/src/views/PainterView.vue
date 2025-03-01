@@ -173,10 +173,6 @@ let selectedFrame = ref(1);
 let lastFrame = ref(1);
 let index = ref(1);
 
-//initialize linked list to allow undo and redo
-var undoList = new LinkedList();
-
-var currentGrid: string[][] = [];
 
 let currentPallet: string[];
 function updatePallet() {
