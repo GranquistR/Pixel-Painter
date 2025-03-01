@@ -3,6 +3,7 @@
                   header="Frames"
                   button-icon="pi pi-images"
                   button-label=""
+                  width=""
                   :default-open="true">
 
         <Button class="mr-1" icon="pi pi-minus" size="small" rounded @click="removeFrame()" />
@@ -27,6 +28,7 @@ import { ref, onBeforeMount } from 'vue';
 
     let selectedFrame = defineModel<number>("selFrame", { default: 1 });
     let oldFrame = defineModel<number>("lastFrame", { default: 1 });
+    let index = defineModel<number>("frameIndex", { default: 2 });
 
     let frameCount = 1;
     const frames = ref([
@@ -44,11 +46,13 @@ import { ref, onBeforeMount } from 'vue';
 
             frameCount++;
             count++;
+            index.value++;
         }
     });
 
     function addFrame() {
         frameCount++;
+        index.value++;
         frames.value.push({
             id: frameCount,
             icon: 'pi pi-image',
@@ -60,6 +64,23 @@ import { ref, onBeforeMount } from 'vue';
         if (frames.value.length > 1) {
             frames.value.pop();
             frameCount--;
+            index.value--;
+
+            if (selectedFrame.value == frameCount + 1) {
+                localStorage.getItem(`frame${frameCount}`)
+            }
+        }
+
+        if (localStorage.getItem(`frame${frameCount + 1}`) != null) {
+            /*if (selectedFrame.value == frameCount + 1) {
+                oldFrame.value = frameCount;
+                selectedFrame.value = frameCount;
+
+                console.log("FrameCount: ", frameCount);
+                console.log("SelFrame: ", selectedFrame.value);
+                console.log("OldFrame: ", oldFrame.value);
+            }*/
+            localStorage.removeItem(`frame${frameCount + 1}`);
         }
     }
 

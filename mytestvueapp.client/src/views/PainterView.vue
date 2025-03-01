@@ -33,7 +33,7 @@
     <template #center>
       <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
       <BrushSelection v-model="cursor.selectedTool" />
-      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame"/>
+      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -117,6 +117,7 @@ const art = ref<Art>(new Art());
 
 let selectedFrame = ref(1);
 let lastFrame = ref(1);
+let index = ref(1);
 
 //initialize linked list to allow undo and redo
 var undoList = new LinkedList();
@@ -264,7 +265,9 @@ watch(mouseButtonHeldDown, async () => {
 
     
     watch(selectedFrame, () => {
-        localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+        if (lastFrame.value <= index.value) {
+            localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+        }
 
         const workingGrid = JSON.parse(
             localStorage.getItem(`frame${selectedFrame.value}`) as string
@@ -286,7 +289,7 @@ watch(mouseButtonHeldDown, async () => {
             canvas.value?.recenter();
             localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
         }
-    })
+    });
 
 //functions
 function runGravity() {
@@ -621,6 +624,15 @@ function setEndVector() {
 function ResetArt() {
   localStorage.removeItem("working-art");
   localStorage.removeItem("working-list");
+
+    if (art.value.pixelGrid.isGif) {
+        let tempCount = 1;
+        while (localStorage.getItem(`frame${tempCount}`) != null) {
+            localStorage.removeItem(`frame${tempCount}`);
+            tempCount++;    
+        }
+    }
+
   router.push("/new");
 }
 
