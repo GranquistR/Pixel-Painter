@@ -36,7 +36,8 @@
         @enable-key-binds="keyBindActive = true"
         @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
-      <FrameSelection v-if="art.pixelGrid.isGif" v-model="cursor.selectedTool" />
+      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
+      <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
       <Button
@@ -168,6 +169,11 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 
+let selectedFrame = ref(1);
+let lastFrame = ref(1);
+let index = ref(1);
+
+
 let currentPallet: string[];
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
@@ -193,8 +199,12 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-    LocalSave();
-  }
+      if (art.value.pixelGrid.isGif) {
+          LocalSaveGif();
+      } else {
+          LocalSave();
+      }
+    }
   next();
 });
 
@@ -251,7 +261,11 @@ const ToggleKeybinds = (disable: boolean) => {
 };
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-  LocalSave();
+    if (art.value.pixelGrid.isGif) {
+        LocalSaveGif();
+    } else { 
+        LocalSave();
+    }
 }
 
 watch(
@@ -277,6 +291,34 @@ watch(
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
+
+    
+    watch(selectedFrame, () => {
+        if (lastFrame.value <= index.value) {
+            localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+        }
+
+        const workingGrid = JSON.parse(
+            localStorage.getItem(`frame${selectedFrame.value}`) as string
+        ) as PixelGrid;
+
+        if (workingGrid == null) {
+            const newGrid = new PixelGrid(
+                art.value.pixelGrid.width,
+                art.value.pixelGrid.height,
+                art.value.pixelGrid.backgroundColor,
+                art.value.pixelGrid.isGif
+            );
+            art.value.pixelGrid.DeepCopy(newGrid);
+            canvas.value?.recenter();
+            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+
+        } else {
+            art.value.pixelGrid.DeepCopy(workingGrid);
+            canvas.value?.recenter();
+            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+        }
+    });
 
 //functions
 function runGravity() {
@@ -664,6 +706,16 @@ function setEndVector() {
 
 function ResetArt() {
   localStorage.removeItem("working-art");
+  localStorage.removeItem("working-list");
+
+    if (art.value.pixelGrid.isGif) {
+        let tempCount = 1;
+        while (localStorage.getItem(`frame${tempCount}`) != null) {
+            localStorage.removeItem(`frame${tempCount}`);
+            tempCount++;    
+        }
+    }
+
   router.push("/new");
 }
 
@@ -805,6 +857,15 @@ function handleKeyDown(event: KeyboardEvent) {
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
 }
+
+    function LocalSaveGif() {
+        const workingGrid = JSON.parse(
+            localStorage.getItem("frame1") as string
+        ) as PixelGrid;
+
+        localStorage.setItem("working-art", JSON.stringify(workingGrid));
+        localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    }
 
 </script>
 <style scoped>
