@@ -46,6 +46,7 @@ BEGIN
     CREATE TABLE Likes (
         ArtistId INT,
         ArtId INT,
+        CreationDate DATETIME DEFAULT GETDATE(),
         PRIMARY KEY (ArtistId, ArtId),
         CONSTRAINT FK_Likes_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE
     );
@@ -56,6 +57,7 @@ BEGIN
     CREATE TABLE ContributingArtists (
         ArtistId INT,
         ArtId INT,
+        CreationDate DATETIME DEFAULT GETDATE(),
         PRIMARY KEY (ArtistId, ArtId),
     );
 END

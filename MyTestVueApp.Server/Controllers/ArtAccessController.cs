@@ -246,6 +246,7 @@ namespace MyTestVueApp.Server.Controllers
             }
 
         }
+
         [HttpGet]
         [Route("DeleteContributingArtist")]
         public async Task<IActionResult> DeleteContrbutingArtist(int artId)
@@ -263,10 +264,10 @@ namespace MyTestVueApp.Server.Controllers
                     {
                         if(item.id == artist.id)
                         {
-                            isanartist = true;
+                            isAnArtist = true;
                         }
                     }
-                    if(isanartist == false)
+                    if(isAnArtist == false)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
