@@ -8,7 +8,6 @@
 import type Art from "@/entities/Art";
 import { onMounted, ref, computed, watch } from "vue";
 
-
 const props = defineProps<{
   art: Art;
   pixelSize: number;
@@ -18,7 +17,7 @@ const props = defineProps<{
 const canvasId = computed(() => {
   return `viewer-page-canavs-${props.canvasNumber}`;
 });
-
+const refcanvas = ref(null);
 const canvas = ref<HTMLCanvasElement>();
 const context = ref<CanvasRenderingContext2D>();
 onMounted(() => {
@@ -39,7 +38,7 @@ function updateCanvas() {
       canvas.value.height = 32 * props.pixelSize;
       context.value.scale(
         32 / props.art.pixelGrid.width,
-        32 / props.art.pixelGrid.width
+        32 / props.art.pixelGrid.width,
       );
     }
   }

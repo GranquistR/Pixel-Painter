@@ -8,6 +8,15 @@
         :pixelSize="20"
         :canvas-number="1"
       ></my-canvas>
+      <TestCanvas
+        v-model="squareColor"
+        v-if="art"
+        :key="art.id"
+        :art="art"
+        :pixelSize="20"
+        :canvas-number="1"
+      />
+      <button @click="changeColor">Change Color</button>
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -78,10 +87,10 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
+import TestCanvas from "@/components/MyCanvas/TestCanvas.vue";
 
 const route = useRoute();
 const toast = useToast();
-
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
@@ -89,6 +98,7 @@ const uploadDate = ref(new Date());
 const Names = ref<String[]>([]);
 const user = ref<boolean>(false);
 var numberTotalComments = Number(0);
+const copyart = ArtAccessService.getArtById(id);
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -145,7 +155,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
         parentComment.replies!.push(currentComment);
       } else {
         console.warn(
-          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`
+          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`,
         );
       }
     }
@@ -153,6 +163,13 @@ function buildCommentTree(comments: Comment[]): Comment[] {
 
   return roots;
 }
+console.log(Names.value);
+const squareColor = ref("blue");
+
+const changeColor = () => {
+  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
+};
+
 // function hide-comments() {
 //   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
 //     if (allComments.value)
