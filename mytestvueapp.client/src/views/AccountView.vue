@@ -86,7 +86,13 @@
       <div v-if="route.hash == '#art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
-          <ArtCard v-for="art in myArt" :key="art.id" :art="art" :size="10" />
+          <ArtCard
+            v-for="art in myArt"
+            :key="art.id"
+            :art="art"
+            :size="10"
+            :position="1"
+          />
         </div>
       </div>
     </div>
