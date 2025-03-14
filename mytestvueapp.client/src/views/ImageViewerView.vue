@@ -15,7 +15,13 @@
           {{ art.title }}
         </h3>
 
-        <div>By {{ art.artistName.toString() }}</div>
+        <div>
+          By
+          {{ art.artistName }}
+          <RouterLink to="/accountpage">
+            <Button>Account Page</Button>
+          </RouterLink>
+        </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
         <div class="flex flex-column gap-2 mt-4">
@@ -43,7 +49,7 @@
     </Card>
   </div>
 
-  <h2 class="px-4">{{ allComments.length }} Comments</h2>
+  <h2 class="px-4">{{ numberTotalComments }} Comments</h2>
 
   <div class="px-6">
     <!-- Initial comment. Reply to image -->
@@ -69,7 +75,7 @@ import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -86,7 +92,6 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-const Names = ref<String[]>([]);
 const user = ref<boolean>(false);
 var numberTotalComments = Number(0);
 
@@ -95,7 +100,6 @@ onMounted(() => {
     .then((promise: Art) => {
       art.value = promise as Art;
       uploadDate.value = new Date(promise.creationDate);
-      Names.value = art.value.artistName;
     })
     .catch(() => {
       router.push("/gallery");
@@ -112,6 +116,7 @@ onMounted(() => {
 });
 
 function updateComments() {
+  numberTotalComments = 0;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -130,6 +135,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
   // Create a map of comments by their ID
   for (const comment of comments) {
     commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
+    numberTotalComments++;
   }
 
   // Build the tree by associating replies with their parents
@@ -153,6 +159,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
 
   return roots;
 }
+
 // function hide-comments() {
 //   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
 //     if (allComments.value)

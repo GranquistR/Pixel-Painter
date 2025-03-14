@@ -71,9 +71,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             paintings.Add(painting);
                         }
                     }
+
                 }
+                return paintings;
             }
-            return paintings;
         }
 
         public Art GetArtById(int id)
@@ -86,23 +87,23 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
                     $@"
-                                            Select	
-	                    Art.ID,
-	                    Art.Title, 
-	                    Art.Width, 
-	                    Art.Height, 
-	                    Art.Encode, 
-	                    Art.CreationDate,
-	                    Art.isPublic,
-	                    COUNT(distinct Likes.ArtistId) as Likes, 
-	                    Count(distinct Comment.Id) as Comments  
-                    FROM ART  
-                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
-                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                    LEFT JOIN ContributingArtists ON Art.Id = ContributingArtists.ArtId
-                    WHERE Art.ID =  {id} 
-                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
-                    ";
+               Select	
+	                Art.ID,
+	                Art.Title, 
+	                Art.Width, 
+	                Art.Height, 
+	                Art.Encode, 
+	                Art.CreationDate,
+	                Art.isPublic,
+	                COUNT(distinct Likes.ArtistId) as Likes, 
+	                Count(distinct Comment.Id) as Comments  
+                FROM ART  
+                LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+                LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+                LEFT JOIN ContributingArtists ON Art.Id = ContributingArtists.ArtId
+                WHERE Art.ID =  {id} 
+                GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                ";
 
                 //SQL INJECTION WHOOPS^
                 //Good thing we have type checking :p
@@ -150,25 +151,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     connection.Open();
 
                     var query = @"
-                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
-                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
-                    SELECT SCOPE_IDENTITY();
-                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);
-                ";
-                        using (var command = new SqlCommand(query, connection))
-                        {
-                            command.Parameters.AddWithValue("@Title", art.title);
-                            command.Parameters.AddWithValue("@ArtistId", artist.id);
-                            command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
-                            command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
-                            command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
-                            command.Parameters.AddWithValue("@CreationDate", art.creationDate);
-                            command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+                INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
+                VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                SELECT SCOPE_IDENTITY();
+                INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);
+            ";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Title", art.title);
+                        command.Parameters.AddWithValue("@ArtistId", artist.id);
+                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
 
-                            var newArtId = await command.ExecuteScalarAsync();
-                            art.id = Convert.ToInt32(newArtId);
-                        }
+                        var newArtId = await command.ExecuteScalarAsync();
+                        art.id = Convert.ToInt32(newArtId);
                     }
+                }
 
                 return art;
             }
@@ -199,14 +200,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         connection.Open();
 
                         var query = @"
-                            UPDATE Art SET
-	                            Title = @Title,
-	                            IsPublic = @IsPublic,
-	                            Width = @Width,
-	                            Height = @Height,
-	                            Encode = @Encode
-                            WHERE Id = @Id AND ArtistID = @ArtistID;
-                        ";
+                        UPDATE Art SET
+	                        Title = @Title,
+	                        IsPublic = @IsPublic,
+	                        Width = @Width,
+	                        Height = @Height,
+	                        Encode = @Encode
+                        WHERE Id = @Id AND ArtistID = @ArtistID;
+                    ";
                         using (var command = new SqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@Title", art.title);
@@ -217,8 +218,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             command.Parameters.AddWithValue("@Id", art.id);
                             command.Parameters.AddWithValue("@ArtistId", artist.id);
 
-                             await command.ExecuteScalarAsync();
-                            
+                            await command.ExecuteScalarAsync();
+
                             return GetArtById(Convert.ToInt32(art.id));
                         }
                     }
@@ -268,8 +269,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query1 =
                     @"
-                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
-                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
+                Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
+                left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
                 using (var command = new SqlCommand(query1, connection))
                 {
                     command.Parameters.AddWithValue("@ArtId", id);
@@ -289,7 +290,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        public async Task DeleteContributingArtist(int ArtId,int ArtistId)
+        public async Task DeleteContributingArtist(int ArtId, int ArtistId)
         {
             try
             {
@@ -316,4 +317,5 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
     }
 }
+
 
