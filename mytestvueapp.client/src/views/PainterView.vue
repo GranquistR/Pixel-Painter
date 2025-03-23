@@ -80,6 +80,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import { Vector2 } from "@/entities/Vector2";
 import PainterTool from "@/entities/PainterTool";
 import Cursor from "@/entities/Cursor";
+import { Pixel } from "@/entities/Pixel";
 
 //vue
 import { ref, watch, computed, onMounted, onUnmounted } from "vue";
@@ -134,12 +135,17 @@ connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
         fill(coord.x, coord.y, color);
 });
 
+connection.on("Canvas", (pixels: Pixel[]) => {
+  console.log("Canvas: " + pixels[0].color);
+  ReplaceCanvas(pixels);
+});
+
 const connect = (groupname: string) => {
   connection.start()
       .then(
           () => {
               console.log("Connected to SignalR!");
-              connection.invoke("JoinGroup", groupname);
+              connection.invoke("JoinGroup", groupname, );
               groupName.value = groupname;
               connected.value = !connected.value;
           }
@@ -369,6 +375,12 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function DrawPixel(color: string, coord: Vector2) {
   art.value.pixelGrid.grid[coord.x][coord.y] = color;
+}
+
+function ReplaceCanvas(pixels: Pixel[]) {
+  pixels.forEach(pixel => {
+    art.value.pixelGrid.grid[pixel.x][pixel.y] = pixel.color;
+  })
 }
 
 function DrawPixels(color: string, coords: Vector2[]) {
