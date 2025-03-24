@@ -24,7 +24,10 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-defineExpose({ recenter, updateCursor });
+  defineExpose({ recenter, updateCursor });
+
+//other variables
+let firstLoad = true;
 
 //model
 const cursor = defineModel<Cursor>({
@@ -39,6 +42,7 @@ const cursor = defineModel<Cursor>({
 //Runs on mounted, creates the canvas
 onMounted(() => {
   document.getElementById("canvas")?.appendChild(app.view as any);
+
   drawCanvas();
   recenter();
   checkIfPan();
@@ -64,6 +68,49 @@ app.stage.addChild(viewport);
 // activate viewport plugins
 viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 
+function updateCanvas() {
+  //dropshadow and background are idx 0 and 1 respectively
+  let idx = 2;
+
+  if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
+    let oldBG = props.pixelGrid.backgroundColor;
+    viewport.children[1].tint = props.pixelGrid.backgroundColor;
+
+    //since erased values are set to the background color (pixi.js doesn't allow for null or "")
+    //we have to update the color
+    for (var i = 0; i < props.pixelGrid.width; i++) {
+      for (var j = 0; j < props.pixelGrid.height; j++) {
+        if (viewport.children[2].tint === oldBG &&
+          viewport.children[2].alpha === 0) {
+          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
+          props.pixelGrid.grid[i][j].hex = props.pixelGrid.backgroundColor;
+        }
+        idx++;
+      }
+    }
+  }
+  else { 
+    //still have to iterate through whole canvas to update (maybe we can implement a way to send specific coords?)
+    for (var i = 0; i < props.pixelGrid.width; i++) {
+      for (var j = 0; j < props.pixelGrid.height; j++) {
+        //change erased values to transparent
+        if (cursor.value.selectedTool.label === "Eraser" &&
+          props.pixelGrid.grid[i][j].hex === "empty") {
+          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
+          viewport.children[idx].alpha = 0;
+        } else if (props.pixelGrid.grid[i][j].hex === "empty") {
+          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
+          viewport.children[idx].alpha = 0;
+        } else {
+          viewport.children[idx].tint = props.pixelGrid.grid[i][j].hex;
+          viewport.children[idx].alpha = 1;
+        }
+        idx++;
+      }
+    }
+  }
+}
+
 //Draws the canvas
 function drawCanvas() {
   viewport.removeChildren();
@@ -77,16 +124,34 @@ function drawCanvas() {
   dropShadow.tint = 0x000000;
   dropShadow.filters = [dropShadowFilter];
 
+  const background = new Sprite(Texture.WHITE);
+  background.width = props.pixelGrid.width * PIXEL_SIZE;
+  background.height = props.pixelGrid.height * PIXEL_SIZE;
+
+  background.tint = props.pixelGrid.backgroundColor;
+
   viewport.addChild(dropShadow);
+  viewport.addChild(background);
 
   for (var i = 0; i < props.pixelGrid.width; i++) {
     for (var j = 0; j < props.pixelGrid.height; j++) {
-      const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-      sprite.tint = props.pixelGrid.grid[i][j];
-
+      const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
+      if (props.pixelGrid.grid[i][j].hex === "empty") {
+        sprite.tint = props.pixelGrid.backgroundColor;
+        sprite.alpha = 0;
+      } else {
+        sprite.tint = props.pixelGrid.grid[i][j].hex;
+        sprite.alpha = 1;
+      }
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;
+
+      /*TODO: Figure out why this line is essential to loading the image.
+        Even though in theory it overrides the alpha assigns above, in
+        practice it does not. Removing any of the lines that change the 
+        alpha will break the code.*/
+      sprite.alpha = props.pixelGrid.grid[i][j].alpha; 
     }
   }
 }
@@ -163,7 +228,13 @@ function recenter() {
 }
 
 watch(props.pixelGrid, (prev, next) => {
-  drawCanvas();
+  if (firstLoad) {
+    drawCanvas();
+    updateCanvas();
+    firstLoad = true;
+  } else {
+    updateCanvas();
+  }
 });
 
 //disable panning when not in pan mode

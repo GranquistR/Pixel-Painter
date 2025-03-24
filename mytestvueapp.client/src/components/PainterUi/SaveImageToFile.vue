@@ -26,7 +26,12 @@ function SaveToFile() {
 
   for (let x = 0; x < props.art.pixelGrid.width; x++) {
     for (let y = 0; y < props.art.pixelGrid.height; y++) {
-      let pixelHex = props.art.pixelGrid.grid[x][y];
+      let pixelHex;
+      if (props.art.pixelGrid.grid[x][y].hex === "empty") {
+        pixelHex = props.art.pixelGrid.backgroundColor;
+      } else {
+        pixelHex = props.art.pixelGrid.grid[x][y].hex;
+      }
       pixelHex = pixelHex.replace("#", "").toUpperCase();
       const index = (x + y * props.art.pixelGrid.width) * 4;
       image?.data.set(
