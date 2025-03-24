@@ -150,6 +150,12 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetArtists")]
+        public IEnumerable<Artist> GetAllArt(int artId)
+        {
+            return ArtAccessService.GetArtists(artId);
+        }
 
         [HttpPost]
         [Route("SaveArt")]
