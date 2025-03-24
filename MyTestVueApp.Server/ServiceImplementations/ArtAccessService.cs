@@ -17,7 +17,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
             LoginService = loginService;
         }
-
+        //Queues all the art
         public IEnumerable<Art> GetAllArt()
         {
             var paintings = new List<Art>();
@@ -27,11 +27,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query1 =
+                var query =
                     @"
                     Select 
 	                    Art.Id, 
-	                    Art.Title, 
+	                    Art.Title,   
 	                    Art.Width, 
 	                    Art.Height, 
 	                    Art.Encode, 
@@ -45,7 +45,67 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
-                using (var command = new SqlCommand(query1, connection))
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(2),
+                                height = reader.GetInt32(3),
+                                encodedGrid = reader.GetString(4)
+                            };
+                            var painting = new Art
+                            { //Art Table + NumLikes and NumComments
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                creationDate = reader.GetDateTime(5),
+                                isPublic = reader.GetBoolean(6),
+                                numLikes = reader.GetInt32(7),
+                                numComments = reader.GetInt32(8),
+                                pixelGrid = pixelGrid,
+                            };
+                            paintings.Add(painting);
+                        }
+                    }
+                }
+            }
+            return paintings;
+        }
+        //Pull all art related to user
+        public IEnumerable<Art> GetAllArtByUser(string name)
+        {
+            var paintings = new List<Art>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query =
+                    $@"
+                    Select 
+                        Art.Id,
+                        Art.Title,  
+                        Art.Width, 
+                        Art.Height, 
+                        Art.Encode, 
+                        Art.CreationDate, 
+                        Art.isPublic, 
+                        COUNT(distinct Likes.ArtistId) as Likes, 
+                        Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+                    LEFT Join ContributingArtists on Art.ID = Art.Id
+                    LEFT Join Artist on ContributingArtists.ArtistId = Artist.Id
+                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+                    Where Artist.Name = 'Philis Morritt'
+                    GROUP BY Art.ID, ContributingArtists.ArtistId, Artist.Name, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
+
+                using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
@@ -68,15 +128,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 pixelGrid = pixelGrid,
                             };
                             painting.SetArtists(GetArtists(painting.id));
-                            paintings.Add(painting);
+                            
+                                paintings.Add(painting);
+                            
                         }
                     }
-
                 }
-                return paintings;
             }
+            return paintings;
         }
-
+        //Pulls art by Id
         public Art GetArtById(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -87,23 +148,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
                     $@"
-               Select	
-	                Art.ID,
-	                Art.Title, 
-	                Art.Width, 
-	                Art.Height, 
-	                Art.Encode, 
-	                Art.CreationDate,
-	                Art.isPublic,
-	                COUNT(distinct Likes.ArtistId) as Likes, 
-	                Count(distinct Comment.Id) as Comments  
-                FROM ART  
-                LEFT JOIN Likes ON Art.ID = Likes.ArtID  
-                LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                LEFT JOIN ContributingArtists ON Art.Id = ContributingArtists.ArtId
-                WHERE Art.ID =  {id} 
-                GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
-                ";
+                    Select	
+	                    Art.ID,
+	                    Art.Title, 
+	                    Art.Artistid, 
+	                    Artist.Name,
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate,
+	                    Art.isPublic,
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                    WHERE Art.ID =  {id} 
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
 
                 //SQL INJECTION WHOOPS^
                 //Good thing we have type checking :p
@@ -122,7 +185,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 encodedGrid = reader.GetString(4)
                             };
                             painting = new Art
-                            { //ArtId, ArtName, Width, ArtLength, Encode, Date, IsPublic
+                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
                                 pixelGrid = pixelGrid,
@@ -131,7 +194,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numLikes = reader.GetInt32(7),
                                 numComments = reader.GetInt32(8)
                             };
-                            painting.SetArtists(GetArtists(painting.id));
                             return painting;
                         }
                     }
@@ -139,8 +201,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return null;
         }
-
-        public async Task<Art> SaveNewArt(Artist artist, Art art)//single artist
+        //Saves art
+        public async Task<Art> SaveNewArt(Artist artist, Art art)
         {
             try
             {
@@ -151,11 +213,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     connection.Open();
 
                     var query = @"
-                INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
-                VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
-                SELECT SCOPE_IDENTITY();
-                INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);
-            ";
+                    INSERT INTO Art (Title, ArtistId, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @ArtistId, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    SELECT SCOPE_IDENTITY();
+                ";
+
                     using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Title", art.title);
@@ -180,6 +242,39 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        public Artist[] GetArtists(int id)
+        {
+            var ContributingArtists = new Artist();
+            var Artists = new List<Artist>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query1 =
+                    @"
+                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
+                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
+                using (var command = new SqlCommand(query1, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtId", id);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ContributingArtists = new Artist()
+                            {
+                                id = reader.GetInt32(0),
+                                name = reader.GetString(1)
+                            };
+                            Artists.Add(ContributingArtists);
+                        }
+                        return Artists.ToArray();
+                    }
+                }
+            }
+        }
         public async Task<Art> UpdateArt(Artist artist, Art art)
         {
             try
@@ -189,10 +284,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     return null; // old art does not exist, thus cant be deleted
                 }
-                //else if (oldArt.artistId != artist.id)
-                //{
-                //    throw new UnauthorizedAccessException("User does not have permission to update this art");
-                //}
+              /*  else if (oldArt.artistId != artist.id)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to update this art");
+                }*/
                 else
                 {
                     using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
@@ -200,14 +295,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         connection.Open();
 
                         var query = @"
-                        UPDATE Art SET
-	                        Title = @Title,
-	                        IsPublic = @IsPublic,
-	                        Width = @Width,
-	                        Height = @Height,
-	                        Encode = @Encode
-                        WHERE Id = @Id AND ArtistID = @ArtistID;
-                    ";
+                            UPDATE Art SET
+	                            Title = @Title,
+	                            IsPublic = @IsPublic,
+	                            Width = @Width,
+	                            Height = @Height,
+	                            Encode = @Encode
+                            WHERE Id = @Id AND ArtistID = @ArtistID;
+                        ";
                         using (var command = new SqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@Title", art.title);
@@ -233,7 +328,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         }
 
-        public async Task DeleteArt(int ArtId) //change to admin only and have it so users can remove themselves from art pieces
+        public async Task DeleteArt(int ArtId)
         {
             try
             {
@@ -255,39 +350,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 Logger.LogCritical(ex, "Error in DeleteArt");
                 throw;
-            }
-        }
-        public Artist[] GetArtists(int id)
-        {
-            var ContributingArtists = new Artist();
-            var Artists = new List<Artist>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query1 =
-                    @"
-                Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
-                left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
-                using (var command = new SqlCommand(query1, connection))
-                {
-                    command.Parameters.AddWithValue("@ArtId", id);
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ContributingArtists = new Artist()
-                            {
-                                id = reader.GetInt32(0),
-                                name = reader.GetString(1)
-                            };
-                            Artists.Add(ContributingArtists);
-                        }
-                        return Artists.ToArray();
-                    }
-                }
             }
         }
         public async Task DeleteContributingArtist(int ArtId, int ArtistId)
@@ -317,5 +379,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
     }
 }
+
 
 

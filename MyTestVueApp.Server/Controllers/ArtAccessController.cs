@@ -30,10 +30,10 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetArtists")]
-        public IEnumerable<Artist> GetAllArt(int artId)
+        [Route("GetAllArtByUser")]
+        public IEnumerable<Art> GetAllArtByUser(string name)
         {
-            return ArtAccessService.GetArtists(artId);
+            return ArtAccessService.GetAllArtByUser(name).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
         }
 
         [HttpGet]
@@ -85,8 +85,9 @@ namespace MyTestVueApp.Server.Controllers
                     }
 
                     var result = ArtAccessService.GetAllArt();
-
+                    int v = 0;
                     return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                   
                 }
                 else
                 {
@@ -225,7 +226,7 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = ArtAccessService.GetArtById(artId);
 
-                    if (!art.artistId.Contains(artist.id))
+                    if (!(art.artistId.Contains(artist.id)) && !artist.isAdmin)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
@@ -260,19 +261,20 @@ namespace MyTestVueApp.Server.Controllers
                     var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
                     var artists = ArtAccessService.GetArtists(artId);
+
                     foreach (var item in artists)
                     {
-                        if(item.id == artist.id)
+                        if (item.id == artist.id || artist.isAdmin)
                         {
                             isAnArtist = true;
                         }
                     }
-                    if(isAnArtist == false)
+                    if (isAnArtist == false)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
 
-                    await ArtAccessService.DeleteContributingArtist(artId,artist.id);
+                    await ArtAccessService.DeleteContributingArtist(artId, artist.id);
 
                     return Ok();
 
