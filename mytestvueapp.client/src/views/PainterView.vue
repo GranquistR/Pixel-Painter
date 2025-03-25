@@ -135,8 +135,12 @@ connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
         fill(coord.x, coord.y, color);
 });
 
-connection.on("Canvas", (pixels: Pixel[]) => {
-  console.log("Canvas: " + pixels[0].color);
+connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
+  art.value.pixelGrid.width = canvasSize;
+  art.value.pixelGrid.height = canvasSize;
+  art.value.pixelGrid.backgroundColor = backgroundColor;
+  //art.value.pixelGrid.createGrid(canvasSize,canvasSize,backgroundColor);
+  
   ReplaceCanvas(pixels);
 });
 
@@ -153,7 +157,7 @@ const connect = (groupname: string) => {
 }
 
 const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup",groupname)
+  connection.invoke("LeaveGroup", groupname)
     .then(() => {
       connection.stop()
         .then(() => {

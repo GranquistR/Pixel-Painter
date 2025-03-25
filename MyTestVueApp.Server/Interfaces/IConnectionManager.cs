@@ -14,7 +14,6 @@ namespace MyTestVueApp.Server.Interfaces
         public Group GetGroup(string groupName);
         public IEnumerable<string> GetGroups();
         public IEnumerable<string> GetUsersInGroup(string groupName);
-        public bool IsGroupEmpty(string groupName);
         public bool GroupExists(string groupName);
     }
 }

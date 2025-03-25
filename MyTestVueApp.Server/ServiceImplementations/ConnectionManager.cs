@@ -48,15 +48,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return groups[groupName].Members;
         }
 
-        public bool IsGroupEmpty(string groupName)
-        {
-            if (!groups.ContainsKey(groupName))
-            {
-                return true;
-            }
-            return false;
-        }
-
         public void PaintPixels(string groupName, string color, Coordinate[] vector)
         {
             groups[groupName].PaintPixels(color, vector);

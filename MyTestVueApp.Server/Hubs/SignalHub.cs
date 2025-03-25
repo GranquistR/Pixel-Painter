@@ -25,7 +25,7 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task CreateOrJoinGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
         {
-            _logger.LogInformation("GroupName: " + groupName + "GroupExists:" + _manager.GroupExists(groupName));
+            _logger.LogInformation("GroupName: " + groupName + " GroupExists: " + _manager.GroupExists(groupName));
             if (_manager.GroupExists(groupName))
             {
                 _logger.LogInformation("Joining Group!");
@@ -48,7 +48,8 @@ namespace MyTestVueApp.Server.Hubs
             if (_manager.GetGroup(groupName).GetMemberCount() > 1) 
             {
                 _logger.LogInformation("Canvas" + _manager.GetGroup(groupName).GetPixelsAsList().ElementAt(0));
-                await Clients.Client(Context.ConnectionId).SendAsync("Canvas", _manager.GetGroup(groupName).GetPixelsAsList());
+                await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", _manager.GetGroup(groupName).CanvasSize, _manager.GetGroup(groupName).BackgroundColor, _manager.GetGroup(groupName).GetPixelsAsList());
+                //await Clients.Client(Context.ConnectionId).SendAsync("Canvas", _manager.GetGroup(groupName).GetPixelsAsList());
             }
 
         }
@@ -59,6 +60,13 @@ namespace MyTestVueApp.Server.Hubs
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(groupName, Context.ConnectionId);
             users.Add(Context.ConnectionId, groupName);
+
+            _logger.LogInformation("Group Info: " 
+                + _manager.GetGroup(groupName).Name + " " 
+                + _manager.GetGroup(groupName).CanvasSize + " "
+                + _manager.GetGroup(groupName).BackgroundColor
+                );
+
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{Context.ConnectionId} has joined the group {groupName}.");
 
