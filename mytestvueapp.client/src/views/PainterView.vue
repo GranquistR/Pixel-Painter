@@ -144,6 +144,10 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   ReplaceCanvas(pixels);
 });
 
+connection.on("BackgroundColor", (backgroundColor: string) => {
+  art.value.pixelGrid.backgroundColor = backgroundColor;
+});
+
 const connect = (groupname: string) => {
   connection.start()
       .then(

@@ -110,5 +110,10 @@ namespace MyTestVueApp.Server.Hubs
             await Clients.Group(room).SendAsync(user, message);
         }
 
+        public async Task ChangeBackgroundColor(string groupName, string backgroundColor)
+        {
+            _manager.GetGroup(groupName).BackgroundColor = backgroundColor;
+            await Clients.Group(groupName).SendAsync("BackgroundColor", backgroundColor);
+        }
     }
 }
