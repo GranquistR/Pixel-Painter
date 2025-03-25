@@ -1,6 +1,5 @@
 ﻿using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.Entities;
-using System.Numerics;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -9,14 +8,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
         Dictionary<string, Group> groups = new();
         public void AddGroup(string groupName)
         {
-            int canvasSize = 64; // TEMP
             groups.Add(groupName, new Group(groupName));
+        }
+
+        public void AddGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
+        {
+            groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
         }
 
         public void AddUser(string groupName, string userName)
         { // Add a user to group 
             if (groups.ContainsKey(groupName))
-            {
+            { // Just add User
                 groups[groupName].AddMember(userName);
 
             } else
@@ -67,6 +70,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public Group GetGroup(string groupName)
         {
             return groups[groupName];
+        }
+
+        public bool GroupExists(string groupName)
+        {
+            Console.WriteLine("GroupExists!");
+            return groups.ContainsKey(groupName);
         }
     }
 }

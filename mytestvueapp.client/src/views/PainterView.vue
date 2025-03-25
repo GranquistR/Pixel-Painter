@@ -145,7 +145,7 @@ const connect = (groupname: string) => {
       .then(
           () => {
               console.log("Connected to SignalR!");
-              connection.invoke("JoinGroup", groupname, );
+              connection.invoke("CreateOrJoinGroup", groupname, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
               groupName.value = groupname;
               connected.value = !connected.value;
           }

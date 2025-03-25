@@ -1,13 +1,23 @@
 ﻿namespace MyTestVueApp.Server.Entities
 {
 
-    public class Group(string groupName, int canvasSize = 32, string backgroundColor = "#FFFFFF")
+    public class Group(string groupName)
     {
         public string Name { get; set; } = groupName;
-        public int CanvasSize { get; set; } = canvasSize;
-        public string BackgroundColor { get; set; } = backgroundColor;
+        public int CanvasSize { get; set; } = 32;
+        public string BackgroundColor { get; set; } = "#FFFFFF";
         public List<string> Members { get; set; } = new();
-        public string[,] Pixels { get; set; } = new string[canvasSize, canvasSize];
+        public string[][] Pixels { get; set; } = new string[32][];
+
+        
+        public Group(string groupName, string[][] canvas, int canvasSize, string backgroundColor): this(groupName)
+        {
+            Name = groupName;
+            Pixels = canvas;
+            CanvasSize = canvasSize;
+            BackgroundColor = backgroundColor;
+            Members = new();
+        }
 
         public bool IsEmpty()
         {
@@ -28,7 +38,7 @@
         {
             foreach (Coordinate coord in coords)
             {
-                Pixels[coord.X, coord.Y] = color;
+                Pixels[coord.X][coord.Y] = color;
             }
         }
 
@@ -37,11 +47,11 @@
             List<Pixel> pixelVec = new();
             for (int i = 0; i < Pixels.GetLength(0); i++)
             {
-                for (int j = 0; j < Pixels.GetLength(1); j++)
+                for (int j = 0; j < Pixels.GetLength(0); j++)
                 {
-                    if (Pixels[i, j] != null)
+                    if (Pixels[i][j] != null)
                     {
-                        pixelVec.Add(new Pixel(Pixels[i, j], i, j));
+                        pixelVec.Add(new Pixel(Pixels[i][j], i, j));
                     } else
                     {
                         pixelVec.Add(new Pixel(BackgroundColor, i, j));
