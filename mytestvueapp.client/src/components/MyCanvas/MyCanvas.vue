@@ -9,7 +9,7 @@ import type Art from "@/entities/Art";
 import { ref, onMounted, watch, computed } from "vue";
 
 const props = defineProps<{
-  modelValue: string;
+  modelValue?: string;
   art: Art;
   pixelSize: number;
   canvasNumber?: number;
@@ -27,6 +27,9 @@ const localGrid = computed({
 const canvasId = computed(() => {
   return `viewer-page-canavs-${props.canvasNumber}`;
 });
+    watch(props, () => {
+        updateCanvas();
+    });
 
 onMounted(() => {
   if (canvas.value) {
@@ -90,7 +93,7 @@ function render() {
 }
 function renderfilter() {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
-    const imageServe = props.modelValue;
+    const imageServe = props.modelValue ? props.modelValue : "";
     var hexBegin = 0;
     var hexEnd = 6;
     for (
