@@ -56,8 +56,6 @@ function deleteLayer(id) {
 
 function popLayer() {
   if (layers.value.length > 1) {
-    const isConfirmed = confirm("This will delete the top layer. Are you sure you want to delete this layer?");
-    if (!isConfirmed) return;
 
     layers.value.pop();
     if (!layers.value.some(layer => layer === selectedLayer.value)) {
