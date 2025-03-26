@@ -41,6 +41,7 @@
       @disable-key-binds="keyBindActive = false"
       v-model:color="art.pixelGrid.backgroundColor"/>
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
+      <LayerSelection v-if="!art.pixelGrid.isGif"/>
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
       
     </template>
@@ -80,6 +81,7 @@ import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
 import BackgroundSelection from "@/components/PainterUi/BackgroundSelection.vue";
+import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -871,12 +873,12 @@ function LocalSave() {
 }
 
 function LocalSaveGif() {
-    const workingGrid = JSON.parse(
-        localStorage.getItem("frame1") as string
-    ) as PixelGrid;
+  const workingGrid = JSON.parse(
+    localStorage.getItem("frame1") as string
+  ) as PixelGrid;
 
-    localStorage.setItem("working-art", JSON.stringify(workingGrid));
-    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  localStorage.setItem("working-art", JSON.stringify(workingGrid));
+  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 }
 
 </script>
