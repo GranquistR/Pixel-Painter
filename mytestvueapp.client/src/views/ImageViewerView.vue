@@ -151,15 +151,14 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import TestCanvas from "@/components/MyCanvas/TestCanvas.vue";
 
 //filters
-const greyscale = ref(false);
-const filtered = ref(false);
-const duotone = ref(false);
-const sepia = ref(false);
-const prota = ref(false);
-const Deu = ref(false);
+const greyscale = ref<boolean>(false);
+const filtered = ref<boolean>(false);
+const duotone = ref<boolean>(false);
+const sepia = ref<boolean>(false);
+const prota = ref<boolean>(false);
+const Deu = ref<boolean>(false);
 
 const route = useRoute();
 const toast = useToast();
@@ -235,9 +234,9 @@ function buildCommentTree(comments: Comment[]): Comment[] {
 
   return roots;
 }
-const squareColor = ref("blue");
-const toneOne = ref("#ff0000");
-const toneTwo = ref("#0000ff");
+const squareColor = ref<string>("blue");
+const toneOne = ref<string>("#ff0000");
+const toneTwo = ref<string>("#0000ff");
 
 //const changeColor = () => {
 //  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
@@ -252,21 +251,19 @@ const GreyScaleFilter = () => {
         greyscale.value = true;
         filtered.value = true;
         return;
-      }
-    }
-    if (promise.pixelGrid.encodedGrid)
-      if (greyscale.value == true) {
+      } else {
         squareColor.value = promise.pixelGrid.encodedGrid;
         greyscale.value = false;
         filtered.value = false;
         return;
       }
+    }
   });
 };
 
 function HEXtoRGB(hex: string): number[] {
-  var rgb: number[] = [];
-  var r = parseInt(hex.slice(0, 2), 16),
+  let rgb: number[] = [];
+  let r = parseInt(hex.slice(0, 2), 16),
     g = parseInt(hex.slice(2, 4), 16),
     b = parseInt(hex.slice(4, 6), 16);
 
@@ -289,9 +286,9 @@ function rgbToGrayscale(red: number, green: number, blue: number) {
     need to divide the result by three - unlike the previous
     example - because it's already balanced. */
 
-  var r = red * 0.3; // ------> Red is low
-  var g = green * 0.59; // ---> Green is high
-  var b = blue * 0.11; // ----> Blue is very low
+  let r = red * 0.3; // ------> Red is low
+  let g = green * 0.59; // ---> Green is high
+  let b = blue * 0.11; // ----> Blue is very low
   r = Math.round(r);
   g = Math.round(g);
   b = Math.round(b);
@@ -302,10 +299,10 @@ function rgbToGrayscale(red: number, green: number, blue: number) {
 }
 
 function FilterGreyScale(currentGrid: string): string {
-  var newGrid: string = "";
-  var currentcolorrgb: number[] = [];
-  var newrgb: number[] = [];
-  var newhexcolor: string = "";
+  let newGrid: string = "";
+  let currentcolorrgb: number[] = [];
+  let newrgb: number[] = [];
+  let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
     currentcolorrgb = HEXtoRGB(currentcolor);
@@ -320,9 +317,9 @@ function FilterGreyScale(currentGrid: string): string {
   return newGrid;
 }
 function GenerateGradient(toneOne: string, toneTwo: string): number[] {
-  var rgb1: number[] = HEXtoRGB(toneOne.substring(1, 7));
-  var rgb2: number[] = HEXtoRGB(toneTwo.substring(1, 7));
-  var gradient: number[] = [];
+  let rgb1: number[] = HEXtoRGB(toneOne.substring(1, 7));
+  let rgb2: number[] = HEXtoRGB(toneTwo.substring(1, 7));
+  let gradient: number[] = [];
   for (var i = 0; i < 256 * 3; i += 3) {
     gradient[i] = Math.round(
       ((256 - i / 4) * rgb1[0] + (i / 4) * rgb2[0]) / 256,
@@ -341,20 +338,20 @@ function DuoTone(
   toneOne: string,
   toneTwo: string,
 ): string {
-  var j = 0;
-  var newGrid: string = "";
-  var gradient: number[] = GenerateGradient(toneOne, toneTwo);
-  var gradientGrid: number[][] = [];
+  let j = 0;
+  let newGrid: string = "";
+  let gradient: number[] = GenerateGradient(toneOne, toneTwo);
+  let gradientGrid: number[][] = [];
   currentGrid = FilterGreyScale(currentGrid);
-  for (var i = 0; i <= currentGrid.length - 6; i += 6) {
+  for (let i = 0; i <= currentGrid.length - 6; i += 6) {
     gradientGrid[j] = HEXtoRGB(currentGrid.substring(i, i + 6));
     j++;
   }
   for (var k = 0; k < gradientGrid.length; k++) {
-    var r = gradientGrid[k][0];
-    var g = gradientGrid[k][1];
-    var b = gradientGrid[k][2];
-    var brightness = Math.round(r * 0.2126 + g * 0.7152 + b * 0.0722);
+    let r = gradientGrid[k][0];
+    let g = gradientGrid[k][1];
+    let b = gradientGrid[k][2];
+    let brightness = Math.round(r * 0.2126 + g * 0.7152 + b * 0.0722);
     gradientGrid[k][0] = gradient[brightness * 3];
     gradientGrid[k][1] = gradient[brightness * 3 + 1];
     gradientGrid[k][2] = gradient[brightness * 3 + 2];
@@ -379,15 +376,13 @@ const DuoToneFilter = (toneOne: string, toneTwo: string) => {
         duotone.value = true;
         filtered.value = true;
         return;
-      }
-    }
-    if (promise.pixelGrid.encodedGrid)
-      if (duotone.value == true) {
+      } else {
         squareColor.value = promise.pixelGrid.encodedGrid;
         duotone.value = false;
         filtered.value = false;
         return;
       }
+    }
   });
 };
 function ResetFilters() {
@@ -403,12 +398,12 @@ function ResetFilters() {
   });
 }
 function SepiaTone(R: number, G: number, B: number): number[] {
-  var newColors: number[] = [];
-  var newRed = Math.round(0.393 * R + 0.769 * G + 0.189 * B);
+  let newColors: number[] = [];
+  let newRed = Math.round(0.393 * R + 0.769 * G + 0.189 * B);
   if (newRed > 255) newRed = 255;
-  var newGreen = Math.round(0.349 * R + 0.686 * G + 0.168 * B);
+  let newGreen = Math.round(0.349 * R + 0.686 * G + 0.168 * B);
   if (newGreen > 255) newGreen = 255;
-  var newBlue = Math.round(0.272 * R + 0.534 * G + 0.131 * B);
+  let newBlue = Math.round(0.272 * R + 0.534 * G + 0.131 * B);
   if (newBlue > 255) newBlue = 255;
   newColors[0] = newRed;
   newColors[1] = newGreen;
@@ -417,10 +412,10 @@ function SepiaTone(R: number, G: number, B: number): number[] {
   return newColors;
 }
 function FilterSepia(currentGrid: string): string {
-  var newGrid: string = "";
-  var currentcolorrgb: number[] = [];
-  var newrgb: number[] = [];
-  var newhexcolor: string = "";
+  let newGrid: string = "";
+  let currentcolorrgb: number[] = [];
+  let newrgb: number[] = [];
+  let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
     currentcolorrgb = HEXtoRGB(currentcolor);
@@ -444,39 +439,37 @@ const SepiaFilter = () => {
         sepia.value = true;
         filtered.value = true;
         return;
-      }
-    }
-    if (promise.pixelGrid.encodedGrid)
-      if (sepia.value == true) {
+      } else {
         squareColor.value = promise.pixelGrid.encodedGrid;
         sepia.value = false;
         filtered.value = false;
         return;
       }
+    }
   });
 };
 function GammaCorrection(OldColor: number): number {
-  var NewColor = (OldColor / 255) ** 2.2;
+  let NewColor = (OldColor / 255) ** 2.2;
   return NewColor;
 }
 function InverseGammaCorrection(OldColor: number): number {
   if (OldColor < 0) {
     Math.abs(OldColor);
   }
-  var expo = 1 / 2.2;
-  var NewColor = Math.pow(OldColor, expo);
+  let expo = 1 / 2.2;
+  let NewColor = Math.pow(OldColor, expo);
   console.log(NewColor);
   NewColor = NewColor * 255;
   return NewColor;
 }
 function RGBtoLMS(rgbcolors: number[]): number[][] {
-  var newrgbcolors: number[][] = [[], [], []];
+  let newrgbcolors: number[][] = [[], [], []];
   newrgbcolors[0][0] = rgbcolors[0];
   newrgbcolors[1][0] = rgbcolors[1];
   newrgbcolors[2][0] = rgbcolors[2];
 
-  var LMSColors: number[][] = [];
-  var LMSCalc: number[][] = [
+  let LMSColors: number[][] = [];
+  const LMSCalc: number[][] = [
     [17.8824, 43.5161, 4.11935],
     [3.45565, 27.1554, 3.86714],
     [0.0299566, 0.184309, 1.46709],
@@ -484,7 +477,6 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   var LMScolumns = LMSCalc[0].length;
   var LMSRows = LMSCalc.length;
   var RGBcolumns = newrgbcolors[0].length;
-  var RGBRows = newrgbcolors.length;
   for (let i = 0; i < LMSRows; i++) {
     LMSColors[i] = [];
     for (let j = 0; j < RGBcolumns; j++) {
@@ -499,16 +491,15 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
 }
 function LMStoProtanopes(LMScolors: number[][]): number[][] {
   //console.log(LMScolors);
-  var ProtanopeColors: number[][] = [];
-  var ProtanopeCalc: number[][] = [
+  let ProtanopeColors: number[][] = [];
+  const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
     [0, 1, 0],
     [0, 0, 1],
   ];
-  var PTPcolumns = ProtanopeCalc[0].length;
-  var PTPRows = ProtanopeCalc.length;
-  var LMScolumns = LMScolors[0].length;
-  var LMSRows = LMScolors.length;
+  let PTPcolumns = ProtanopeCalc[0].length;
+  let PTPRows = ProtanopeCalc.length;
+  let LMScolumns = LMScolors[0].length;
   for (let i = 0; i < PTPRows; i++) {
     ProtanopeColors[i] = [];
     for (let j = 0; j < LMScolumns; j++) {
@@ -525,16 +516,15 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
   return ProtanopeColors;
 }
 function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
-  var DeuteranopesColors: number[][] = [];
-  var DeuteranopesCalc: number[][] = [
+  let DeuteranopesColors: number[][] = [];
+  const DeuteranopesCalc: number[][] = [
     [1, 0, 0],
     [0.494207, 0, 1.24827],
     [0, 0, 1],
   ];
-  var DEUcolumns = DeuteranopesCalc[0].length;
-  var DEURows = DeuteranopesCalc.length;
-  var LMScolumns = LMScolors[0].length;
-  var LMSRows = LMScolors.length;
+  let DEUcolumns = DeuteranopesCalc[0].length;
+  let DEURows = DeuteranopesCalc.length;
+  let LMScolumns = LMScolors[0].length;
   for (let i = 0; i < DEURows; i++) {
     DeuteranopesColors[i] = [];
     for (let j = 0; j < LMScolumns; j++) {
@@ -549,17 +539,16 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
   return DeuteranopesColors;
 }
 function LMStoRGB(LMScolors: number[][]): number[] {
-  var RGBcolors: number[][] = [];
-  var reformatedcolors: number[] = [];
-  var RGBCal: number[][] = [
+  let RGBcolors: number[][] = [];
+  let reformatedcolors: number[] = [];
+  const RGBCal: number[][] = [
     [0.080944, -0.130504, 0.116721],
     [-0.0102485, 0.0540194, -0.113615],
     [-0.000365294, -0.00412163, 0.693513],
   ];
-  var LMSrows = LMScolors.length;
-  var LMScolumns = LMScolors[0].length;
-  var RGBRows = RGBCal.length;
-  var RGBcolumns = RGBCal.length;
+  let LMScolumns = LMScolors[0].length;
+  let RGBRows = RGBCal.length;
+  let RGBcolumns = RGBCal.length;
 
   for (let i = 0; i < RGBRows; i++) {
     RGBcolors[i] = [];
@@ -578,12 +567,12 @@ function LMStoRGB(LMScolors: number[][]): number[] {
   return reformatedcolors;
 }
 function FilterProtanope(currentGrid: string): string {
-  var newGrid: string = "";
-  var currentcolorrgb: number[] = [];
-  var currentcolorlms: number[][] = [];
-  var newcolorlms: number[][] = [];
-  var newrgb: number[] = [];
-  var newhexcolor: string = "";
+  let newGrid: string = "";
+  let currentcolorrgb: number[] = [];
+  let currentcolorlms: number[][] = [];
+  let newcolorlms: number[][] = [];
+  let newrgb: number[] = [];
+  let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
     currentcolorrgb = HEXtoRGB(currentcolor);
@@ -614,24 +603,22 @@ const ProtanopeFilter = () => {
         prota.value = true;
         filtered.value = true;
         return;
-      }
-    }
-    if (promise.pixelGrid.encodedGrid)
-      if (prota.value == true) {
+      } else {
         squareColor.value = promise.pixelGrid.encodedGrid;
         prota.value = false;
         filtered.value = false;
         return;
       }
+    }
   });
 };
 function FilterDeu(currentGrid: string): string {
-  var newGrid: string = "";
-  var currentcolorrgb: number[] = [];
-  var currentcolorlms: number[][] = [];
-  var newcolorlms: number[][] = [];
-  var newrgb: number[] = [];
-  var newhexcolor: string = "";
+  let newGrid: string = "";
+  let currentcolorrgb: number[] = [];
+  let currentcolorlms: number[][] = [];
+  let newcolorlms: number[][] = [];
+  let newrgb: number[] = [];
+  let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
     currentcolorrgb = HEXtoRGB(currentcolor);
@@ -655,7 +642,6 @@ function FilterDeu(currentGrid: string): string {
 }
 const DeuFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (Deu.value == false) {
         squareColor.value = FilterDeu(promise.pixelGrid.encodedGrid);
@@ -673,31 +659,4 @@ const DeuFilter = () => {
       }
   });
 };
-
-// var test: number[] = [255, 0, 0];
-// console.log(GammaCorrection(test[0]));
-// test = [
-//   GammaCorrection(test[0]),
-//   GammaCorrection(test[1]),
-//   GammaCorrection(test[2]),
-// ];
-// console.log(test);
-// test = LMStoRGB(LMStoProtanopes(RGBtoLMS(test)));
-// console.log(test);
-// test = [
-//   InverseGammaCorrection(test[0]),
-//   InverseGammaCorrection(test[1]),
-//   InverseGammaCorrection(test[2]),
-// ];
-// console.log(test);
-// console.log(rgbToHex(test[0], test[1], test[2]));
-
-//console.log(LMStoDeuteranopes(RGBtoLMS(test)));
-//console.log(LMStoRGB(LMStoProtanopes(RGBtoLMS(test))));
-//console.log(LMStoRGB(LMStoDeuteranopes(RGBtoLMS(test))));
-// function hide-comments() {
-//   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
-//     if (allComments.value)
-//   });
-// }
 </script>
