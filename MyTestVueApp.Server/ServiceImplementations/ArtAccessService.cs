@@ -75,6 +75,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return paintings;
         }
+
+        
+
         //Pull all art related to user
         public IEnumerable<Art> GetAllArtByUser(string name)
         {

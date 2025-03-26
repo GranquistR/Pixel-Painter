@@ -26,6 +26,27 @@ export default class LoginService {
     }
   }
 
+  public static async GetAllArtists(): Promise<Artist[]> {
+    try {
+      const response = await fetch(`/login/GetAllArtists`);
+      const json = await response.json();
+
+      const allArtists: Artist[] = [];
+
+      for (const jsonArt of json) {
+        let artist: Artist;
+        artist = jsonArt as Artist;
+
+        allArtists.push(artist);
+      }
+
+      return allArtists;
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
+
   public static async GetCurrentUser(): Promise<Artist> {
     try {
       const response = await fetch("/login/GetCurrentUser");

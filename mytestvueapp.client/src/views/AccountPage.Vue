@@ -4,7 +4,7 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ artistList[1].name }}</div>
+          <div class="text-3xl p-font-bold">{{ artistList[0] }}</div>
           <!-- <div class="">{{ artist.email }}</div> -->
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
@@ -225,4 +225,7 @@ function getIsAdmin() {
     user.value = promise;
   });
 }
+// function getAllArtByUser(){
+//   ArtAccessService.getAllArtByUser(curArtist.value.name).then()
+// }
 </script>

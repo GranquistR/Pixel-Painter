@@ -79,6 +79,16 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllArtists")]
+
+        public IEnumerable<Artist> GetAllArtists()
+        {
+            var artistList = LoginService.GetAllArtists();
+            return artistList;
+
+        }
+
+        [HttpGet]
         [Route("GetCurrentUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
