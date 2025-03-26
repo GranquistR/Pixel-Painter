@@ -316,11 +316,15 @@ watch(selectedFrame, () => {
             art.value.pixelGrid.isGif
         );
         art.value.pixelGrid.DeepCopy(newGrid);
+        canvas.value?.updateCanvas();
+
         canvas.value?.recenter();
         localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 
     } else {
         art.value.pixelGrid.DeepCopy(workingGrid);
+        canvas.value?.updateCanvas();
+
         canvas.value?.recenter();
         localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
     }
