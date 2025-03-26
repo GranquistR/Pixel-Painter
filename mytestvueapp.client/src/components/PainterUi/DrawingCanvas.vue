@@ -27,7 +27,7 @@ const props = defineProps<{
   defineExpose({ recenter, updateCursor });
 
 //other variables
-let firstLoad = true;
+let loads = 0;
 
 //model
 const cursor = defineModel<Cursor>({
@@ -228,10 +228,10 @@ function recenter() {
 }
 
 watch(props.pixelGrid, (prev, next) => {
-  if (firstLoad) {
+  if (loads<2) {
     drawCanvas();
     updateCanvas();
-    firstLoad = true;
+    loads++;
   } else {
     updateCanvas();
   }

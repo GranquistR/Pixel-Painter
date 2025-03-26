@@ -205,7 +205,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 	                            Width = @Width,
 	                            Height = @Height,
 	                            Encode = @Encode
-                            WHERE Id = @Id AND ArtistID = @ArtistID;
+                            WHERE Id = @Id;
                         ";
                         using (var command = new SqlCommand(query, connection))
                         {
