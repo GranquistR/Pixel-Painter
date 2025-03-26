@@ -183,28 +183,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 connection.Open();
                 var query =
-                    @"Select 
-                        Id,
-                        SubId, 
-                        Name, 
-                        Email, 
-                        IsAdmin, 
-                        CreationDate 
+                    @"SELECT 
+                        [Id],
+                        [SubId], 
+                        [Name], 
+                        [Email], 
+                        [IsAdmin], 
+                        [CreationDate] 
                     FROM [PixelPainter].[dbo].[Artist]";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
-                        var artist = new Artist
+                        while (reader.Read())
                         {
-                            id = reader.GetInt32(0),
-                            subId = reader.GetString(1),
-                            name = reader.GetString(2),
-                            email = reader.GetString(3),
-                            isAdmin = reader.GetBoolean(4),
-                            creationDate = reader.GetDateTime(5)
-                        };
-                        artistList.Add(artist);
+                            var artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                email = reader.GetString(3),
+                                isAdmin = reader.GetBoolean(4),
+                                creationDate = reader.GetDateTime(5)
+                            };
+                            artistList.Add(artist);
+                        }
                     }
                     return artistList;
                 }
