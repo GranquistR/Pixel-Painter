@@ -67,6 +67,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numComments = reader.GetInt32(8),
                                 pixelGrid = pixelGrid,
                             };
+                            painting.SetArtists(GetArtists(painting.id));
                             paintings.Add(painting);
                         }
                     }
@@ -151,8 +152,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     Select	
 	                    Art.ID,
 	                    Art.Title, 
-	                    Art.Artistid, 
-	                    Artist.Name,
 	                    Art.Width, 
 	                    Art.Height, 
 	                    Art.Encode, 
@@ -163,9 +162,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     FROM ART  
                     LEFT JOIN Likes ON Art.ID = Likes.ArtID  
                     LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
                     WHERE Art.ID =  {id} 
-                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
                 //SQL INJECTION WHOOPS^
@@ -194,6 +192,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 numLikes = reader.GetInt32(7),
                                 numComments = reader.GetInt32(8)
                             };
+                            painting.SetArtists(GetArtists(painting.id));
                             return painting;
                         }
                     }

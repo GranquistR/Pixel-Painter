@@ -17,7 +17,7 @@
 
         <div>
           By
-          {{ art.artistName }}
+          {{ art.artistName.toString() }}
           <RouterLink to="/accountpage">
             <Button>Account Page</Button>
           </RouterLink>
