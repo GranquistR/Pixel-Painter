@@ -63,6 +63,7 @@ import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
+import { HubConnection } from "@microsoft/signalr";
 
 const toast = useToast();
 const visible = ref(false);
@@ -73,6 +74,7 @@ const newPrivacy = ref(false);
 
 const props = defineProps<{
   art: Art;
+  connection: signalR.HubConnection;
 }>();
 
 const isEditing = computed(() => {
@@ -97,6 +99,11 @@ function ToggleModal() {
 function Upload() {
   loading.value = true;
 
+  // if (props.connection.state != null ){
+  //   //If connected, get list of group members
+  //   props.connection.invoke("GetGroupMembers", props.groupName);
+  // }
+
   LoginService.isLoggedIn().then((isLoggedIn) => {
     if (isLoggedIn) {
       const newArt = new Art();
@@ -104,6 +111,9 @@ function Upload() {
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
       newArt.id = props.art.id;
+      newArt.artistName = props.art.artistName;
+      newArt.artistId = props.art.artistId;
+
       ArtAccessService.SaveArt(newArt)
         .then((data: Art) => {
           if (data.id != undefined) {

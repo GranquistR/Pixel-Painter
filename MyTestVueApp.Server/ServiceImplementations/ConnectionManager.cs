@@ -16,22 +16,22 @@ namespace MyTestVueApp.Server.ServiceImplementations
             groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
         }
 
-        public void AddUser(string groupName, string userName)
+        public void AddUser(string groupName, Artist member)
         { // Add a user to group 
             if (groups.ContainsKey(groupName))
             { // Just add User
-                groups[groupName].AddMember(userName);
+                groups[groupName].AddMember(member);
 
             } else
             {
                 groups.Add(groupName, new Group(groupName));
-                groups[groupName].AddMember(userName);
+                groups[groupName].AddMember(member);
             }
         }
 
-        public void RemoveUser(string groupName, string userName)
+        public void RemoveUser(string groupName, Artist member)
         {
-            groups[groupName].RemoveMember(userName);
+            groups[groupName].RemoveMember(member);
             if (groups[groupName].IsEmpty())
             {
                 groups.Remove(groupName);
@@ -43,7 +43,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return groups.Keys;
         }
 
-        public IEnumerable<string> GetUsersInGroup(string groupName)
+        public IEnumerable<Artist> GetUsersInGroup(string groupName)
         {
             return groups[groupName].Members;
         }

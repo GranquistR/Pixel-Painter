@@ -6,7 +6,7 @@
         public string Name { get; set; } = groupName;
         public int CanvasSize { get; set; } = 32;
         public string BackgroundColor { get; set; } = "#FFFFFF";
-        public List<string> Members { get; set; } = new();
+        public List<Artist> Members { get; set; } = new();
         public string[][] Pixels { get; set; } = new string[32][];
 
         
@@ -24,12 +24,15 @@
             return Members.Count == 0;
         }
 
-        public void AddMember(string member)
+        public void AddMember(Artist member)
         {
-            Members.Add(member);
+            if (!Members.Contains(member))
+            {
+                Members.Add(member);
+            }
         }
 
-        public void RemoveMember(string member)
+        public void RemoveMember(Artist member)
         {
             Members.Remove(member);
         }

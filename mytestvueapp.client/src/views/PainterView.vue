@@ -81,6 +81,9 @@ import { Vector2 } from "@/entities/Vector2";
 import PainterTool from "@/entities/PainterTool";
 import Cursor from "@/entities/Cursor";
 import { Pixel } from "@/entities/Pixel";
+import Artist from "@/entities/Artist";
+
+import LoginService from "@/services/LoginService";
 
 //vue
 import { ref, watch, computed, onMounted, onUnmounted } from "vue";
@@ -105,6 +108,7 @@ const canvas = ref();
 const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
+const artist = ref<Artist>(new Artist);
 
 // Connection Information
 const connected = ref(false);
@@ -118,6 +122,26 @@ let connection = new SignalR.HubConnectionBuilder()
 
 connection.on("Send", (user: string, msg: string) => {
         console.log("Received Message", user + " " + msg);
+});
+
+connection.on("NewMember", (newartist: Artist) => {
+  console.log("New Member: "+ newartist.name);
+  if (!art.value.artistId.includes(newartist.id)){
+    art.value.artistId.push(newartist.id);
+    art.value.artistName.push(newartist.name);
+  }
+  console.log("NewMember-Members: " +  art.value.artistName.join(" "))
+});
+
+connection.on("Members", (artists: Artist[]) => {
+  console.log("Recieved All Members");
+  artists.forEach(artist => {
+    if (!art.value.artistId.includes(artist.id)){
+      art.value.artistId.push(artist.id);
+      art.value.artistName.push(artist.name);
+    }
+  })
+  console.log("Members-Members: " +  art.value.artistName.join(" "))
 });
 
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
@@ -139,8 +163,7 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   art.value.pixelGrid.width = canvasSize;
   art.value.pixelGrid.height = canvasSize;
   art.value.pixelGrid.backgroundColor = backgroundColor;
-  //art.value.pixelGrid.createGrid(canvasSize,canvasSize,backgroundColor);
-  
+  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize,canvasSize,backgroundColor);
   ReplaceCanvas(pixels);
 });
 
@@ -149,11 +172,12 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
 });
 
 const connect = (groupname: string) => {
+
   connection.start()
       .then(
           () => {
               console.log("Connected to SignalR!");
-              connection.invoke("CreateOrJoinGroup", groupname, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
+              connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
               groupName.value = groupname;
               connected.value = !connected.value;
           }
@@ -161,7 +185,7 @@ const connect = (groupname: string) => {
 }
 
 const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup", groupname)
+  connection.invoke("LeaveGroup", groupname, artist.value)
     .then(() => {
       connection.stop()
         .then(() => {
@@ -225,6 +249,15 @@ onBeforeRouteLeave((to, from, next) => {
 onMounted(() => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
+
+  //Get the current user
+  LoginService.GetCurrentUser().then((user: Artist) => {
+    if (user.id == 0) {
+      artist.value.id = 0;
+      artist.value.name = "Guest"
+    }
+    artist.value = user;
+  });
 
   const workingGrid = JSON.parse(
     localStorage.getItem("working-art") as string
@@ -496,8 +529,9 @@ function DrawAtCoords(coords: Vector2[]) {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
-            SendBucket(cursor.value.color, coord);
-            fill(cursor.value.position.x, cursor.value.position.y);
+            //SendBucket(cursor.value.color, coord);
+            coordinates = fill(cursor.value.position.x, cursor.value.position.y);
+            SendPixels(cursor.value.color, coordinates);
           }
         } else if (
           cursor.value.selectedTool.label === "Rectangle" ||
@@ -511,37 +545,41 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number, color: string = cursor.value.color) {
+function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
+  let vectors: Vector2[] = [];
   if (y >= 0 && y < art.value.pixelGrid.height) {
     const oldColor = art.value.pixelGrid.grid[x][y];
     art.value.pixelGrid.grid[x][y] = color;
+    vectors.push(new Vector2(x,y));
     if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
           //alert(x+1 + ", " + y);
-          fill(x + 1, y, color);
+          vectors = vectors.concat(fill(x + 1, y, color));
         }
       }
       if (y + 1 < art.value.pixelGrid.height) {
         if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
           //alert(x + ", " + y+1);
-          fill(x, y + 1, color);
+          vectors = vectors.concat(fill(x, y + 1, color));
         }
       }
       if (x - 1 >= 0) {
         if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
           //alert(x-1 + ", " + y);
-          fill(x - 1, y, color);
+          vectors = vectors.concat(fill(x - 1, y, color));
         }
       }
       if (y - 1 >= 0) {
         if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
           //alert(x + ", " + (y-1));
-          fill(x, y - 1, color);
+          vectors = vectors.concat(fill(x, y - 1, color));
         }
       }
     }
   }
+
+  return vectors;
 }
 
 function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {

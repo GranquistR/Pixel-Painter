@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.TagHelpers;
+﻿
 using Microsoft.AspNetCore.SignalR;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.Entities;
-using System.Drawing;
-using Microsoft.AspNetCore.Connections;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+
 
 namespace MyTestVueApp.Server.Hubs
 {
@@ -23,42 +20,52 @@ namespace MyTestVueApp.Server.Hubs
             _logger = logger;
         }
 
-        public async Task CreateOrJoinGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
         {
             _logger.LogInformation("GroupName: " + groupName + " GroupExists: " + _manager.GroupExists(groupName));
             if (_manager.GroupExists(groupName))
             {
                 _logger.LogInformation("Joining Group!");
-                await JoinGroup(groupName);
+                await JoinGroup(groupName, artist);
             } else
             {
                 _logger.LogInformation("Creating Group!");
-                await CreateGroup(groupName, canvas, canvasSize, backgroundColor);
+                await CreateGroup(groupName, artist, canvas, canvasSize, backgroundColor);
             }
         }
 
-        public async Task JoinGroup(string groupName)
+        public async Task JoinGroup(string groupName, Artist artist)
         {
-            _manager.AddUser(groupName,Context.ConnectionId);
+            // Add the user to the group
+            _manager.AddUser(groupName, artist); 
             users.Add(Context.ConnectionId, groupName);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{Context.ConnectionId} has joined the group {groupName}.");
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
 
             _logger.LogInformation("Member Count: " + _manager.GetGroup(groupName).GetMemberCount());
-            if (_manager.GetGroup(groupName).GetMemberCount() > 1) 
-            {
-                _logger.LogInformation("Canvas" + _manager.GetGroup(groupName).GetPixelsAsList().ElementAt(0));
-                await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", _manager.GetGroup(groupName).CanvasSize, _manager.GetGroup(groupName).BackgroundColor, _manager.GetGroup(groupName).GetPixelsAsList());
-                //await Clients.Client(Context.ConnectionId).SendAsync("Canvas", _manager.GetGroup(groupName).GetPixelsAsList());
-            }
+           
+            // Send the group config and list of members to the joiner!
+            await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", _manager.GetGroup(groupName).CanvasSize, _manager.GetGroup(groupName).BackgroundColor, _manager.GetGroup(groupName).GetPixelsAsList());
+            await Clients.Client(Context.ConnectionId).SendAsync("Members", _manager.GetGroup(groupName).Members);
+            
+            // Tell Existing members about the new member!
+            await Clients.Group(groupName).SendAsync("NewMember", artist);
 
+            // Log Members to console
+            string members = "";
+            foreach(Artist member in _manager.GetGroup(groupName).Members)
+            {
+                members = members + " " + member.name;
+            }
+            _logger.LogInformation("Members: " + members);
         }
 
 
-        public async Task CreateGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
         { 
+            // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
-            _manager.AddUser(groupName, Context.ConnectionId);
+            _manager.AddUser(groupName, artist);
             users.Add(Context.ConnectionId, groupName);
 
             _logger.LogInformation("Group Info: " 
@@ -67,36 +74,31 @@ namespace MyTestVueApp.Server.Hubs
                 + _manager.GetGroup(groupName).BackgroundColor
                 );
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{Context.ConnectionId} has joined the group {groupName}.");
 
-            if (_manager.GetGroup(groupName).GetMemberCount() > 1)
-            {
-                _logger.LogInformation("Sending Canvas: " + _manager.GetGroup(groupName).GetMemberCount());
-                await Clients.Client(Context.ConnectionId).SendAsync("Canvas", _manager.GetGroup(groupName).GetPixelsAsList());
-            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
+            // Give self to the frontend............ yeah i know.
+            await Clients.Group(groupName).SendAsync("NewMember", artist);
 
         }
 
-        public async Task LeaveGroup(string groupName)
+        public async Task LeaveGroup(string groupName, Artist member)
         {
             _logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetMemberCount());
-            _manager.RemoveUser(groupName, Context.ConnectionId);
+            _manager.RemoveUser(groupName, member);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{Context.ConnectionId} has left the group {groupName}.");
+            await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
         }
 
         public async Task SendPixel(string room, string color, Coordinate coord)
         {
             _manager.PaintPixels(room, color, [coord]);
-            Console.WriteLine("Room:" + room + "Color: " + color + "Coord: " + coord.ToString());
             await Clients.Group(room).SendAsync("ReceivePixel", color, coord);
         }
 
         public async Task SendPixels(string room, string color, Coordinate[] coords)
         {
             _manager.PaintPixels(room, color, coords);
-            Console.WriteLine("Room:" + room + "Color: " + color + "Coord: " + coords.ToString());
             await Clients.Group(room).SendAsync("ReceivePixels", color, coords);
         }
 
@@ -114,6 +116,11 @@ namespace MyTestVueApp.Server.Hubs
         {
             _manager.GetGroup(groupName).BackgroundColor = backgroundColor;
             await Clients.Group(groupName).SendAsync("BackgroundColor", backgroundColor);
+        }
+
+        public async Task GetGroupMembers(string groupName)
+        {
+            await Clients.Group(groupName).SendAsync("GroupMembers", _manager.GetGroup(groupName).Members);
         }
     }
 }
