@@ -113,7 +113,7 @@ function SaveToFile() {
             if (!upsizedContext) {
                 throw new Error("Could not get context");
             }
-            upsizedContext.imageSmoothingEnabled = false; // Disable image smoothing
+            upsizedContext.imageSmoothingEnabled = false;
             upsizedContext.drawImage(canvas, 0, 0, 1080, 1080);
 
             var dataURL = upsizedCanvas.toDataURL("image/png");
