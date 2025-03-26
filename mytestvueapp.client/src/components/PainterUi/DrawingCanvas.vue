@@ -228,7 +228,7 @@ function recenter() {
 }
 
 watch(props.pixelGrid, (prev, next) => {
-  if (loads<2) {
+  if (loads<1) {
     drawCanvas();
     updateCanvas();
     loads++;
