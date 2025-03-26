@@ -6,17 +6,17 @@
                 width=""
                 :default-open="true">
 
-    <Button class="mr-1" v-if="layers.length>1" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
+    <Button class="mr-1" :disabled="layers.length == 1" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
 
-    <template v-for="(layer, index) in layers" :key="layer.id">
-      <Button :icon="layer.icon"
-              :class="['m-1', { 'selected-layer': layer.id === selectedLayer } ]"
+    <template v-for="layer in layers">
+      <Button icon="pi pi-stop"
+              :class="['m-1', { 'selected-layer': layer === selectedLayer } ]"
               severity="secondary"
-              @click="switchLayer(layer.id)"
-              @contextmenu.prevent="deleteLayer(layer.id)"/>
+              @click="selectedLayer = layer"
+              @contextmenu.prevent="deleteLayer(layer)"/>
     </template>
 
-    <Button class="ml-1" v-if="layers.length<8" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
+    <Button class="ml-1" :disabled="layers.length==8" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
   </FloatingCard>
 </template>
 
@@ -25,39 +25,34 @@ import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
 import { ref } from 'vue';
 
-let selectedLayer = defineModel<number>("selLayer", { default: 1 });
+const selectedLayer = ref<number>(1);
 
-const layers = ref([
-  { id: 1, icon: 'pi pi-stop' }
-]);
+const layers = ref<number[]>([1]);
 
 function pushLayer() {
   if (layers.value.length < 8) {
-    layers.value.push({
-      id: layers.value.length+1,
-      icon: 'pi pi-stop'
-    });
+    layers.value.push(layers.value.length+1);
   }
 }
 
-  function deleteLayer(id) {
-    if (layers.value.length > 1) {
-      const isConfirmed = confirm("This will delete layer " + id + ". Are you sure you want to delete this layer?");
-      if (!isConfirmed) return;
+function deleteLayer(id) {
+  if (layers.value.length > 1) {
+    const isConfirmed = confirm("This will delete layer " + id + ". Are you sure you want to delete this layer?");
+    if (!isConfirmed) return;
 
-      const index = layers.value.findIndex(layer => layer.id === id);
+    const index = id - 1;
 
-      if (index === -1) {
-        console.warn(`Layer with id ${id} not found`);
-        return;
-      }
-      layers.value.splice(index, 1);
-
-      layers.value.forEach((layer, idx) => {
-        layer.id = idx + 1;
-      });
+    if (index === -1) {
+      console.warn(`Layer with id ${id} not found`);
+      return;
     }
+    layers.value.splice(index, 1);
+
+    layers.value.forEach((layer, idx) => {
+      layer = idx + 1;
+    });
   }
+}
 
 function popLayer() {
   if (layers.value.length > 1) {
@@ -65,24 +60,16 @@ function popLayer() {
     if (!isConfirmed) return;
 
     layers.value.pop();
-    if (!layers.value.some(layer => layer.id === selectedLayer.value)) {
-      selectedLayer.value = layers.value[layers.value.length - 1]?.id || 1;
+    if (!layers.value.some(layer => layer === selectedLayer.value)) {
+      selectedLayer.value = layers.value[layers.value.length - 1] ??  1;
     }
   }
 }
-
-function switchLayer(layerID: number) {
-  selectedLayer.value = layerID;
-}
 </script>
 
-<style>
+<style scoped>
   .selected-layer {
     background-color: #555 !important;
     color: white !important;
-  }
-
-  .p-dialog.p-component {
-    margin-bottom: 75px !important;
   }
 </style>
