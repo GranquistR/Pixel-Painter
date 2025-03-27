@@ -212,17 +212,17 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (art.id == 0) //New art
                     {
-                        var result = await ArtAccessService.SaveNewArt(artist, art);
+                        var result = await ArtAccessService.SaveNewArtMulti(art);
+                        // If there are attatched contributing artists
+                        foreach (int artistId in art.artistId)
+                        {
+                            ArtAccessService.AddContributingArtist(art.id, artistId);
+                        }
                         return Ok(result);
                     }
                     else //Update art
                     {
-                        var result = await ArtAccessService.UpdateArt(artist, art);
-                        if (result == null)
-                        {
-                            return BadRequest("Could not update this art");
-                        }
-                        return Ok(result);
+                        return BadRequest("Could not update this art");
                     }
                 }
                 else

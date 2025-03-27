@@ -93,7 +93,7 @@ watch(visible, () => {
 });
 
 // WHY CANT I JUST WATCH props.connection.state !!!!!!!
-// I even tried using computed and {deep: true} !!!!
+// I even tried using computed and {deep: true}!!!!
 watch(() => props.connected, () => {
   if (props.connection.state == HubConnectionState.Connected) {
     props.connection.invoke("GetContributingArtists", props.groupName);
