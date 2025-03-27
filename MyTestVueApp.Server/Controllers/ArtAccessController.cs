@@ -198,6 +198,51 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("SaveArtCollab")]
+        public async Task<IActionResult> SaveArtCollab(Art art)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    if (art.id == 0) //New art
+                    {
+                        var result = await ArtAccessService.SaveNewArtMulti(art);
+                        // If there are attatched contributing artists
+                        foreach (int artistId in art.artistId)
+                        {
+                            ArtAccessService.AddContributingArtist(art.id, artistId);
+                        }
+                        return Ok(result);
+                    }
+                    else //Update art
+                    {
+                        return BadRequest("Could not update this art");
+                    }
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
         [HttpGet]
         [Route("IsMyArt")]
         public async Task<bool> IsMyArt(int id)
