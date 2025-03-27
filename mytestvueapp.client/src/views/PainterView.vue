@@ -173,16 +173,26 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
 
 const connect = (groupname: string) => {
 
-  connection.start()
-      .then(
-          () => {
-              console.log("Connected to SignalR!");
-              connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
-              groupName.value = groupname;
-              connected.value = !connected.value;
-          }
-      ).catch(err => console.error("Error connecting to Hub:",err));
+  if (artist.value.id != 0){
+    connection.start()
+        .then(
+            () => {
+                console.log("Connected to SignalR!");
+                connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
+                groupName.value = groupname;
+                connected.value = !connected.value;
+            }
+        ).catch(err => console.error("Error connecting to Hub:",err));
+  } else {
+    toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Please log in before collaborating!",
+          life: 3000,
+        });
+  }
 }
+
 
 const disconnect = (groupname: string) => {
   connection.invoke("LeaveGroup", groupname, artist.value)
@@ -430,17 +440,6 @@ function DrawPixels(color: string, coords: Vector2[]) {
   }
 }
 
-function SendPixel(color: string, coord: Vector2) {
-  if (connected.value) {
-        connection.invoke(
-            "SendPixel", 
-            groupName.value,
-            color,
-            coord
-          );
-      }
-}
-
 function SendPixels(color: string, coords: Vector2[]) {
   if (connected.value) {
     connection.invoke(
@@ -448,17 +447,6 @@ function SendPixels(color: string, coords: Vector2[]) {
         groupName.value,
         color,
         coords
-    )
-  }
-}
-
-function SendBucket(color: string, coord: Vector2) {
-  if (connected.value) {
-    connection.invoke(
-      "SendBucket",
-      groupName.value,
-      color,
-      coord
     )
   }
 }
