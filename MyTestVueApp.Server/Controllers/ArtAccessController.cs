@@ -197,7 +197,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPost]
         [Route("SaveArtCollab")]
-        public async Task<IActionResult> SaveArtCollab(Art art, Artist[] artists)
+        public async Task<IActionResult> SaveArtCollab(Art art)
         {
             try
             {
@@ -212,12 +212,12 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (art.id == 0) //New art
                     {
-                        var result = await ArtAccessService.SaveNewArt(artists, art);
+                        var result = await ArtAccessService.SaveNewArt(artist, art);
                         return Ok(result);
                     }
                     else //Update art
                     {
-                        var result = await ArtAccessService.UpdateArt(artists, art);
+                        var result = await ArtAccessService.UpdateArt(artist, art);
                         if (result == null)
                         {
                             return BadRequest("Could not update this art");

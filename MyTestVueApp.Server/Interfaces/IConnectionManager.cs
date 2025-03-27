@@ -14,6 +14,7 @@ namespace MyTestVueApp.Server.Interfaces
         public Group GetGroup(string groupName);
         public IEnumerable<string> GetGroups();
         public IEnumerable<Artist> GetUsersInGroup(string groupName);
+        public IEnumerable<Artist> GetContributingArtists(string groupName);
         public bool GroupExists(string groupName);
     }
 }

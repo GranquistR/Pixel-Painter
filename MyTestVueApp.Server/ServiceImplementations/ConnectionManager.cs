@@ -45,7 +45,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public IEnumerable<Artist> GetUsersInGroup(string groupName)
         {
-            return groups[groupName].Members;
+            return groups[groupName].CurrentMembers;
+        }
+
+        public IEnumerable<Artist> GetContributingArtists(string groupName)
+        {
+            return groups[groupName].MemberRecord;
         }
 
         public void PaintPixels(string groupName, string color, Coordinate[] vector)

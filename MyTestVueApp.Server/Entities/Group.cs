@@ -6,7 +6,8 @@
         public string Name { get; set; } = groupName;
         public int CanvasSize { get; set; } = 32;
         public string BackgroundColor { get; set; } = "#FFFFFF";
-        public List<Artist> Members { get; set; } = new();
+        public List<Artist> CurrentMembers { get; set; } = new();
+        public List<Artist> MemberRecord { get; set; } = new();
         public string[][] Pixels { get; set; } = new string[32][];
 
         
@@ -16,25 +17,29 @@
             Pixels = canvas;
             CanvasSize = canvasSize;
             BackgroundColor = backgroundColor;
-            Members = new();
+            CurrentMembers = new();
         }
 
         public bool IsEmpty()
         {
-            return Members.Count == 0;
+            return CurrentMembers.Count == 0;
         }
 
         public void AddMember(Artist member)
         {
-            if (!Members.Contains(member))
+            if (!CurrentMembers.Any(cm => cm.id == member.id))
             {
-                Members.Add(member);
+                CurrentMembers.Add(member);
+            }
+            if (!MemberRecord.Any(mr => mr.id == member.id))
+            {
+                MemberRecord.Add(member);
             }
         }
 
         public void RemoveMember(Artist member)
         {
-            Members.Remove(member);
+            CurrentMembers.Remove(member);
         }
 
         public void PaintPixels(string color, Coordinate[] coords)
@@ -64,9 +69,9 @@
             return pixelVec;
         }
 
-        public int GetMemberCount()
+        public int GetCurrentMemberCount()
         {
-            return Members.Count;
+            return CurrentMembers.Count;
         }
     }
 

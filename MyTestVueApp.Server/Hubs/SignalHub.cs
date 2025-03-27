@@ -42,18 +42,18 @@ namespace MyTestVueApp.Server.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
 
-            _logger.LogInformation("Member Count: " + _manager.GetGroup(groupName).GetMemberCount());
+            _logger.LogInformation("Member Count: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
            
             // Send the group config and list of members to the joiner!
             await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", _manager.GetGroup(groupName).CanvasSize, _manager.GetGroup(groupName).BackgroundColor, _manager.GetGroup(groupName).GetPixelsAsList());
-            await Clients.Client(Context.ConnectionId).SendAsync("Members", _manager.GetGroup(groupName).Members);
+            await Clients.Client(Context.ConnectionId).SendAsync("Members", _manager.GetGroup(groupName).CurrentMembers);
             
             // Tell Existing members about the new member!
             await Clients.Group(groupName).SendAsync("NewMember", artist);
 
             // Log Members to console
             string members = "";
-            foreach(Artist member in _manager.GetGroup(groupName).Members)
+            foreach(Artist member in _manager.GetGroup(groupName).CurrentMembers)
             {
                 members = members + " " + member.name;
             }
@@ -84,7 +84,7 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task LeaveGroup(string groupName, Artist member)
         {
-            _logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetMemberCount());
+            _logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
             _manager.RemoveUser(groupName, member);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
@@ -120,7 +120,12 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task GetGroupMembers(string groupName)
         {
-            await Clients.Group(groupName).SendAsync("GroupMembers", _manager.GetGroup(groupName).Members);
+            await Clients.Group(groupName).SendAsync("GroupMembers", _manager.GetGroup(groupName).CurrentMembers);
+        }
+
+        public async Task GetContributingArtists(string groupName)
+        {
+            await Clients.Group(groupName).SendAsync("ContributingArtists", _manager.GetGroup(groupName).MemberRecord);
         }
     }
 }
