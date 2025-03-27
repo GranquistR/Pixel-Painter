@@ -144,6 +144,18 @@ connection.on("Members", (artists: Artist[]) => {
   console.log("Members-Members: " +  art.value.artistName.join(" "))
 });
 
+connection.onclose(error => {
+  if (error) {
+    toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "You have disconnected!",
+            life: 3000,
+          });
+    connected.value = false;
+    }
+});
+
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
         //console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
         DrawPixel(color, coord);
