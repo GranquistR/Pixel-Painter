@@ -179,7 +179,9 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   art.value.pixelGrid.width = canvasSize;
   art.value.pixelGrid.height = canvasSize;
   art.value.pixelGrid.backgroundColor = backgroundColor;
-  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize,canvasSize,backgroundColor);
+  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize, backgroundColor);
+  canvas.value?.drawCanvas();
+  canvas.value?.recenter();
   ReplaceCanvas(pixels);
 });
 
