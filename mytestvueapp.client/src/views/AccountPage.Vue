@@ -4,7 +4,7 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ artistList[0] }}</div>
+          <div class="text-3xl p-font-bold">{{ artistList[1]?.name }}</div>
           <!-- <div class="">{{ artist.email }}</div> -->
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
@@ -98,7 +98,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import LoginService from "@/services/LoginService";
 import ArtAccessService from "@/services/ArtAccessService";
 import router from "@/router";
@@ -117,13 +117,13 @@ import type { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 const route = useRoute();
+const changeArtist = ref(false);
 
 var artist = ref<Artist>(new Artist());
 var isEditing = ref(false);
 var newUsername = ref("");
 var user = ref<boolean>();
 var curArtist = ref<Artist>(new Artist());
-//curArtist: new Artist();
 const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
@@ -151,10 +151,14 @@ onMounted(() => {
   /*
   Set selected artist from image viewer here
   */
-  curArtist.value = artistList.value[0];
+
   // if (route.hash != "#settings" && route.hash != "#art") {
   //   router.push("/accountpage#settings");
   // }
+});
+
+watch(changeArtist, () => {
+  curArtist.value = artistList.value[0];
 });
 
 function logout() {

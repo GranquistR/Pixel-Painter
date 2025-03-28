@@ -179,19 +179,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
             var artistList = new List<Artist>();
             var connectionString = AppConfig.Value.ConnectionString;
 
-            using (var connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 var query =
-                    @"SELECT 
-                        [Id],
-                        [SubId], 
-                        [Name], 
-                        [Email], 
-                        [IsAdmin], 
-                        [CreationDate] 
-                    FROM [PixelPainter].[dbo].[Artist]";
-                using (var command = new SqlCommand(query, connection))
+                    @"SELECT [Id]
+                        ,[SubId] 
+                        ,[Name] 
+                        ,[IsAdmin] 
+                        ,[CreationDate] 
+                    FROM [PixelPainter].[dbo].[Artist]
+                    ";
+                
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
@@ -202,9 +202,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 id = reader.GetInt32(0),
                                 subId = reader.GetString(1),
                                 name = reader.GetString(2),
-                                email = reader.GetString(3),
-                                isAdmin = reader.GetBoolean(4),
-                                creationDate = reader.GetDateTime(5)
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4)
                             };
                             artistList.Add(artist);
                         }
