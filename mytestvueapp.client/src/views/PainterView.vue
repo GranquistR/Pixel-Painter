@@ -369,6 +369,9 @@ watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
 
+watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
+  ChangeBackgroundColor(newColor);
+});
     
 watch(selectedFrame, () => {
   if (lastFrame.value <= index.value) {
@@ -475,6 +478,16 @@ function SendPixels(color: string, coords: Vector2[]) {
   }
 }
 
+function ChangeBackgroundColor(color: string) {
+  if (connected.value) {
+    connection.invoke(
+      "ChangeBackgroundColor",
+      groupName.value,
+      color
+    )
+  }
+}
+
 function DrawAtCoords(coords: Vector2[]) {
     let coordinates: Vector2[] = [];
 
@@ -525,7 +538,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels(art.value.pixelGrid.backgroundColor, coordinates);
+        SendPixels("empty", coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < art.value.pixelGrid.width &&
