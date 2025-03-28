@@ -37,7 +37,7 @@
                   />
                 </div>
                 <Button
-                  v-if="!isEditing && (user || curArtist.name == artist.name)"
+                  v-if="!isEditing && (user || curArtist?.name == artist.name)"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
@@ -142,7 +142,7 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-  ArtAccessService.getAllArtByUser(curArtist.value.name).then((art) => {
+  ArtAccessService.getAllArtByUser(artistList.value[0]?.name).then((art) => {
     myArt.value = art;
   });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
