@@ -18,6 +18,7 @@
           v-tooltip.right="
             'Click to add custom color. Double click to remove color.'
           "
+          v-if="!isBackground"
           >Custom</Tab
         >
       </TabList>
@@ -31,7 +32,7 @@
                 @click="selectedColor = color.hex"
                 class="border-1 m-1 w-2rem h-2rem border-round-md"
                 :style="{ backgroundColor: '#' + color.hex }"
-                v-tooltip.bottom="color.shortcut"></div>
+                :v-tooltip.bottom="isBackground ? '' : color.shortcut"></div>
             </div>
             <!-- @input="updateColorFromHex" -->
             <div class="parent">
