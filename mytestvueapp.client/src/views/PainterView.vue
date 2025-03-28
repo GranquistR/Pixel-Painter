@@ -80,7 +80,6 @@ import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
-import BackgroundSelection from "@/components/PainterUi/BackgroundSelection.vue";
 import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
 
 //entities
