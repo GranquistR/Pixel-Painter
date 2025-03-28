@@ -122,7 +122,7 @@ function ToggleModal() {
 function flattenArt(): string {
   let encode = "";
   for (let i = 0; i < props.art.pixelGrid.height; i++) {
-    for (let j = 0; j < props.art.pixelGrid.height; j++) {
+    for (let j = 0; j < props.art.pixelGrid.width; j++) {
       let hex = props.art.pixelGrid.grid[i][j];
       hex = hex[0] === "#" ? hex.slice(1) : hex;
       encode += hex === "empty" ? props.art.pixelGrid.backgroundColor : hex;

@@ -2,7 +2,6 @@ import { PixelGrid } from "@/entities/PixelGrid";
 
 export default class codec {
   public static Encode(inputGrid: PixelGrid): string {
-    // console.debug(inputGrid);
     let EncodedPicture: string = "";
 
     for (let i = 0; i < inputGrid.height; i++) {

@@ -34,8 +34,8 @@ function SaveToFile() {
   canvas.width = props.art.pixelGrid.width;
   canvas.height = props.art.pixelGrid.height;
 
-  for (let x = 0; x < props.art.pixelGrid.width; x++) {
-    for (let y = 0; y < props.art.pixelGrid.height; y++) {
+  for (let x = 0; x < props.art.pixelGrid.height; x++) {
+    for (let y = 0; y < props.art.pixelGrid.width; y++) {
       let pixelHex;
       if (props.art.pixelGrid.grid[x][y] === "empty") {
         pixelHex = props.art.pixelGrid.backgroundColor;
@@ -94,8 +94,8 @@ function saveGIF() {
     canvas.width = workingGrid.width;
     canvas.height = workingGrid.height;
 
-    for (let x = 0; x < workingGrid.width; x++) {
-      for (let y = 0; y < workingGrid.height; y++) {
+    for (let x = 0; x < workingGrid.height; x++) {
+      for (let y = 0; y < workingGrid.width; y++) {
         let pixelHex;
         if (workingGrid.grid[x][y] === "empty") {
           pixelHex = workingGrid.backgroundColor;

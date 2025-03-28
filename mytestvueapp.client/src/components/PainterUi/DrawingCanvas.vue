@@ -27,7 +27,7 @@ const props = defineProps<{
   defineExpose({ recenter, updateCursor, updateCanvas });
 
 //other variables
-let loads = 0;
+const firstLoad = ref<boolean>(true);
 
 //model
 const cursor = defineModel<Cursor>({
@@ -76,8 +76,8 @@ function updateCanvas() {
     viewport.children[1].tint = props.pixelGrid.backgroundColor;
   }
   else { 
-    for (var i = 0; i < props.pixelGrid.width; i++) {
-      for (var j = 0; j < props.pixelGrid.height; j++) {
+    for (var i = 0; i < props.pixelGrid.height; i++) {
+      for (var j = 0; j < props.pixelGrid.width; j++) {
         //tint of erased values doesn't matter since we look at the grid
         if (props.pixelGrid.grid[i][j] === "empty") {
           viewport.children[idx].alpha = 0;
@@ -113,8 +113,8 @@ function drawCanvas() {
   viewport.addChild(dropShadow);
   viewport.addChild(background);
 
-  for (var i = 0; i < props.pixelGrid.width; i++) {
-    for (var j = 0; j < props.pixelGrid.height; j++) {
+  for (var i = 0; i < props.pixelGrid.height; i++) {
+    for (var j = 0; j < props.pixelGrid.width; j++) {
       const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
       if (props.pixelGrid.grid[i][j] === "empty") {
         sprite.tint = props.pixelGrid.backgroundColor;
@@ -202,10 +202,10 @@ function recenter() {
 }
 
 watch(props.pixelGrid, (prev, next) => {
-  if (loads<1) {
+  if (firstLoad.value) {
     drawCanvas();
     updateCanvas();
-    loads++;
+    firstLoad.value = false;
   } else {
     updateCanvas();
   }
