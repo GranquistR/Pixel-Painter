@@ -233,7 +233,7 @@ const mouseButtonHeldDown = ref<boolean>(false);
 
 const startPix = ref<Vector2>(new Vector2(0, 0));
 const endPix = ref<Vector2>(new Vector2(0, 0));
-let tempGrid: GridValue[][] = [];
+let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 
@@ -379,26 +379,26 @@ watch(selectedFrame, () => {
       localStorage.getItem(`frame${selectedFrame.value}`) as string
   ) as PixelGrid;
 
-    if (workingGrid == null) {
-        const newGrid = new PixelGrid(
-            art.value.pixelGrid.width,
-            art.value.pixelGrid.height,
-            art.value.pixelGrid.backgroundColor,
-            art.value.pixelGrid.isGif
-        );
-        art.value.pixelGrid.DeepCopy(newGrid);
-        canvas.value?.updateCanvas();
+  if (workingGrid == null) {
+      const newGrid = new PixelGrid(
+          art.value.pixelGrid.width,
+          art.value.pixelGrid.height,
+          art.value.pixelGrid.backgroundColor,
+          art.value.pixelGrid.isGif
+      );
+      art.value.pixelGrid.DeepCopy(newGrid);
+      canvas.value?.updateCanvas();
 
-        canvas.value?.recenter();
-        localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+      canvas.value?.recenter();
+      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 
-    } else {
-        art.value.pixelGrid.DeepCopy(workingGrid);
-        canvas.value?.updateCanvas();
+  } else {
+      art.value.pixelGrid.DeepCopy(workingGrid);
+      canvas.value?.updateCanvas();
 
-        canvas.value?.recenter();
-        localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
-    }
+      canvas.value?.recenter();
+      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  }
 });
 
 //functions
@@ -449,7 +449,7 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function DrawPixel(color: string, coord: Vector2) {
-  art.value.pixelGrid.grid[coord.x][coord.y].hex = color;
+  art.value.pixelGrid.grid[coord.x][coord.y] = color;
 }
 
 function ReplaceCanvas(pixels: Pixel[]) {
@@ -460,7 +460,7 @@ function ReplaceCanvas(pixels: Pixel[]) {
 
 function DrawPixels(color: string, coords: Vector2[]) {
   for (const coord of coords) {
-    art.value.pixelGrid.grid[coord.x][coord.y].hex = color;
+    art.value.pixelGrid.grid[coord.x][coord.y] = color;
   }
 }
 
@@ -485,7 +485,7 @@ function DrawAtCoords(coords: Vector2[]) {
     if (tempGrid) {
       for (let i = 0; i < art.value.pixelGrid.width; i++) {
         for (let j = 0; j < art.value.pixelGrid.height; j++) {
-          art.value.pixelGrid.grid[i][j].hex = tempGrid[i][j].hex;
+          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
         }
       }
     }
@@ -502,7 +502,7 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j < art.value.pixelGrid.height
             ) {
               coordinates.push(new Vector2(coord.x + i, coord.y + j));
-              art.value.pixelGrid.grid[coord.x + i][coord.y + j].hex =
+              art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
             }
           }
@@ -519,7 +519,7 @@ function DrawAtCoords(coords: Vector2[]) {
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
                 coordinates.push(new Vector2(coord.x + i, coord.y + j));
-                art.value.pixelGrid.grid[coord.x + i][coord.y + j].hex =
+                art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                   "empty";
               }
             }
@@ -533,13 +533,13 @@ function DrawAtCoords(coords: Vector2[]) {
         coord.y < art.value.pixelGrid.height
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
-          let tmp = art.value.pixelGrid.grid[coord.x][coord.y].hex;
+          let tmp = art.value.pixelGrid.grid[coord.x][coord.y];
           if (tmp === "empty") tmp = art.value.pixelGrid.backgroundColor;
 
           cursor.value.color = tmp;
         } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
-            art.value.pixelGrid.grid[coord.x][coord.y].hex != cursor.value.color
+            art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
             coordinates = fill(cursor.value.position.x, cursor.value.position.y);
             SendPixels(cursor.value.color, coordinates);
@@ -549,7 +549,7 @@ function DrawAtCoords(coords: Vector2[]) {
           cursor.value.selectedTool.label === "Ellipse"
         ) {
           //SendPixels(cursor.value.color,coords);
-          art.value.pixelGrid.grid[coord.x][coord.y].hex = cursor.value.color;
+          art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
     }
@@ -559,31 +559,30 @@ function DrawAtCoords(coords: Vector2[]) {
 function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
   let vectors: Vector2[] = [];
   if (y >= 0 && y < art.value.pixelGrid.height) {
-    const oldColor = art.value.pixelGrid.grid[x][y].hex;
-    art.value.pixelGrid.grid[x][y].hex = color;
-    art.value.pixelGrid.grid[x][y].alpha = 1;
+    const oldColor = art.value.pixelGrid.grid[x][y];
+    art.value.pixelGrid.grid[x][y] = color;
     vectors.push(new Vector2(x,y));
     if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
-        if (art.value.pixelGrid.grid[x + 1][y].hex == oldColor) {
+        if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
           //alert(x+1 + ", " + y);
           vectors = vectors.concat(fill(x + 1, y, color));
         }
       }
       if (y + 1 < art.value.pixelGrid.height) {
-        if (art.value.pixelGrid.grid[x][y + 1].hex == oldColor) {
+        if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
           //alert(x + ", " + y+1);
           vectors = vectors.concat(fill(x, y + 1, color));
         }
       }
       if (x - 1 >= 0) {
-        if (art.value.pixelGrid.grid[x - 1][y].hex == oldColor) {
+        if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
           //alert(x-1 + ", " + y);
           vectors = vectors.concat(fill(x - 1, y, color));
         }
       }
       if (y - 1 >= 0) {
-        if (art.value.pixelGrid.grid[x][y - 1].hex == oldColor) {
+        if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
           //alert(x + ", " + (y-1));
           vectors = vectors.concat(fill(x, y - 1, color));
         }

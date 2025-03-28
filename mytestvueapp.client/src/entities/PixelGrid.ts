@@ -1,11 +1,10 @@
 import codec from "@/utils/codec";
-import GridValue from "./GridValue";
 
 export class PixelGrid {
   width: number;
   height: number;
   backgroundColor: string;
-  grid: GridValue[][];
+  grid: string[][];
   encodedGrid?: string;
   isGif: boolean;
 
@@ -37,12 +36,12 @@ export class PixelGrid {
   createGrid(
     width: number,
     height: number,
-  ): GridValue[][] {
-    const grid: GridValue[][] = [];
+  ): string[][] {
+    const grid: string[][] = [];
     for (let i = 0; i < height; i++) {
-      const row: GridValue[] = [];
+      const row: string[] = [];
       for (let j = 0; j < width; j++) {
-        row.push(new GridValue("empty", 0));
+        row.push("empty");
       }
       grid.push(row);
     }
@@ -53,9 +52,8 @@ export class PixelGrid {
   randomizeGrid(): void {
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
-        this.grid[i][j].hex =
+        this.grid[i][j] =
           ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
-        this.grid[i][j].alpha = 1;
       }
     }
     this.encodedGrid = codec.Encode(this);
@@ -70,8 +68,7 @@ export class PixelGrid {
     this.grid = this.createGrid(this.width, this.height);
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
-        this.grid[i][j].hex = decodedGrid.grid[i][j].hex;
-        this.grid[i][j].alpha = decodedGrid.grid[i][j].alpha;
+        this.grid[i][j] = decodedGrid.grid[i][j];
       }
     }
     this.encodedGrid = codec.Encode(this);

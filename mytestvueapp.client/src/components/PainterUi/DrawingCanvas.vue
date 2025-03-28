@@ -73,36 +73,16 @@ function updateCanvas() {
   let idx = 2;
 
   if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
-    let oldBG = props.pixelGrid.backgroundColor;
     viewport.children[1].tint = props.pixelGrid.backgroundColor;
-
-    //since erased values are set to the background color (pixi.js doesn't allow for null or "")
-    //we have to update the color
-    for (var i = 0; i < props.pixelGrid.width; i++) {
-      for (var j = 0; j < props.pixelGrid.height; j++) {
-        if (viewport.children[2].tint === oldBG &&
-          viewport.children[2].alpha === 0) {
-          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
-          props.pixelGrid.grid[i][j].hex = props.pixelGrid.backgroundColor;
-        }
-        idx++;
-      }
-    }
   }
   else { 
-    //still have to iterate through whole canvas to update (maybe we can implement a way to send specific coords?)
     for (var i = 0; i < props.pixelGrid.width; i++) {
       for (var j = 0; j < props.pixelGrid.height; j++) {
-        //change erased values to transparent
-        if (cursor.value.selectedTool.label === "Eraser" &&
-          props.pixelGrid.grid[i][j].hex === "empty") {
-          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
-          viewport.children[idx].alpha = 0;
-        } else if (props.pixelGrid.grid[i][j].hex === "empty") {
-          viewport.children[idx].tint = props.pixelGrid.backgroundColor;
+        //tint of erased values doesn't matter since we look at the grid
+        if (props.pixelGrid.grid[i][j] === "empty") {
           viewport.children[idx].alpha = 0;
         } else {
-          viewport.children[idx].tint = props.pixelGrid.grid[i][j].hex;
+          viewport.children[idx].tint = props.pixelGrid.grid[i][j];
           viewport.children[idx].alpha = 1;
         }
         idx++;
@@ -136,22 +116,16 @@ function drawCanvas() {
   for (var i = 0; i < props.pixelGrid.width; i++) {
     for (var j = 0; j < props.pixelGrid.height; j++) {
       const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
-      if (props.pixelGrid.grid[i][j].hex === "empty") {
+      if (props.pixelGrid.grid[i][j] === "empty") {
         sprite.tint = props.pixelGrid.backgroundColor;
         sprite.alpha = 0;
       } else {
-        sprite.tint = props.pixelGrid.grid[i][j].hex;
+        sprite.tint = props.pixelGrid.grid[i][j];
         sprite.alpha = 1;
       }
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;
-
-      /*TODO: Figure out why this line is essential to loading the image.
-        Even though in theory it overrides the alpha assigns above, in
-        practice it does not. Removing any of the lines that change the 
-        alpha will break the code.*/
-      sprite.alpha = props.pixelGrid.grid[i][j].alpha; 
     }
   }
 }

@@ -7,7 +7,7 @@ export default class codec {
 
     for (let i = 0; i < inputGrid.height; i++) {
       for (let j = 0; j < inputGrid.width; j++) {
-        let tmp = inputGrid.grid[i][j].hex;
+        let tmp = inputGrid.grid[i][j];
         if (tmp === "empty") tmp = inputGrid.backgroundColor;
         EncodedPicture = EncodedPicture + tmp;
       }
@@ -47,8 +47,7 @@ export default class codec {
     }
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        decodedPicture.grid[i][j].hex = "#" + encodedString.slice(k, k + 6);
-        decodedPicture.grid[i][j].alpha = 1;
+        decodedPicture.grid[i][j] = "#" + encodedString.slice(k, k + 6);
         k = k + 6;
       }
     }
