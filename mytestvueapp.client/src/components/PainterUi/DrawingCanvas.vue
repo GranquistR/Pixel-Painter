@@ -24,7 +24,7 @@ const props = defineProps<{
 }>();
 
 //exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
-defineExpose({ recenter, updateCursor, updateCanvas });
+defineExpose({ recenter, updateCursor, updateCanvas, drawCanvas });
 
 //other variables
 const firstLoad = ref<boolean>(true);
