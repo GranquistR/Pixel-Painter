@@ -4,7 +4,7 @@
                 button-icon="pi pi-clone"
                 button-label=""
                 width=""
-                :default-open="true">
+                :default-open="false">
 
     <Button class="mr-1" :disabled="layers.length == 1" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
 

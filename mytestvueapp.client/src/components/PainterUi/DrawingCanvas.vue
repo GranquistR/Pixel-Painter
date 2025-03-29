@@ -23,8 +23,8 @@ const props = defineProps<{
   pixelGrid: PixelGrid;
 }>();
 
-//exposes the recenter function to be called in parent component
-  defineExpose({ recenter, updateCursor, updateCanvas });
+//exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
+defineExpose({ recenter, updateCursor, updateCanvas });
 
 //other variables
 const firstLoad = ref<boolean>(true);

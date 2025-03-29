@@ -39,7 +39,7 @@
       <ColorSelection 
       v-model:color="art.pixelGrid.backgroundColor"
       v-model:size="cursor.size"
-      isBackground="true"
+      :isBackground="isBackground"
       @enable-key-binds="keyBindActive = true"
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
@@ -109,6 +109,7 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 //Other
 import * as SignalR from "@microsoft/signalr";
 import { FillStyle } from "pixi.js";
+import { useLayerStore } from "@/store/LayerStore.ts"
 
 //variables
 const route = useRoute();
@@ -117,6 +118,7 @@ const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist);
+const layerStore = useLayerStore();
 
 // Connection Information
 const connected = ref(false);
@@ -238,6 +240,7 @@ let selectedFrame = ref(1);
 let lastFrame = ref(1);
 let index = ref(1);
 
+const isBackground = ref<boolean>(true);
 
 let currentPallet: string[];
 function updatePallet() {
@@ -286,16 +289,14 @@ onMounted(() => {
     artist.value = user;
   });
 
-  const workingGrid = JSON.parse(
-    localStorage.getItem("working-art") as string
-  ) as PixelGrid;
-
   if (route.params.id) {
-    localStorage.removeItem("working-art");
+    layerStore.empty();
     const id: number = parseInt(route.params.id as string);
     ArtAccessService.getArtById(id)
       .then((data) => {
         art.value.pixelGrid.DeepCopy(data.pixelGrid);
+        layerStore.pushGrid(art.value.pixelGrid);
+        
         art.value.id = data.id;
         art.value.title = data.title;
         art.value.isPublic = data.isPublic;
@@ -311,10 +312,11 @@ onMounted(() => {
         });
         router.push("/new");
       });
-  } else if (workingGrid == null) {
+  } else if (layerStore.grids.length === 0) {
     router.push("/new");
   } else {
-    art.value.pixelGrid.DeepCopy(workingGrid);
+    art.value.pixelGrid.DeepCopy(layerStore.grids[0]);
+
     canvas.value?.recenter();
 
     tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
@@ -772,16 +774,16 @@ function setEndVector() {
 }
 
 function ResetArt() {
-  localStorage.removeItem("working-art");
-  localStorage.removeItem("working-list");
+  layerStore.clearStorage();
+  layerStore.empty();
 
-    if (art.value.pixelGrid.isGif) {
-        let tempCount = 1;
-        while (localStorage.getItem(`frame${tempCount}`) != null) {
-            localStorage.removeItem(`frame${tempCount}`);
-            tempCount++;    
-        }
+  if (art.value.pixelGrid.isGif) {
+    let tempCount = 1;
+    while (localStorage.getItem(`frame${tempCount}`) != null) {
+        localStorage.removeItem(`frame${tempCount}`);
+        tempCount++;    
     }
+  }
 
   router.push("/new");
 }
@@ -894,7 +896,8 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 function LocalSave() {
-  localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
+  layerStore.save(art.value.pixelGrid);
+  console.log("save");
 }
 
 function LocalSaveGif() {
@@ -902,7 +905,8 @@ function LocalSaveGif() {
     localStorage.getItem("frame1") as string
   ) as PixelGrid;
 
-  localStorage.setItem("working-art", JSON.stringify(workingGrid));
+  layerStore.pushGrid(workingGrid);
+  layerStore.save(art.value.pixelGrid);
   localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 }
 

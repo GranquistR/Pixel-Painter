@@ -29,14 +29,21 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Button from "primevue/button";
 import DarkModeSwitcher from "./DarkModeToggle.vue";
 import GoogleLogin from "../GoogleLogin.vue";
 import Toolbar from "primevue/toolbar";
+import { useLayerStore } from "@/store/LayerStore.ts"
 
 const visible = ref(false);
 const password = ref(null);
+const layerStore = useLayerStore();
+
+onMounted(() => {
+  layerStore.init();
+});
+
 </script>
 
 <style scoped>
