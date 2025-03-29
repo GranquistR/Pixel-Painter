@@ -30,10 +30,10 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllArtByUser")]
-        public IEnumerable<Art> GetAllArtByUser(string name)
+        [Route("GetAllArtByUserID")]
+        public IEnumerable<Art> GetAllArtByUserID(int id)
         {
-            return ArtAccessService.GetAllArtByUser(name).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return ArtAccessService.GetAllArtByUserID(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
         }
 
         [HttpGet]

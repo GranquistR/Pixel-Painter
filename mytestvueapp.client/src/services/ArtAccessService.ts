@@ -25,9 +25,9 @@ export default class ArtAccessService {
     }
   }
 
-  public static async getAllArtByUser(name: string): Promise<Art[]> {
+  public static async getAllArtByUserID(id: number): Promise<Art[]> {
     try {
-      const response = await fetch(`/artaccess/GetAllArtByUser?name=${name}`);
+      const response = await fetch(`/artaccess/GetAllArtByUserID?id=${id}`);
       const json = await response.json();
 
       const allArt: Art[] = [];

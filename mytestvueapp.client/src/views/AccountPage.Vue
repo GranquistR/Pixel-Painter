@@ -4,7 +4,7 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ artistList[1]?.name }}</div>
+          <div class="text-3xl p-font-bold">{{ curArtist?.name }}</div>
           <!-- <div class="">{{ artist.email }}</div> -->
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
@@ -90,7 +90,7 @@
             :key="art.id"
             :art="art"
             :size="10"
-            :position="1"
+            :position="art.id"
           />
         </div>
       </div>
@@ -142,11 +142,12 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-  ArtAccessService.getAllArtByUser(artistList.value[0]?.name).then((art) => {
-    myArt.value = art;
-  });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
     artistList.value = newList;
+    curArtist.value = newList[2];
+    ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
+      myArt.value = art;
+    });
   });
   /*
   Set selected artist from image viewer here

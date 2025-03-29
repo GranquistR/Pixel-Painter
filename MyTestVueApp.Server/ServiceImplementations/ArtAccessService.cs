@@ -79,7 +79,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         
 
         //Pull all art related to user
-        public IEnumerable<Art> GetAllArtByUser(string name)
+        public IEnumerable<Art> GetAllArtByUserID(int id)
         {
             var paintings = new List<Art>();
             var connectionString = AppConfig.Value.ConnectionString;
@@ -105,7 +105,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     LEFT Join Artist on ContributingArtists.ArtistId = Artist.Id
                     LEFT JOIN Likes ON Art.ID = Likes.ArtID  
                     LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                    Where Artist.Name = 'Philis Morritt'
+                    Where Artist.Id = { id }
                     GROUP BY Art.ID, ContributingArtists.ArtistId, Artist.Name, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
@@ -133,7 +133,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             painting.SetArtists(GetArtists(painting.id));
                             
-                                paintings.Add(painting);
+                            for (int i = 0;  i < painting.artistId.LongCount(); i++) { 
+                                if (painting.artistId[i] == id)
+                                    {
+                                        paintings.Add(painting);
+                                    }
+                                }
                             
                         }
                     }
