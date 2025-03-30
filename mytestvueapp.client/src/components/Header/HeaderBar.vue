@@ -42,6 +42,7 @@ const layerStore = useLayerStore();
 
 onMounted(() => {
   layerStore.init();
+  console.log(layerStore.grids);
 });
 
 </script>

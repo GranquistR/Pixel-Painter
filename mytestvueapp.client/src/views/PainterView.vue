@@ -24,7 +24,7 @@
           @click="ResetArt()">
         </Button>
         <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
-        <SaveImageToFile :art="art"></SaveImageToFile>
+        <SaveImageToFile :art="art" :selectedLayer="selectedLayer"></SaveImageToFile>
         <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
@@ -43,7 +43,7 @@
       @enable-key-binds="keyBindActive = true"
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif"/>
+      <LayerSelection v-if="!art.pixelGrid.isGif" @change-layer="switchLayer" :pixelGrid="art.pixelGrid"/>
     </template>
     <template #end>
       <Button
@@ -118,6 +118,7 @@ const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist);
 const layerStore = useLayerStore();
+const selectedLayer = ref<number>(0);
 
 // Connection Information
 const connected = ref(false);
@@ -371,6 +372,9 @@ watch(mouseButtonHeldDown, async () => {
 
 watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
   ChangeBackgroundColor(newColor);
+  for (let i = 0; i < layerStore.grids.length; i++) {
+    layerStore.grids[i].backgroundColor = newColor;
+  }
 });
     
 watch(selectedFrame, () => {
@@ -405,6 +409,17 @@ watch(selectedFrame, () => {
 });
 
 //functions
+const switchLayer = (idx: number) => {
+  //if our currently selected index isnt out of range we want to update the old layer
+  if (selectedLayer.value != layerStore.grids.length) {
+    layerStore.grids[selectedLayer.value].DeepCopy(art.value.pixelGrid);
+  }
+  selectedLayer.value = idx;
+  art.value.pixelGrid.DeepCopy(layerStore.grids[idx]);
+  canvas.value?.updateCanvas();
+  canvas.value?.recenter();
+}
+
 function runGravity() {
   if (intervalId.value != -1) {
     clearInterval(intervalId.value);
@@ -897,7 +912,10 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 function LocalSave() {
-  layerStore.save(art.value.pixelGrid);
+  layerStore.grids[selectedLayer.value].DeepCopy(art.value.pixelGrid);
+  console.log(layerStore.grids);
+
+  layerStore.save();
   console.log("save");
 }
 
@@ -907,7 +925,8 @@ function LocalSaveGif() {
   ) as PixelGrid;
 
   layerStore.pushGrid(workingGrid);
-  layerStore.save(art.value.pixelGrid);
+  layerStore.grids[0].DeepCopy(workingGrid);
+  layerStore.save();
   localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 }
 

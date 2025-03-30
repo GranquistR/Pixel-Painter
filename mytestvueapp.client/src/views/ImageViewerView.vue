@@ -365,7 +365,6 @@ function DuoTone(
 }
 const DuoToneFilter = (toneOne: string, toneTwo: string) => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (duotone.value == false) {
         squareColor.value = DuoTone(

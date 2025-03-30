@@ -65,7 +65,9 @@ import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
+import { useLayerStore } from "@/store/LayerStore.ts"
 
+const layerStore = useLayerStore();
 const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
@@ -120,15 +122,25 @@ function ToggleModal() {
 }
 
 function flattenArt(): string {
-  let encode = "";
-  for (let i = 0; i < props.art.pixelGrid.height; i++) {
-    for (let j = 0; j < props.art.pixelGrid.width; j++) {
-      let hex = props.art.pixelGrid.grid[i][j];
-      hex = hex[0] === "#" ? hex.slice(1) : hex;
-      encode += hex === "empty" ? props.art.pixelGrid.backgroundColor : hex;
+  let width = layerStore.grids[0].width;
+  let height = layerStore.grids[0].height;
+  let arr: string[][] = Array.from({ length: height }, () =>
+    Array(width).fill(layerStore.grids[0].backgroundColor)
+  );
+
+
+  for (let length = 0; length < layerStore.grids.length; length++) {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        //only set empty cells to background color if its the first layer
+        //layers above the first will just replace cells if they have a value
+        if (layerStore.grids[length].grid[i][j] !== "empty") {
+          arr[i][j] = layerStore.grids[length].grid[i][j];
+        }
+      }
     }
   }
-  return encode;
+  return arr.flat().join('');
 }
 
 function Upload() {
@@ -136,12 +148,12 @@ function Upload() {
 
   LoginService.isLoggedIn().then((isLoggedIn) => {
     if (isLoggedIn) {
-      const newArt = new Art();
+      let newArt = new Art();
       newArt.title = newName.value;
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
       newArt.id = props.art.id;
-      newArt.encodedGrid = flattenArt();
+      newArt.pixelGrid.encodedGrid = flattenArt();
       if (props.connected){
         newArt.artistName = contributors.value.map((artist) => artist.name);
         newArt.artistId = contributors.value.map((artist) => artist.id);
@@ -156,6 +168,7 @@ function Upload() {
               detail: "Art uploaded successfully",
               life: 3000,
             });
+            layerStore.empty();
             localStorage.clear();
             router.push("/art/" + data.id);
           } else {

@@ -7,23 +7,23 @@ export const useLayerStore = defineStore('layers', {
   }),
   actions: {
     init() {
-      const store = localStorage.getItem('grids');
+      const store = localStorage.getItem('grids') as string;
       if (store) {
-        this.grids = JSON.parse(store) as PixelGrid[];
+        const parsedGrids = JSON.parse(store);
+        this.grids = parsedGrids.map((grid: any) => Object.assign(new PixelGrid(1, 1, "FF0000", false), grid));
       }
     },
     popGrid() {
       this.grids.pop();
     },
-    save(art: PixelGrid) {
-      this.grids[0].DeepCopy(art);
+    save() {
       localStorage.setItem('grids', JSON.stringify(this.grids));
     },
     pushGrid(grid: PixelGrid) {
       this.grids.push(grid);
     },
-    removeGrid(id: number) {
-      this.grids.splice(id, 1);
+    removeGrid(idx: number) {
+      this.grids.splice(idx, 1);
     },
     empty() {
       this.grids.splice(0, this.grids.length);

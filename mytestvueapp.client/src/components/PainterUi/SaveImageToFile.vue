@@ -6,9 +6,12 @@ import Art from "@/entities/Art";
 import Button from "primevue/button";
 import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
+import { useLayerStore } from "@/store/LayerStore.ts"
 
+const layerStore = useLayerStore();
 const props = defineProps<{
   art: Art;
+  selectedLayer: number;
 }>();
 
 function handleClick() {
@@ -19,8 +22,30 @@ function handleClick() {
   }
 }
 
+function flattenArt(): string[][] { 
+  let width = layerStore.grids[0].width;
+  let height = layerStore.grids[0].height;
+  let arr: string[][] = Array.from({ length: height }, () =>
+    Array(width).fill(layerStore.grids[0].backgroundColor)
+  );
+
+
+  for (let length = 0; length < layerStore.grids.length; length++) {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        //only set empty cells to background color if its the first layer
+        //layers above the first will just replace cells if they have a value
+        if (layerStore.grids[length].grid[i][j] !== "empty") {
+          arr[i][j] = layerStore.grids[length].grid[i][j];
+        }  
+      }
+    }
+  }
+  return arr;
+}
+
 function SaveToFile() {
-  console.log(props.art.pixelGrid.grid);
+  layerStore.grids[props.selectedLayer].DeepCopy(props.art.pixelGrid);
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
@@ -34,14 +59,11 @@ function SaveToFile() {
   canvas.width = props.art.pixelGrid.width;
   canvas.height = props.art.pixelGrid.height;
 
+  let grid: string[][] = flattenArt();
+
   for (let x = 0; x < props.art.pixelGrid.height; x++) {
     for (let y = 0; y < props.art.pixelGrid.width; y++) {
-      let pixelHex;
-      if (props.art.pixelGrid.grid[x][y] === "empty") {
-        pixelHex = props.art.pixelGrid.backgroundColor;
-      } else {
-        pixelHex = props.art.pixelGrid.grid[x][y];
-      }
+      let pixelHex = grid[x][y];
       pixelHex = pixelHex.replace("#", "").toUpperCase();
       const index = (x + y * props.art.pixelGrid.width) * 4;
       image?.data.set(

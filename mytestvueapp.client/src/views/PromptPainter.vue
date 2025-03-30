@@ -69,7 +69,7 @@ import { useLayerStore } from "@/store/LayerStore.ts"
 const layerStore = useLayerStore();
 
 const resolution = ref<number>(32);
-const backgroundColor = ref<string>("#ffffff");
+const backgroundColor = ref<string>("FFFFFF");
 const isImage = ref(true);
 
 function updateLocalStorage() {
