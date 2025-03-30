@@ -162,7 +162,7 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.name == ArtistName)
+                    if(artist.name == ArtistName || artist.isAdmin)
                     {
                         await LoginService.DeleteArtist(artist.id);
                         Response.Cookies.Delete("GoogleOAuth");
