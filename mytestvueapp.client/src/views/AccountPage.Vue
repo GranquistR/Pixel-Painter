@@ -77,7 +77,12 @@
                 icon="pi pi-sign-out"
                 @click="logout()"
               />
-              <DeleteArtistButton></DeleteArtistButton>
+              <Button
+                class="block m-2"
+                label="Delete Artist"
+                severity="danger"
+                @click="ConfirmDelete()"
+              />
             </div>
           </template>
         </Card>
@@ -217,6 +222,28 @@ function UpdateUsername() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred. Please try again later",
+        life: 3000,
+      });
+    });
+}
+
+function ConfirmDelete() {
+  LoginService.DeleteCurrentArtist(curArtist.value.id)
+    .then(() => {
+      window.location.href = "/";
+      toast.add({
+        severity: "success",
+        summary: "User Deleted",
+        detail: "The User has been deleted successfully",
+        life: 3000,
+      });
+    })
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail:
+          "error deleting user, please make sure you have spelt it correctly",
         life: 3000,
       });
     });

@@ -356,7 +356,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     connection.Open();
 
-                    var deleteArtQuery = "DELETE artist where artist.id = @ArtistId";
+                    var deleteArtQuery = "DELETE artist where artist.id =  @ArtistId ";
                     using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
                     {
                         deleteArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);

@@ -165,10 +165,41 @@ namespace MyTestVueApp.Server.Controllers
                     if(artist.name == ArtistName || artist.isAdmin)
                     {
                         await LoginService.DeleteArtist(artist.id);
-                        Response.Cookies.Delete("GoogleOAuth");
+                        //Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
                     else { return BadRequest("Username is incorrect"); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("DeleteCurrentArtist")]
+        public async Task<IActionResult> DeleteCurrentArtist(int id)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.id == id || artist.isAdmin)
+                    {
+                        await LoginService.DeleteArtist(id);
+                        return Ok();
+                    }
+                    else { return BadRequest("Current User does not have access tot his function"); }
 
                 }
                 else
