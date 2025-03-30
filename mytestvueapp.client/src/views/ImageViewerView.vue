@@ -26,7 +26,7 @@
               :art-id="id"
               :likes="art.numLikes"
             ></LikeButton>
-            <SaveImageToFile :art="art"></SaveImageToFile>
+            <SaveImageToFile :art="art" :selectedLayer="-1"></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded
@@ -48,7 +48,7 @@
           </div>
           <div v-if="showFilters == true" class="">
             <h3>Filters</h3>
-            <ButtonGroup>
+            <div>
               <Button
                 @click="GreyScaleFilter"
                 :disabled="filtered && greyscale == false"
@@ -78,7 +78,7 @@
                 :severity="Deu ? 'primary' : 'secondary'"
                 >Deuteranope</Button
               >
-            </ButtonGroup>
+            </div>
             <div v-if="ShowTones" class="flex flex-column gap-2 mt-4">
               <h4 class="m-auto">Color 1</h4>
               <h4 class="m-auto">{{ toneOne }}</h4>
@@ -189,7 +189,6 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
-  //console.log(user.value);
 });
 
 function updateComments() {
@@ -244,7 +243,6 @@ const toneTwo = ref<string>("#0000ff");
 //
 const GreyScaleFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (greyscale.value == false) {
         squareColor.value = FilterGreyScale(promise.pixelGrid.encodedGrid);
@@ -431,7 +429,6 @@ function FilterSepia(currentGrid: string): string {
 }
 const SepiaFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (sepia.value == false) {
         squareColor.value = FilterSepia(promise.pixelGrid.encodedGrid);
@@ -457,7 +454,6 @@ function InverseGammaCorrection(OldColor: number): number {
   }
   let expo = 1 / 2.2;
   let NewColor = Math.pow(OldColor, expo);
-  console.log(NewColor);
   NewColor = NewColor * 255;
   return NewColor;
 }
@@ -489,7 +485,6 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   return LMSColors;
 }
 function LMStoProtanopes(LMScolors: number[][]): number[][] {
-  //console.log(LMScolors);
   let ProtanopeColors: number[][] = [];
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
@@ -505,8 +500,6 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
       let sum = 0;
       for (let k = 0; k < PTPcolumns; k++) {
         sum += ProtanopeCalc[i][k] * LMScolors[k][j];
-        //console.log(ProtanopeCalc[i][k]);
-        //console.log(LMScolors[k][j]);
       }
       ProtanopeColors[i][j] = sum;
     }
@@ -595,7 +588,6 @@ function FilterProtanope(currentGrid: string): string {
 }
 const ProtanopeFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (prota.value == false) {
         squareColor.value = FilterProtanope(promise.pixelGrid.encodedGrid);

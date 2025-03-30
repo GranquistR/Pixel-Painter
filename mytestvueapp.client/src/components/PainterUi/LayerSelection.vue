@@ -49,7 +49,6 @@ function pushLayer() {
       props.pixelGrid.backgroundColor,
       props.pixelGrid.isGif)
     );
-    console.log(layerStore.grids);
   }
 }
 

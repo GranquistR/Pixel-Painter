@@ -45,7 +45,13 @@ function flattenArt(): string[][] {
 }
 
 function SaveToFile() {
-  layerStore.grids[props.selectedLayer].DeepCopy(props.art.pixelGrid);
+  let grid: string[][];
+  if (props.selectedLayer !== -1) {
+    layerStore.grids[props.selectedLayer].DeepCopy(props.art.pixelGrid);
+    grid = flattenArt();
+  } else {
+    grid = props.art.pixelGrid.grid;
+  }
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
@@ -58,8 +64,6 @@ function SaveToFile() {
 
   canvas.width = props.art.pixelGrid.width;
   canvas.height = props.art.pixelGrid.height;
-
-  let grid: string[][] = flattenArt();
 
   for (let x = 0; x < props.art.pixelGrid.height; x++) {
     for (let y = 0; y < props.art.pixelGrid.width; y++) {
