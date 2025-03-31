@@ -149,7 +149,7 @@ onMounted(() => {
   });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
     artistList.value = newList;
-    curArtist.value = newList[4];
+    curArtist.value = newList[5];
     ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
       myArt.value = art;
     });
