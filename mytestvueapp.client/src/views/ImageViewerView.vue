@@ -453,12 +453,13 @@ function GammaCorrection(OldColor: number): number {
   return NewColor;
 }
 function InverseGammaCorrection(OldColor: number): number {
+  // console.log(OldColor);
   if (OldColor < 0) {
     Math.abs(OldColor);
   }
   let expo = 1 / 2.2;
   let NewColor = Math.pow(OldColor, expo);
-  console.log(NewColor);
+  //console.log(NewColor);
   NewColor = NewColor * 255;
   return NewColor;
 }
@@ -506,8 +507,7 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
       let sum = 0;
       for (let k = 0; k < PTPcolumns; k++) {
         sum += ProtanopeCalc[i][k] * LMScolors[k][j];
-        //console.log(ProtanopeCalc[i][k]);
-        //console.log(LMScolors[k][j]);
+        //console.log(j);
       }
       ProtanopeColors[i][j] = sum;
     }
@@ -533,6 +533,7 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
         sum += DeuteranopesCalc[i][k] * LMScolors[k][j];
       }
       DeuteranopesColors[i][j] = sum;
+      //console.log(i, j, sum);
     }
   }
 
@@ -636,6 +637,9 @@ function FilterDeu(currentGrid: string): string {
       InverseGammaCorrection(newrgb[2]),
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
+    if (newhexcolor.length != 6) {
+      console.error(`Found it! (${i}): ${newhexcolor}`);
+    }
     newGrid += newhexcolor;
   }
   return newGrid;
