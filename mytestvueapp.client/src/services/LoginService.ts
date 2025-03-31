@@ -53,7 +53,6 @@ export default class LoginService {
 
       if (!response.ok) {
         console.log("Response was not ok");
-        throw new Error("Error: Bad response");
       }
 
       const data = await response.json();
@@ -72,7 +71,7 @@ export default class LoginService {
 
       if (!response.ok) {
         console.log("Response was not ok");
-        throw new Error("Error: Bad response");
+        //throw new Error("Error: Bad response");
       }
 
       const data = await response.json();

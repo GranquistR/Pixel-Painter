@@ -26,8 +26,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query =
+                var query1 =
                     @"
                     Select 
 	                    Art.Id, 
@@ -208,8 +207,46 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return null;
         }
-        //Saves art
-        public async Task<Art> SaveNewArt(Artist artist, Art art)
+
+        public IEnumerable<Art> GetArtByArtist(int artistId)
+        {
+            var paintings = new List<Art>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query =
+                    $@"
+                      Select	
+                        Art.ID,
+                        Art.Title
+                      FROM ART
+                      left join  ContributingArtists as CA on CA.ArtId = Art.Id
+                      WHERE CA.ArtistId = @ArtistID
+                    ";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtistID", artistId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var painting = new Art
+                            {   //ArtId, ArtName
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1)
+                            };
+                            paintings.Add(painting);
+                        }
+                    }
+                }
+                return paintings;
+            }
+        }
+
+        public async Task<Art> SaveNewArt(Artist artist, Art art) //Single Artist
         {
             try
             {
@@ -249,39 +286,72 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public Artist[] GetArtists(int id)
+        public async Task<Art> SaveNewArtMulti(Art art)//Multi artist
         {
-            var ContributingArtists = new Artist();
-            var Artists = new List<Artist>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query1 =
-                    @"
-                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
-                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
-                using (var command = new SqlCommand(query1, connection))
+                art.creationDate = DateTime.UtcNow;
+
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                 {
-                    command.Parameters.AddWithValue("@ArtId", id);
-                    using (var reader = command.ExecuteReader())
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    SELECT SCOPE_IDENTITY();
+                ";
+                    using (var command = new SqlCommand(query, connection))
                     {
-                        while (reader.Read())
-                        {
-                            ContributingArtists = new Artist()
-                            {
-                                id = reader.GetInt32(0),
-                                name = reader.GetString(1)
-                            };
-                            Artists.Add(ContributingArtists);
-                        }
-                        return Artists.ToArray();
+                        command.Parameters.AddWithValue("@Title", art.title);
+                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+
+                        var newArtId = await command.ExecuteScalarAsync();
+                        art.id = Convert.ToInt32(newArtId);
+                    }
+                }
+
+                return art;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveArt");
+                throw;
+            }
+        }
+
+        public async Task AddContributingArtist(int artId, int artistId)
+        {
+            try
+            {
+
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                {
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@ArtId,@ArtistId);
+                ";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@ArtId", artId);
+                        command.Parameters.AddWithValue("@ArtistId", artistId);
+                        command.ExecuteNonQuery();
+
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveContributingArtist");
+                throw;
+            }
         }
+
         public async Task<Art> UpdateArt(Artist artist, Art art)
         {
             try
@@ -308,7 +378,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 	                            Width = @Width,
 	                            Height = @Height,
 	                            Encode = @Encode
-                            WHERE Id = @Id AND ArtistID = @ArtistID;
+                            WHERE Id = @Id;
                         ";
                         using (var command = new SqlCommand(query, connection))
                         {
