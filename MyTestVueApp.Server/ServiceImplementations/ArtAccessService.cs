@@ -17,7 +17,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
             LoginService = loginService;
         }
-        //Queues all the art
         public IEnumerable<Art> GetAllArt()
         {
             var paintings = new List<Art>();

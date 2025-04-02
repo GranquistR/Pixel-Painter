@@ -156,7 +156,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtists")]
-        public IEnumerable<Artist> GetAllArt(int artId)
+        public IEnumerable<Artist> GetAllArtists(int artId)
         {
             return ArtAccessService.GetArtists(artId);
         }
@@ -324,7 +324,7 @@ namespace MyTestVueApp.Server.Controllers
                             isAnArtist = true;
                         }
                     }
-                    if (isAnArtist == false)
+                    if ((!isAnArtist) && (!artist.isAdmin))
                     {
                         return Unauthorized("User is not authorized for this action");
                     }

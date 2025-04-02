@@ -16,7 +16,6 @@ namespace MyTestVueApp.Server.Interfaces
         public IEnumerable<Art> GetAllArt();
         public Art GetArtById(int id);
         public IEnumerable<Art> GetArtByArtist(int artistId);
-
         public Artist[] GetArtists(int artId);
         public Task DeleteArt(int artId);
         public Task DeleteContributingArtist(int artid,int artistid);

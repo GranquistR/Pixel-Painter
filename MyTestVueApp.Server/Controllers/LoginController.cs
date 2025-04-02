@@ -166,7 +166,6 @@ namespace MyTestVueApp.Server.Controllers
                     if(artist.name == ArtistName || artist.isAdmin)
                     {
                         await LoginService.DeleteArtist(artist.id);
-                        //Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
                     else { return BadRequest("Username is incorrect"); }
@@ -185,8 +184,8 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("DeleteCurrentArtist")]
-        public async Task<IActionResult> DeleteCurrentArtist(int id)
+        [Route("DeleteSelectedArtist")]
+        public async Task<IActionResult> DeleteSelectedArtist(int id)
         {
 
             try
