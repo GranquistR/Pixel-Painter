@@ -44,7 +44,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
-                using (var command = new SqlCommand(query, connection))
+                using (var command = new SqlCommand(query1, connection))
                 {
                     using (var reader = command.ExecuteReader())
                     {
@@ -75,76 +75,41 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return paintings;
         }
 
-        
-
-        //Pull all art related to user
-        public IEnumerable<Art> GetAllArtByUserID(int id)
+        public Artist[] GetArtists(int id)
         {
-            var paintings = new List<Art>();
+            var ContributingArtists = new Artist();
+            var Artists = new List<Artist>();
             var connectionString = AppConfig.Value.ConnectionString;
 
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query =
-                    $@"
-                    Select 
-                        Art.Id,
-                        Art.Title,  
-                        Art.Width, 
-                        Art.Height, 
-                        Art.Encode, 
-                        Art.CreationDate, 
-                        Art.isPublic, 
-                        COUNT(distinct Likes.ArtistId) as Likes, 
-                        Count(distinct Comment.Id) as Comments  
-                    FROM ART  
-                    LEFT Join ContributingArtists on Art.ID = Art.Id
-                    LEFT Join Artist on ContributingArtists.ArtistId = Artist.Id
-                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
-                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                    Where Artist.Id = { id }
-                    GROUP BY Art.ID, ContributingArtists.ArtistId, Artist.Name, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
-                    ";
-
-                using (var command = new SqlCommand(query, connection))
+                var query1 =
+                    @"
+                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
+                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
+                using (var command = new SqlCommand(query1, connection))
                 {
+                    command.Parameters.AddWithValue("@ArtId", id);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            var pixelGrid = new PixelGrid()
+                            ContributingArtists = new Artist()
                             {
-                                width = reader.GetInt32(2),
-                                height = reader.GetInt32(3),
-                                encodedGrid = reader.GetString(4)
-                            };
-                            var painting = new Art
-                            { //Art Table + NumLikes and NumComments
                                 id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(7),
-                                numComments = reader.GetInt32(8),
-                                pixelGrid = pixelGrid,
+                                name = reader.GetString(1)
                             };
-                            painting.SetArtists(GetArtists(painting.id));
-                            
-                            for (int i = 0;  i < painting.artistId.LongCount(); i++) { 
-                                if (painting.artistId[i] == id)
-                                    {
-                                        paintings.Add(painting);
-                                    }
-                                }
-                            
+                            Artists.Add(ContributingArtists);
                         }
+                        return Artists.ToArray();
                     }
                 }
             }
-            return paintings;
         }
+
+        //Pull all art related to user
         //Pulls art by Id
         public Art GetArtById(int id)
         {
@@ -257,15 +222,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     connection.Open();
 
                     var query = @"
-                    INSERT INTO Art (Title, ArtistId, Width, Height, Encode, CreationDate, IsPublic)
-                    VALUES (@Title, @ArtistId, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
                     SELECT SCOPE_IDENTITY();
                 ";
 
                     using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Title", art.title);
-                        command.Parameters.AddWithValue("@ArtistId", artist.id);
                         command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
                         command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
                         command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
@@ -359,12 +323,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var oldArt = GetArtById(art.id);
                 if (oldArt == null)
                 {
-                    return null; // old art does not exist, thus cant be deleted
+                    return null;
                 }
-              /*  else if (oldArt.artistId != artist.id)
-                {
-                    throw new UnauthorizedAccessException("User does not have permission to update this art");
-                }*/
+
                 else
                 {
                     using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
