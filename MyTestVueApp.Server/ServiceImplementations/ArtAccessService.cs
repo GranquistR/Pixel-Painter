@@ -171,7 +171,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return null;
         }
-
         public IEnumerable<Art> GetArtByArtist(int artistId)
         {
             var paintings = new List<Art>();
@@ -209,7 +208,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 return paintings;
             }
         }
-
         public async Task<Art> SaveNewArt(Artist artist, Art art) //Single Artist
         {
             try
@@ -248,7 +246,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-
         public async Task<Art> SaveNewArtMulti(Art art)//Multi artist
         {
             try
@@ -286,7 +283,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-
         public async Task AddContributingArtist(int artId, int artistId)
         {
             try
@@ -314,7 +310,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-
         public async Task<Art> UpdateArt(Artist artist, Art art)
         {
             try
@@ -364,7 +359,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
-
         public async Task DeleteArt(int ArtId)
         {
             try
@@ -416,6 +410,3 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
     }
 }
-
-
-

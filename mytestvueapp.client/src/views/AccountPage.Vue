@@ -117,18 +117,17 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
-import DeleteArtistButton from "@/components/DeleteArtistButton.vue";
-import type { RefSymbol } from "@vue/reactivity";
+import { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 const route = useRoute();
 const changeArtist = ref(false);
 
-var artist = ref<Artist>(new Artist());
-var isEditing = ref(false);
-var newUsername = ref("");
-var user = ref<boolean>();
-var curArtist = ref<Artist>(new Artist());
+const artist = ref<Artist>(new Artist());
+const isEditing = ref<boolean>(false);
+const newUsername = ref("");
+const user = ref<boolean>();
+const curArtist = ref<Artist>(new Artist());
 const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
@@ -154,13 +153,6 @@ onMounted(() => {
       myArt.value = art;
     });
   });
-  /*
-  Set selected artist from image viewer here
-  */
-
-  // if (route.hash != "#settings" && route.hash != "#art") {
-  //   router.push("/accountpage#settings");
-  // }
 });
 
 watch(changeArtist, () => {
@@ -257,7 +249,4 @@ function getIsAdmin() {
     user.value = promise;
   });
 }
-// function getAllArtByUser(){
-//   ArtAccessService.getAllArtByUser(curArtist.value.name).then()
-// }
 </script>

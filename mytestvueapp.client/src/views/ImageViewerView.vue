@@ -7,7 +7,8 @@
         :key="art.id"
         :art="art"
         :pixelSize="20"
-        :canvas-number="1" />
+        :canvas-number="1"
+      />
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -17,7 +18,7 @@
 
         <div>
           By
-          {{ art.artistName.toString() }}
+          {{ art.artistName.join(",") }}
           <RouterLink to="/accountpage">
             <Button>Account Page</Button>
           </RouterLink>
@@ -29,14 +30,16 @@
             <LikeButton
               class=""
               :art-id="id"
-              :likes="art.numLikes"></LikeButton>
+              :likes="art.numLikes"
+            ></LikeButton>
             <SaveImageToFile :art="art"></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded
               text
               severity="secondary"
-              @click="showFilters = !showFilters" />
+              @click="showFilters = !showFilters"
+            />
           </div>
           <div class="flex gap-2">
             <Button
@@ -44,7 +47,8 @@
               label="Edit"
               icon="pi pi-pencil"
               severity="secondary"
-              @click="router.push(`/paint/${id}`)"></Button>
+              @click="router.push(`/paint/${id}`)"
+            ></Button>
             <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
             </DeleteArtButton>
           </div>
@@ -88,14 +92,16 @@
                 type="color"
                 id="tone1"
                 v-model="toneOne"
-                class="flex gap-2 w-auto h-2rem" />
+                class="flex gap-2 w-auto h-2rem"
+              />
               <h4 class="m-auto">Color 2</h4>
               <h4 class="m-auto">{{ toneTwo }}</h4>
               <input
                 type="color"
                 id="tone2"
                 v-model="toneTwo"
-                class="flex gap-2 w-auto h-2rem" />
+                class="flex gap-2 w-auto h-2rem"
+              />
               <Button
                 :disabled="filtered && duotone == false"
                 :severity="duotone ? 'primary' : 'secondary'"
@@ -123,12 +129,14 @@
     <NewComment
       @newComment="updateComments"
       class="mb-4"
-      :allComments="allComments"></NewComment>
+      :allComments="allComments"
+    ></NewComment>
     <CommentOnArt
       v-for="Comment in allComments"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="updateComments"></CommentOnArt>
+      @delete-comment="updateComments"
+    ></CommentOnArt>
   </div>
 </template>
 <script setup lang="ts">
@@ -180,7 +188,7 @@ onMounted(() => {
         severity: "error",
         summary: "Error",
         detail: "Art not found",
-        life: 3000
+        life: 3000,
       });
     });
   updateComments();
@@ -188,7 +196,7 @@ onMounted(() => {
 });
 
 function updateComments() {
-  numberTotalComments = 0;
+  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -470,7 +478,7 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   const LMSCalc: number[][] = [
     [17.8824, 43.5161, 4.11935],
     [3.45565, 27.1554, 3.86714],
-    [0.0299566, 0.184309, 1.46709]
+    [0.0299566, 0.184309, 1.46709],
   ];
   var LMScolumns = LMSCalc[0].length;
   var LMSRows = LMSCalc.length;
@@ -493,7 +501,7 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
     [0, 1, 0],
-    [0, 0, 1]
+    [0, 0, 1],
   ];
   let PTPcolumns = ProtanopeCalc[0].length;
   let PTPRows = ProtanopeCalc.length;
@@ -517,7 +525,7 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
   const DeuteranopesCalc: number[][] = [
     [1, 0, 0],
     [0.494207, 0, 1.24827],
-    [0, 0, 1]
+    [0, 0, 1],
   ];
   let DEUcolumns = DeuteranopesCalc[0].length;
   let DEURows = DeuteranopesCalc.length;
@@ -542,7 +550,7 @@ function LMStoRGB(LMScolors: number[][]): number[] {
   const RGBCal: number[][] = [
     [0.080944, -0.130504, 0.116721],
     [-0.0102485, 0.0540194, -0.113615],
-    [-0.000365294, -0.00412163, 0.693513]
+    [-0.000365294, -0.00412163, 0.693513],
   ];
   let LMScolumns = LMScolors[0].length;
   let RGBRows = RGBCal.length;
@@ -577,7 +585,7 @@ function FilterProtanope(currentGrid: string): string {
     currentcolorrgb = [
       GammaCorrection(currentcolorrgb[0]),
       GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2])
+      GammaCorrection(currentcolorrgb[2]),
     ];
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoProtanopes(currentcolorlms);
@@ -585,7 +593,7 @@ function FilterProtanope(currentGrid: string): string {
     newrgb = [
       InverseGammaCorrection(newrgb[0]),
       InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2])
+      InverseGammaCorrection(newrgb[2]),
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     newGrid += newhexcolor;
@@ -623,7 +631,7 @@ function FilterDeu(currentGrid: string): string {
     currentcolorrgb = [
       GammaCorrection(currentcolorrgb[0]),
       GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2])
+      GammaCorrection(currentcolorrgb[2]),
     ];
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoDeuteranopes(currentcolorlms);
@@ -631,7 +639,7 @@ function FilterDeu(currentGrid: string): string {
     newrgb = [
       InverseGammaCorrection(newrgb[0]),
       InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2])
+      InverseGammaCorrection(newrgb[2]),
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     if (newhexcolor.length != 6) {
@@ -660,11 +668,4 @@ const DeuFilter = () => {
       }
   });
 };
-
-// function hide-comments() {
-//   CommentAccessService.getCommentsById(id).then((promise: Comment[]) =>{
-//     if (allComments.value)
-//   });
-// }
 </script>
-
