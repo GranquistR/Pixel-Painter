@@ -176,6 +176,8 @@ const user = ref<boolean>(false);
 var numberTotalComments = Number(0);
 const showFilters = ref(false);
 const ShowTones = ref(false);
+const Names = ref<String[]>([]);
+
 onMounted(() => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
@@ -215,7 +217,6 @@ function buildCommentTree(comments: Comment[]): Comment[] {
   // Create a map of comments by their ID
   for (const comment of comments) {
     commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
-    numberTotalComments++;
   }
 
   // Build the tree by associating replies with their parents
