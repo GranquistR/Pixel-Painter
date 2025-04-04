@@ -201,6 +201,51 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpPost]
+        [Route("SaveGif")]
+        public async Task<IActionResult> SaveGif(Art[] art, int fps)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    if (art[0].id == 0) //New art
+                    {
+                        var result = await ArtAccessService.SaveGif(artist, art, fps);
+                        return Ok(result);
+                    }
+                    else //Update art
+                    {
+                        var result = await ArtAccessService.UpdateArt(artist, art[0]); //remember to fix before merge
+                        if (result == null)
+                        {
+                            return BadRequest("Could not update this art");
+                        }
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("SaveArtCollab")]
         public async Task<IActionResult> SaveArtCollab(Art art)
         {

@@ -12,8 +12,10 @@
     @mouseup="
       mouseButtonHeldDown = false;
       setEndVector();
-      onMouseUp()"
-    @contextmenu.prevent />
+      onMouseUp();
+    "
+    @contextmenu.prevent
+  />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
       <div class="flex gap-2">
@@ -21,29 +23,49 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()">
+          @click="ResetArt()"
+        >
         </Button>
-        <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
+        <UploadButton
+          :art="art"
+          :connection="connection"
+          :connected="connected"
+          :group-name="groupName"
+          @OpenModal="ToggleKeybinds"
+        />
         <SaveImageToFile :art="art"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <ConnectButton
+          @OpenModal="ToggleKeybinds"
+          @Connect="connect"
+          @Disconnect="disconnect"
+          :connected="connected"
+          :isGif="art.pixelGrid.isGif"
+        />
       </div>
     </template>
 
     <template #center>
-      <ColorSelection 
-      v-model:color="cursor.color"
-      v-model:size="cursor.size"
-      @enable-key-binds="keyBindActive = true"
-      @disable-key-binds="keyBindActive = false" />
+      <ColorSelection
+        v-model:color="cursor.color"
+        v-model:size="cursor.size"
+        @enable-key-binds="keyBindActive = true"
+        @disable-key-binds="keyBindActive = false"
+      />
       <BrushSelection v-model="cursor.selectedTool" />
-      <ColorSelection 
-      v-model:color="art.pixelGrid.backgroundColor"
-      v-model:size="cursor.size"
-      isBackground="true"
-      @enable-key-binds="keyBindActive = true"
-      @disable-key-binds="keyBindActive = false" />
-      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif"/>
+      <ColorSelection
+        v-model:color="art.pixelGrid.backgroundColor"
+        v-model:size="cursor.size"
+        :isBackground="true"
+        @enable-key-binds="keyBindActive = true"
+        @disable-key-binds="keyBindActive = false"
+      />
+      <FrameSelection
+        v-if="art.pixelGrid.isGif"
+        v-model:selFrame="selectedFrame"
+        v-model:lastFrame="lastFrame"
+        v-model:frameIndex="index"
+      />
+      <LayerSelection v-if="!art.pixelGrid.isGif" />
     </template>
     <template #end>
       <Button
@@ -51,19 +73,21 @@
         class="mr-2"
         severity="primary"
         label="Recenter"
-        @click="canvas?.recenter()" />
+        @click="canvas?.recenter()"
+      />
       <Button
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
         class="mr-2 Rainbow"
         label="Gravity"
-        @click="runGravity()" />
+        @click="runGravity()"
+      />
 
       <Button
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="
-        art.pixelGrid.randomizeGrid();"/>
+        @click="art.pixelGrid.randomizeGrid()"
+      />
     </template>
   </Toolbar>
 </template>
@@ -115,116 +139,131 @@ const canvas = ref();
 const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
-const artist = ref<Artist>(new Artist);
+const artist = ref<Artist>(new Artist());
 
 // Connection Information
 const connected = ref(false);
 const groupName = ref("");
 let connection = new SignalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7154/signalhub", {
-                skipNegotiation: true,
-                transport: SignalR.HttpTransportType.WebSockets
-            })
-            .build();
+  .withUrl("https://localhost:7154/signalhub", {
+    skipNegotiation: true,
+    transport: SignalR.HttpTransportType.WebSockets,
+  })
+  .build();
 
 connection.on("Send", (user: string, msg: string) => {
-        console.log("Received Message", user + " " + msg);
+  console.log("Received Message", user + " " + msg);
 });
 
 connection.on("NewMember", (newartist: Artist) => {
-  console.log("New Member: "+ newartist.name);
-  if (!art.value.artistId.includes(newartist.id)){
+  console.log("New Member: " + newartist.name);
+  if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
   }
-  console.log("NewMember-Members: " +  art.value.artistName.join(" "))
+  console.log("NewMember-Members: " + art.value.artistName.join(" "));
 });
 
 connection.on("Members", (artists: Artist[]) => {
   console.log("Recieved All Members");
-  artists.forEach(artist => {
-    if (!art.value.artistId.includes(artist.id)){
+  artists.forEach((artist) => {
+    if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
     }
-  })
-  console.log("Members-Members: " +  art.value.artistName.join(" "))
+  });
+  console.log("Members-Members: " + art.value.artistName.join(" "));
 });
 
-connection.onclose(error => {
+connection.onclose((error) => {
   if (error) {
     toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: "You have disconnected!",
-            life: 3000,
-          });
+      severity: "error",
+      summary: "Error",
+      detail: "You have disconnected!",
+      life: 3000,
+    });
     connected.value = false;
-    }
+  }
 });
 
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        DrawPixel(color, coord);
+  DrawPixel(color, coord);
 });
 
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        DrawPixels(color, coords);
+  DrawPixels(color, coords);
 });
 
 connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        fill(coord.x, coord.y, color);
+  fill(coord.x, coord.y, color);
 });
 
-connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
-  art.value.pixelGrid.width = canvasSize;
-  art.value.pixelGrid.height = canvasSize;
-  art.value.pixelGrid.backgroundColor = backgroundColor;
-  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize, backgroundColor);
-  canvas.value?.drawCanvas();
-  canvas.value?.recenter();
-  ReplaceCanvas(pixels);
-});
+connection.on(
+  "GroupConfig",
+  (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
+    art.value.pixelGrid.width = canvasSize;
+    art.value.pixelGrid.height = canvasSize;
+    art.value.pixelGrid.backgroundColor = backgroundColor;
+    art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(
+      canvasSize,
+      canvasSize,
+      backgroundColor,
+    );
+    canvas.value?.drawCanvas();
+    canvas.value?.recenter();
+    ReplaceCanvas(pixels);
+  },
+);
 
 connection.on("BackgroundColor", (backgroundColor: string) => {
   art.value.pixelGrid.backgroundColor = backgroundColor;
 });
 
 const connect = (groupname: string) => {
-
-  if (artist.value.id != 0){
-    connection.start()
-        .then(
-            () => {
-                console.log("Connected to SignalR!");
-                connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
-                groupName.value = groupname;
-                connected.value = !connected.value;
-            }
-        ).catch(err => console.error("Error connecting to Hub:",err));
+  if (artist.value.id != 0) {
+    connection
+      .start()
+      .then(() => {
+        console.log("Connected to SignalR!");
+        connection.invoke(
+          "CreateOrJoinGroup",
+          groupname,
+          artist.value,
+          art.value.pixelGrid.grid,
+          art.value.pixelGrid.width,
+          art.value.pixelGrid.backgroundColor,
+        );
+        groupName.value = groupname;
+        connected.value = !connected.value;
+      })
+      .catch((err) => console.error("Error connecting to Hub:", err));
   } else {
     toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "Please log in before collaborating!",
-          life: 3000,
-        });
+      severity: "error",
+      summary: "Error",
+      detail: "Please log in before collaborating!",
+      life: 3000,
+    });
   }
-}
-
+};
 
 const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup", groupname, artist.value)
+  connection
+    .invoke("LeaveGroup", groupname, artist.value)
     .then(() => {
-      connection.stop()
+      connection
+        .stop()
         .then(() => {
           connected.value = !connected.value;
-        }).catch(err => console.error("Error Disconnecting:", err));
-    }
-    ).catch(err => console.error("Error Leaving Group:",err));
-}
+        })
+        .catch((err) => console.error("Error Disconnecting:", err));
+    })
+    .catch((err) => console.error("Error Leaving Group:", err));
+};
 //End of Connection Information
 const cursor = ref<Cursor>(
-  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
+  new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000"),
 );
 
 const mouseButtonHeldDown = ref<boolean>(false);
@@ -238,7 +277,6 @@ const art = ref<Art>(new Art());
 let selectedFrame = ref(1);
 let lastFrame = ref(1);
 let index = ref(1);
-
 
 let currentPallet: string[];
 function updatePallet() {
@@ -259,18 +297,18 @@ const cursorPositionComputed = computed(
   //this computed property will return a new object every time the cursor position changes
   //thus the watcher watching this value will trigger with the old and new values
   //vue likes to be funky like that :3
-  () => new Vector2(cursor.value.position.x, cursor.value.position.y)
+  () => new Vector2(cursor.value.position.x, cursor.value.position.y),
 );
 
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-      if (art.value.pixelGrid.isGif) {
-          LocalSaveGif();
-      } else {
-          LocalSave();
-      }
+    if (art.value.pixelGrid.isGif) {
+      LocalSaveGif();
+    } else {
+      LocalSave();
     }
+  }
   next();
 });
 
@@ -282,13 +320,13 @@ onMounted(() => {
   LoginService.GetCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       artist.value.id = 0;
-      artist.value.name = "Guest"
+      artist.value.name = "Guest";
     }
     artist.value = user;
   });
 
   const workingGrid = JSON.parse(
-    localStorage.getItem("working-art") as string
+    localStorage.getItem("working-art") as string,
   ) as PixelGrid;
 
   if (route.params.id) {
@@ -336,11 +374,11 @@ const ToggleKeybinds = (disable: boolean) => {
 };
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-    if (art.value.pixelGrid.isGif) {
-        LocalSaveGif();
-    } else { 
-        LocalSave();
-    }
+  if (art.value.pixelGrid.isGif) {
+    LocalSaveGif();
+  } else {
+    LocalSave();
+  }
 }
 
 watch(
@@ -360,45 +398,56 @@ watch(
       DrawAtCoords(GetLinePixels(start, end));
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
 
-watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
-  ChangeBackgroundColor(newColor);
-});
-    
+watch(
+  () => art.value.pixelGrid.backgroundColor,
+  (newColor, oldColor) => {
+    ChangeBackgroundColor(newColor);
+  },
+);
+
 watch(selectedFrame, () => {
   if (lastFrame.value <= index.value) {
-      localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    localStorage.setItem(
+      `frame${lastFrame.value}`,
+      JSON.stringify(art.value.pixelGrid),
+    );
   }
 
   const workingGrid = JSON.parse(
-      localStorage.getItem(`frame${selectedFrame.value}`) as string
+    localStorage.getItem(`frame${selectedFrame.value}`) as string,
   ) as PixelGrid;
 
   if (workingGrid == null) {
-      const newGrid = new PixelGrid(
-          art.value.pixelGrid.width,
-          art.value.pixelGrid.height,
-          art.value.pixelGrid.backgroundColor,
-          art.value.pixelGrid.isGif
-      );
-      art.value.pixelGrid.DeepCopy(newGrid);
-      canvas.value?.updateCanvas();
+    const newGrid = new PixelGrid(
+      art.value.pixelGrid.width,
+      art.value.pixelGrid.height,
+      art.value.pixelGrid.backgroundColor,
+      art.value.pixelGrid.isGif,
+    );
+    art.value.pixelGrid.DeepCopy(newGrid);
+    canvas.value?.updateCanvas();
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
-
+    canvas.value?.recenter();
+    localStorage.setItem(
+      `frame${selectedFrame.value}`,
+      JSON.stringify(art.value.pixelGrid),
+    );
   } else {
-      art.value.pixelGrid.DeepCopy(workingGrid);
-      canvas.value?.updateCanvas();
+    art.value.pixelGrid.DeepCopy(workingGrid);
+    canvas.value?.updateCanvas();
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    canvas.value?.recenter();
+    localStorage.setItem(
+      `frame${selectedFrame.value}`,
+      JSON.stringify(art.value.pixelGrid),
+    );
   }
 });
 
@@ -454,9 +503,9 @@ function DrawPixel(color: string, coord: Vector2) {
 }
 
 function ReplaceCanvas(pixels: Pixel[]) {
-  pixels.forEach(pixel => {
+  pixels.forEach((pixel) => {
     art.value.pixelGrid.grid[pixel.x][pixel.y] = pixel.color;
-  })
+  });
 }
 
 function DrawPixels(color: string, coords: Vector2[]) {
@@ -467,29 +516,20 @@ function DrawPixels(color: string, coords: Vector2[]) {
 
 function SendPixels(color: string, coords: Vector2[]) {
   if (connected.value) {
-    connection.invoke(
-      "SendPixels",
-      groupName.value,
-      color,
-      coords
-    )
+    connection.invoke("SendPixels", groupName.value, color, coords);
   }
 }
 
 function ChangeBackgroundColor(color: string) {
   if (connected.value) {
-    connection.invoke(
-      "ChangeBackgroundColor",
-      groupName.value,
-      color
-    )
+    connection.invoke("ChangeBackgroundColor", groupName.value, color);
   }
 }
 
 function DrawAtCoords(coords: Vector2[]) {
-    let coordinates: Vector2[] = [];
+  let coordinates: Vector2[] = [];
 
-    if (
+  if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
   ) {
@@ -530,8 +570,7 @@ function DrawAtCoords(coords: Vector2[]) {
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
                 coordinates.push(new Vector2(coord.x + i, coord.y + j));
-                art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
-                  "empty";
+                art.value.pixelGrid.grid[coord.x + i][coord.y + j] = "empty";
               }
             }
           }
@@ -552,7 +591,10 @@ function DrawAtCoords(coords: Vector2[]) {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
-            coordinates = fill(cursor.value.position.x, cursor.value.position.y);
+            coordinates = fill(
+              cursor.value.position.x,
+              cursor.value.position.y,
+            );
             SendPixels(cursor.value.color, coordinates);
           }
         } else if (
@@ -566,12 +608,16 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
+function fill(
+  x: number,
+  y: number,
+  color: string = cursor.value.color,
+): Vector2[] {
   let vectors: Vector2[] = [];
   if (y >= 0 && y < art.value.pixelGrid.height) {
     const oldColor = art.value.pixelGrid.grid[x][y];
     art.value.pixelGrid.grid[x][y] = color;
-    vectors.push(new Vector2(x,y));
+    vectors.push(new Vector2(x, y));
     if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
@@ -616,8 +662,8 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
       coords = coords.concat(
         CalculateRectangle(
           new Vector2(leftBound + i, lowerBound + i),
-          new Vector2(rightBound - i, upperBound - i)
-        )
+          new Vector2(rightBound - i, upperBound - i),
+        ),
       );
     }
   }
@@ -669,8 +715,8 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
       coords = coords.concat(
         CalculateEllipse(
           new Vector2(leftBound + i, lowerBound + i),
-          new Vector2(rightBound - i, upperBound - i)
-        )
+          new Vector2(rightBound - i, upperBound - i),
+        ),
       );
     }
   }
@@ -693,7 +739,6 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let yOffset = upperBound - lowerBound;
 
   let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
-
 
   let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
   let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
@@ -734,7 +779,7 @@ function ellipseXtoY(
   center: Vector2,
   majorAxis: number,
   minorAxis: number,
-  x: number
+  x: number,
 ): number {
   let yPow = Math.pow((x - center.x) / majorAxis, 2);
   let ySqrt = Math.sqrt(1 - yPow);
@@ -746,7 +791,7 @@ function ellipseYtoX(
   center: Vector2,
   majorAxis: number,
   minorAxis: number,
-  y: number
+  y: number,
 ): number {
   let xPow = Math.pow((y - center.y) / majorAxis, 2);
   let xSqrt = Math.sqrt(1 - xPow);
@@ -757,7 +802,7 @@ function ellipseYtoX(
 function setStartVector() {
   startPix.value = new Vector2(
     cursor.value.position.x,
-    cursor.value.position.y
+    cursor.value.position.y,
   );
   tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 }
@@ -765,7 +810,7 @@ function setEndVector() {
   if (mouseButtonHeldDown.value) {
     endPix.value = new Vector2(
       cursor.value.position.x,
-      cursor.value.position.y
+      cursor.value.position.y,
     );
   } else {
     tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
@@ -776,34 +821,29 @@ function ResetArt() {
   localStorage.removeItem("working-art");
   localStorage.removeItem("working-list");
 
-    if (art.value.pixelGrid.isGif) {
-        let tempCount = 1;
-        while (localStorage.getItem(`frame${tempCount}`) != null) {
-            localStorage.removeItem(`frame${tempCount}`);
-            tempCount++;    
-        }
+  if (art.value.pixelGrid.isGif) {
+    let tempCount = 1;
+    while (localStorage.getItem(`frame${tempCount}`) != null) {
+      localStorage.removeItem(`frame${tempCount}`);
+      tempCount++;
     }
+  }
 
   router.push("/new");
 }
 
 function onMouseUp() {
-  if (
-    cursor.value.selectedTool.label == "Rectangle"
-  ) {
+  if (cursor.value.selectedTool.label == "Rectangle") {
     SendPixels(
       cursor.value.color,
-      GetRectanglePixels(startPix.value, endPix.value)
+      GetRectanglePixels(startPix.value, endPix.value),
     );
   }
-  if (
-    cursor.value.selectedTool.label == "Ellipse"
-  ) {
-    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
-    });
+  if (cursor.value.selectedTool.label == "Ellipse") {
+    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {});
     SendPixels(
       cursor.value.color,
-      GetEllipsePixels(startPix.value, endPix.value)
+      GetEllipsePixels(startPix.value, endPix.value),
     );
   }
 }
@@ -900,13 +940,15 @@ function LocalSave() {
 
 function LocalSaveGif() {
   const workingGrid = JSON.parse(
-    localStorage.getItem("frame1") as string
+    localStorage.getItem("frame1") as string,
   ) as PixelGrid;
 
   localStorage.setItem("working-art", JSON.stringify(workingGrid));
-  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  localStorage.setItem(
+    `frame${selectedFrame.value}`,
+    JSON.stringify(art.value.pixelGrid),
+  );
 }
-
 </script>
 <style scoped>
 .Rainbow,

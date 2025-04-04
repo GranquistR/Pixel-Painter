@@ -24,5 +24,6 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<Art> SaveNewArtMulti(Art art);
         public Task AddContributingArtist(int artId, int artistId);
         public Task<Art> UpdateArt(Artist artist, Art art);
+        public Task<Art[]> SaveGif(Artist artist, Art[] art, int fps);
     }
 }
