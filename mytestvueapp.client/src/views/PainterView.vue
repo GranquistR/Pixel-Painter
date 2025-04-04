@@ -24,7 +24,7 @@
           @click="ResetArt()">
         </Button>
         <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
-        <SaveImageToFile :art="art"></SaveImageToFile>
+        <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
@@ -43,6 +43,7 @@
       @enable-key-binds="keyBindActive = true"
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
+      <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps"/>
       <LayerSelection v-if="!art.pixelGrid.isGif"/>
     </template>
     <template #end>
@@ -81,6 +82,7 @@ import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
 import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
+import FPSSlider from "@/components/PainterUi/FPSSlider.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -238,6 +240,7 @@ const art = ref<Art>(new Art());
 let selectedFrame = ref(1);
 let lastFrame = ref(1);
 let index = ref(1);
+const fps = ref<number>(4);
 
 
 let currentPallet: string[];
