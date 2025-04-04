@@ -15,14 +15,20 @@
         <h3 class="flex">
           {{ art.title }}
         </h3>
-        <h4 class="m-auto p-auto">By:</h4>
-        <div
-          v-for="(artist, index) in art.artistName"
-          :key="index"
-          class="py-1 font-semibold"
-          onclick="//thing to route"
-        >
-          {{ artist }}
+
+        <div>
+          By
+          <div
+            v-for="(artist, index) in art.artistName"
+            :key="index"
+            class="py-1 font-semibold"
+            onclick="//thing to route"
+          >
+            {{ artist }}
+          </div>
+          <RouterLink to="/accountpage">
+            <Button>Account Page</Button>
+          </RouterLink>
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
@@ -149,7 +155,7 @@ import { ref, onMounted, toRaw } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -173,10 +179,11 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-const Names = ref<String[]>([]);
 const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
+const Names = ref<String[]>([]);
+
 onMounted(() => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
@@ -198,6 +205,7 @@ onMounted(() => {
 });
 
 function updateComments() {
+  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
