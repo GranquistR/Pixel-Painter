@@ -1,8 +1,8 @@
 <template>
   <DrawingCanvas
     ref="canvas"
-    :pixelGrid="art.pixelGrid"
     :style="{ cursor: cursor.selectedTool.cursor }"
+    :grid="art.pixelGrid"
     v-model="cursor"
     @mousedown="
       mouseButtonHeldDown = true;
@@ -24,8 +24,13 @@
           @click="ResetArt()">
         </Button>
         <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
-        <SaveImageToFile :art="art" :selectedLayer="selectedLayer"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <SaveImageToFile :art="art"></SaveImageToFile>
+        <ConnectButton 
+          @OpenModal="ToggleKeybinds" 
+          @Connect="connect" 
+          @Disconnect="disconnect" 
+          :connected="connected" 
+          :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
 
@@ -33,17 +38,18 @@
       <ColorSelection 
       v-model:color="cursor.color"
       v-model:size="cursor.size"
+      :isBackground="false"
       @enable-key-binds="keyBindActive = true"
       @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
       <ColorSelection 
       v-model:color="art.pixelGrid.backgroundColor"
       v-model:size="cursor.size"
-      :isBackground="isBackground"
+      :isBackground="true"
       @enable-key-binds="keyBindActive = true"
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif" @change-layer="switchLayer" :pixelGrid="art.pixelGrid"/>
+      <LayerSelection v-if="!art.pixelGrid.isGif"/>
     </template>
     <template #end>
       <Button
@@ -118,7 +124,6 @@ const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist);
 const layerStore = useLayerStore();
-const selectedLayer = ref<number>(0);
 
 // Connection Information
 const connected = ref(false);
@@ -242,8 +247,6 @@ let selectedFrame = ref(1);
 let lastFrame = ref(1);
 let index = ref(1);
 
-const isBackground = ref<boolean>(true);
-
 let currentPallet: string[];
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
@@ -269,12 +272,12 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-      if (art.value.pixelGrid.isGif) {
-          LocalSaveGif();
-      } else {
-          LocalSave();
-      }
+    if (art.value.pixelGrid.isGif) {
+        LocalSaveGif();
+    } else {
+        LocalSave();
     }
+  }
   next();
 });
 
@@ -292,36 +295,33 @@ onMounted(() => {
   });
 
   if (route.params.id) {
-    layerStore.empty();
     const id: number = parseInt(route.params.id as string);
-    ArtAccessService.getArtById(id)
-      .then((data) => {
-        art.value.pixelGrid.DeepCopy(data.pixelGrid);
-        layerStore.pushGrid(art.value.pixelGrid);
-        
-        art.value.id = data.id;
-        art.value.title = data.title;
-        art.value.isPublic = data.isPublic;
+    ArtAccessService.getArtById(id).then((data) => {
+      art.value.id = data.id;
+      art.value.title = data.title;
+      art.value.isPublic = data.isPublic;
 
-        canvas.value?.recenter();
-      })
-      .catch(() => {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "You cannot edit this art",
-          life: 3000,
-        });
-        router.push("/new");
+      canvas.value?.recenter();
+      art.value.pixelGrid.backgroundColor = layerStore.grids[0].backgroundColor;
+    })
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "You cannot edit this art",
+        life: 3000,
       });
+      router.push("/new");
+    });
   } else if (layerStore.grids.length === 0) {
     router.push("/new");
   } else {
-    art.value.pixelGrid.DeepCopy(layerStore.grids[0]);
-
     canvas.value?.recenter();
-
-    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
+    art.value.pixelGrid.backgroundColor = layerStore.grids[0].backgroundColor;
+    art.value.pixelGrid.width = layerStore.grids[0].width;
+    art.value.pixelGrid.height = layerStore.grids[0].height;
+    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
   }
 });
 
@@ -339,11 +339,11 @@ const ToggleKeybinds = (disable: boolean) => {
 };
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-    if (art.value.pixelGrid.isGif) {
-        LocalSaveGif();
-    } else { 
-        LocalSave();
-    }
+  if (art.value.pixelGrid.isGif) {
+    LocalSaveGif();
+  } else { 
+    LocalSave();
+  }
 }
 
 watch(
@@ -370,62 +370,59 @@ watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
 
-watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
-  ChangeBackgroundColor(newColor);
+watch(() => art.value.pixelGrid.backgroundColor, (next, prev) => {
+  ChangeBackgroundColor(next);
   for (let i = 0; i < layerStore.grids.length; i++) {
-    layerStore.grids[i].backgroundColor = newColor;
+    layerStore.grids[i].backgroundColor = next;
   }
 });
     
 watch(selectedFrame, () => {
   if (lastFrame.value <= index.value) {
-      localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(layerStore.grids[layerStore.layer]));
   }
 
   const workingGrid = JSON.parse(
-      localStorage.getItem(`frame${selectedFrame.value}`) as string
+    localStorage.getItem(`frame${selectedFrame.value}`) as string
   ) as PixelGrid;
 
   if (workingGrid == null) {
-      const newGrid = new PixelGrid(
-          art.value.pixelGrid.width,
-          art.value.pixelGrid.height,
-          art.value.pixelGrid.backgroundColor,
-          art.value.pixelGrid.isGif
-      );
-      art.value.pixelGrid.DeepCopy(newGrid);
-      canvas.value?.updateCanvas();
+    const newGrid = new PixelGrid(
+      art.value.pixelGrid.width,
+      art.value.pixelGrid.height,
+      art.value.pixelGrid.backgroundColor,
+      art.value.pixelGrid.isGif
+    );
+    layerStore.grids[0].DeepCopy(newGrid);
+    console.log(newGrid);
+    canvas.value?.drawLayers(0);
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    canvas.value?.recenter();
+    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[0]));
 
   } else {
-      art.value.pixelGrid.DeepCopy(workingGrid);
-      canvas.value?.updateCanvas();
+    layerStore.grids[0].DeepCopy(workingGrid);
+    canvas.value?.drawLayers(0);
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    canvas.value?.recenter();
+    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[0]));
   }
 });
 
 //functions
-const switchLayer = (idx: number) => {
-  //if our currently selected index isnt out of range we want to update the old layer
-  if (selectedLayer.value != layerStore.grids.length) {
-    layerStore.grids[selectedLayer.value].DeepCopy(art.value.pixelGrid);
-  }
-  selectedLayer.value = idx;
-  art.value.pixelGrid.DeepCopy(layerStore.grids[idx]);
-  canvas.value?.updateCanvas();
+watch(() => layerStore.layer, (next, prev) => {
+  layerStore.layer = next;
+  tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
+  canvas.value?.drawLayers(next);
   canvas.value?.recenter();
-}
+});
 
 function runGravity() {
   if (intervalId.value != -1) {
     clearInterval(intervalId.value);
     intervalId.value = -1;
   } else {
-    intervalId.value = setInterval(fallingSand, 30, art.value.pixelGrid);
+    intervalId.value = setInterval(fallingSand, 30, layerStore.grids[layerStore.layer]);
   }
 }
 
@@ -511,9 +508,10 @@ function DrawAtCoords(coords: Vector2[]) {
     cursor.value.selectedTool.label === "Ellipse"
   ) {
     if (tempGrid) {
-      for (let i = 0; i < art.value.pixelGrid.height; i++) {
-        for (let j = 0; j < art.value.pixelGrid.width; j++) {
-          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+      for (let i = 0; i < layerStore.grids[layerStore.layer].height; i++) {
+        for (let j = 0; j < layerStore.grids[layerStore.layer].width; j++) {
+          layerStore.grids[layerStore.layer].grid[i][j] = tempGrid[i][j];
+          canvas.value?.updateCell(layerStore.layer, i, j, tempGrid[i][j]);
         }
       }
     }
@@ -525,13 +523,14 @@ function DrawAtCoords(coords: Vector2[]) {
           for (let j = 0; j < cursor.value.size; j++) {
             if (
               coord.x + i >= 0 &&
-              coord.x + i < art.value.pixelGrid.width &&
+              coord.x + i < layerStore.grids[layerStore.layer].width &&
               coord.y + j >= 0 &&
-              coord.y + j < art.value.pixelGrid.height
+              coord.y + j < layerStore.grids[layerStore.layer].height
             ) {
               coordinates.push(new Vector2(coord.x + i, coord.y + j));
-              art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
+              layerStore.grids[layerStore.layer].grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
+              canvas.value?.updateCell(layerStore.layer, (coord.x+i), (coord.y+j), cursor.value.color);
             }
           }
         }
@@ -541,14 +540,15 @@ function DrawAtCoords(coords: Vector2[]) {
           for (let j = 0; j < cursor.value.size; j++) {
             if (
               coord.x + i >= 0 &&
-              coord.x + i < art.value.pixelGrid.width &&
+              coord.x + i < layerStore.grids[layerStore.layer].width &&
               coord.y + j >= 0 &&
-              coord.y + j < art.value.pixelGrid.height
+              coord.y + j < layerStore.grids[layerStore.layer].height
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
                 coordinates.push(new Vector2(coord.x + i, coord.y + j));
-                art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
+                layerStore.grids[layerStore.layer].grid[coord.x + i][coord.y + j] =
                   "empty";
+                canvas.value?.updateCell(layerStore.layer, coord.x + i, coord.y + j, "empty");
               }
             }
           }
@@ -556,18 +556,16 @@ function DrawAtCoords(coords: Vector2[]) {
         SendPixels("empty", coordinates);
       } else if (
         coord.x >= 0 &&
-        coord.x < art.value.pixelGrid.width &&
+        coord.x < layerStore.grids[layerStore.layer].width &&
         coord.y >= 0 &&
-        coord.y < art.value.pixelGrid.height
+        coord.y < layerStore.grids[layerStore.layer].height
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
-          let tmp = art.value.pixelGrid.grid[coord.x][coord.y];
-          if (tmp === "empty") tmp = art.value.pixelGrid.backgroundColor;
-
-          cursor.value.color = tmp;
+          let tmp = layerStore.grids[layerStore.layer].grid[coord.x][coord.y];
+          if (tmp === "empty") cursor.value.color = art.value.pixelGrid.backgroundColor;
         } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
-            art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
+            layerStore.grids[layerStore.layer].grid[coord.x][coord.y] != cursor.value.color
           ) {
             coordinates = fill(cursor.value.position.x, cursor.value.position.y);
             SendPixels(cursor.value.color, coordinates);
@@ -576,7 +574,8 @@ function DrawAtCoords(coords: Vector2[]) {
           cursor.value.selectedTool.label === "Rectangle" ||
           cursor.value.selectedTool.label === "Ellipse"
         ) {
-          art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
+          layerStore.grids[layerStore.layer].grid[coord.x][coord.y] = cursor.value.color;
+          canvas.value?.updateCell(layerStore.layer, coord.x, coord.y, cursor.value.color);
         }
       }
     }
@@ -585,28 +584,29 @@ function DrawAtCoords(coords: Vector2[]) {
 
 function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
   let vectors: Vector2[] = [];
-  if (y >= 0 && y < art.value.pixelGrid.height) {
-    const oldColor = art.value.pixelGrid.grid[x][y];
-    art.value.pixelGrid.grid[x][y] = color;
+  if (y >= 0 && y < layerStore.grids[layerStore.layer].height) {
+    const oldColor = layerStore.grids[layerStore.layer].grid[x][y];
+    layerStore.grids[layerStore.layer].grid[x][y] = color;
+    canvas.value?.updateCell(layerStore.layer, x, y, color);
     vectors.push(new Vector2(x,y));
     if (oldColor != color) {
-      if (x + 1 < art.value.pixelGrid.width) {
-        if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
+      if (x + 1 < layerStore.grids[layerStore.layer].width) {
+        if (layerStore.grids[layerStore.layer].grid[x + 1][y] === oldColor) {
           vectors = vectors.concat(fill(x + 1, y, color));
         }
       }
-      if (y + 1 < art.value.pixelGrid.height) {
-        if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
+      if (y + 1 < layerStore.grids[layerStore.layer].height) {
+        if (layerStore.grids[layerStore.layer].grid[x][y + 1] === oldColor) {
           vectors = vectors.concat(fill(x, y + 1, color));
         }
       }
       if (x - 1 >= 0) {
-        if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
+        if (layerStore.grids[layerStore.layer].grid[x - 1][y] === oldColor) {
           vectors = vectors.concat(fill(x - 1, y, color));
         }
       }
       if (y - 1 >= 0) {
-        if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
+        if (layerStore.grids[layerStore.layer].grid[x][y - 1] === oldColor) {
           vectors = vectors.concat(fill(x, y - 1, color));
         }
       }
@@ -776,7 +776,7 @@ function setStartVector() {
     cursor.value.position.x,
     cursor.value.position.y
   );
-  tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+  tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
 }
 function setEndVector() {
   if (mouseButtonHeldDown.value) {
@@ -785,7 +785,7 @@ function setEndVector() {
       cursor.value.position.y
     );
   } else {
-    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
   }
 }
 
@@ -912,7 +912,6 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 function LocalSave() {
-  layerStore.grids[selectedLayer.value].DeepCopy(art.value.pixelGrid);
   console.log(layerStore.grids);
 
   layerStore.save();
@@ -927,7 +926,8 @@ function LocalSaveGif() {
   layerStore.pushGrid(workingGrid);
   layerStore.grids[0].DeepCopy(workingGrid);
   layerStore.save();
-  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+
+  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[layerStore.layer]));
 }
 
 </script>

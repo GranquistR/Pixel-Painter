@@ -3,7 +3,8 @@ import { PixelGrid } from "@/entities/PixelGrid"
 
 export const useLayerStore = defineStore('layers', {
   state: () => ({
-    grids: [] as PixelGrid[]
+    grids: [] as PixelGrid[],
+    layer: 0
   }),
   actions: {
     init() {

@@ -41,7 +41,7 @@
               label="Edit"
               icon="pi pi-pencil"
               severity="secondary"
-              @click="router.push(`/paint/${id}`)"
+              @click="editArt()"
             ></Button>
             <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
             </DeleteArtButton>
@@ -151,6 +151,9 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
+import { useLayerStore } from "@/store/LayerStore.ts"
+
+const layerStore = useLayerStore();
 
 //filters
 const greyscale = ref<boolean>(false);
@@ -190,6 +193,13 @@ onMounted(() => {
   updateComments();
   getIsAdmin();
 });
+
+function editArt() {
+  layerStore.empty();
+  layerStore.clearStorage();
+  layerStore.pushGrid(art.value.pixelGrid);
+  router.push(`/paint/${id}`);
+}
 
 function updateComments() {
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {

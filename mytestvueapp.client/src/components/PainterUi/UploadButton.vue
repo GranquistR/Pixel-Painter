@@ -121,7 +121,7 @@ function ToggleModal() {
   newPrivacy.value = props.art.isPublic;
 }
 
-function flattenArt(): string {
+function flattenArtEncode(): string {
   let width = layerStore.grids[0].width;
   let height = layerStore.grids[0].height;
   let arr: string[][] = Array.from({ length: height }, () =>
@@ -151,9 +151,9 @@ function Upload() {
       let newArt = new Art();
       newArt.title = newName.value;
       newArt.isPublic = newPrivacy.value;
-      newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
+      newArt.pixelGrid.DeepCopy(layerStore.grids[0]);
       newArt.id = props.art.id;
-      newArt.pixelGrid.encodedGrid = flattenArt();
+      newArt.pixelGrid.encodedGrid = flattenArtEncode();
       if (props.connected){
         newArt.artistName = contributors.value.map((artist) => artist.name);
         newArt.artistId = contributors.value.map((artist) => artist.id);

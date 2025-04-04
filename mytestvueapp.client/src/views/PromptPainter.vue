@@ -75,6 +75,7 @@ const isImage = ref(true);
 function updateLocalStorage() {
   layerStore.empty(); //just in case
 
+
   var pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
@@ -83,7 +84,7 @@ function updateLocalStorage() {
   );
 
   layerStore.pushGrid(pixelGrid);
-
+  console.log(layerStore.grids);
   router.push("/paint");
 }
 

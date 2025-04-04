@@ -26,53 +26,52 @@ import FloatingCard from "./FloatingCard.vue";
 import { useLayerStore } from "@/store/LayerStore.ts"
 import { PixelGrid } from "@/entities/PixelGrid.ts"
 
-import { ref, defineEmits, onBeforeMount } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 
 const layerStore = useLayerStore();
-const selectedLayer = ref<number>(1);
-const layers = ref<number[]>([1]);
-
-const props = defineProps<{ pixelGrid: PixelGrid }>();
-const emit = defineEmits(['change-layer']);
+const selectedLayer = ref<number>(0);
+const layers = ref<number[]>([0]);
 
 onBeforeMount(() => {
   for (let i = 1; i < layerStore.grids.length; i++)
-    layers.value.push(i + 1);
+    layers.value.push(i);
 });
 
 function pushLayer() {
   if (layers.value.length < 8) {
-    layers.value.push(layers.value.length + 1);
+    layers.value.push(layers.value.length);
     layerStore.pushGrid(new PixelGrid(
-      props.pixelGrid.width,
-      props.pixelGrid.height,
-      props.pixelGrid.backgroundColor,
-      props.pixelGrid.isGif)
+      layerStore.grids[0].height,
+      layerStore.grids[0].height,
+      layerStore.grids[0].backgroundColor,
+      layerStore.grids[0].isGif)
     );
   }
 }
 
-function deleteLayer(id) {
+function deleteLayer(idx) {
   if (layers.value.length > 1) {
-    const isConfirmed = confirm("This will delete layer " + id + ". Are you sure you want to delete this layer?");
+    const isConfirmed = confirm("This will delete layer " + (idx+1) + ". Are you sure you want to delete this layer?");
     if (!isConfirmed) return;
 
-    let idx = id - 1;
-
     if (idx === -1) {
-      console.warn(`Layer with id ${id} not found`);
+      console.warn(`Layer with id ${(idx+1)} not found`);
       return;
     }
+    //remove specific layer
     layers.value.splice(idx, 1);
     layerStore.removeGrid(idx);
 
+
+    layers.value.forEach((layer, index) => {
+      layers.value[index] = index;
+    });
+
     if (!layers.value.some(layer => layer === selectedLayer.value)) {
-      layers.value.forEach((layer, index) => {
-        layers.value[index] = index + 1;
-      });
+      selectedLayer.value = layers.value[layers.value.length - 1] ?? 1;
+      layerStore.layer = selectedLayer.value;
     }
-    selectedLayer.value = idx - 1;
-    emit('change-layer', selectedLayer.value);
+    console.log(layers.value);
   }
 }
 
@@ -83,14 +82,14 @@ function popLayer() {
     layerStore.popGrid();
     if (!layers.value.some(layer => layer === selectedLayer.value)) {
       selectedLayer.value = layers.value[layers.value.length - 1] ?? 1;
+      layerStore.layer = selectedLayer.value;
     }
-    emit('change-layer', selectedLayer.value - 1);
   }
 }
 
 function switchLayer(layer) {
   selectedLayer.value = layer;
-  emit('change-layer', selectedLayer.value-1);
+  layerStore.layer = layer;
 }
 </script>
 

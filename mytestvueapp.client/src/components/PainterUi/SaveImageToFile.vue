@@ -11,7 +11,6 @@ import { useLayerStore } from "@/store/LayerStore.ts"
 const layerStore = useLayerStore();
 const props = defineProps<{
   art: Art;
-  selectedLayer: number;
 }>();
 
 function handleClick() {
@@ -46,30 +45,30 @@ function flattenArt(): string[][] {
 
 function SaveToFile() {
   let grid: string[][];
-  if (props.selectedLayer !== -1) {
-    layerStore.grids[props.selectedLayer].DeepCopy(props.art.pixelGrid);
+  if (layerStore.grids.length>1) {
     grid = flattenArt();
   } else {
     grid = props.art.pixelGrid.grid;
   }
+  
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
     throw new Error("Could not get context");
   }
   const image = context.createImageData(
-    props.art.pixelGrid.width,
-    props.art.pixelGrid.height
+    grid.length,
+    grid.length
   );
 
-  canvas.width = props.art.pixelGrid.width;
-  canvas.height = props.art.pixelGrid.height;
+  canvas.width = grid.length;
+  canvas.height = grid.length;
 
-  for (let x = 0; x < props.art.pixelGrid.height; x++) {
-    for (let y = 0; y < props.art.pixelGrid.width; y++) {
+  for (let x = 0; x < grid.length; x++) {
+    for (let y = 0; y < grid.length; y++) {
       let pixelHex = grid[x][y];
       pixelHex = pixelHex.replace("#", "").toUpperCase();
-      const index = (x + y * props.art.pixelGrid.width) * 4;
+      const index = (x + y * grid.length) * 4;
       image?.data.set(
         [
           parseInt(pixelHex.substring(0, 2), 16),
