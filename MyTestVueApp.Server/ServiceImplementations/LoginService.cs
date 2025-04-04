@@ -174,7 +174,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return username;
         }
 
-        public IEnumerable<Artist> GetAllArtists()
+        public async Task<IEnumerable<Artist>> GetAllArtists()
         {
             var artistList = new List<Artist>();
             var connectionString = AppConfig.Value.ConnectionString;
@@ -193,7 +193,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {

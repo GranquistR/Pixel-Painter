@@ -13,6 +13,6 @@ namespace MyTestVueApp.Server.Interfaces
         Task DeleteArtist(int artistId);
         public Task<bool> IsUserAdmin(string userId);
 
-        public IEnumerable<Artist> GetAllArtists();
+        public Task<IEnumerable<Artist>> GetAllArtists();
     }
 }

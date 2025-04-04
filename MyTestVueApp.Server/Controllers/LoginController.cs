@@ -81,11 +81,9 @@ namespace MyTestVueApp.Server.Controllers
         [HttpGet]
         [Route("GetAllArtists")]
 
-        public IEnumerable<Artist> GetAllArtists()
+        public async Task<IEnumerable<Artist>> GetAllArtists()
         {
-            var artistlist = LoginService.GetAllArtists();
-            return artistlist;
-
+            return await LoginService.GetAllArtists();
         }
 
         [HttpGet]

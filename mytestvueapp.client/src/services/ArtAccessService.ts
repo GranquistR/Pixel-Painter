@@ -36,7 +36,7 @@ export default class ArtAccessService {
         let art = new Art();
         art = jsonArt as Art;
 
-        allArt.push(art);
+        allArt.push(jsonArt as Art);
       }
 
       return allArt;
@@ -174,13 +174,13 @@ export default class ArtAccessService {
       let request = "/artaccess/SaveArt";
       console.log("#Artists: " + art.artistId.length);
       if (art.artistId.length > 1) {
-        request = "/artaccess/SaveArtCollab"
+        request = "/artaccess/SaveArtCollab";
       }
 
       const response = await fetch(request, {
         method: "POST",
         body: JSON.stringify(art),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
       const json = await response.json();
 
