@@ -154,7 +154,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 encodedGrid = reader.GetString(4)
                             };
                             painting = new Art
-                            { //ArtId, ArtName, ArtistId, Width, ArtLength, Encode, Date, IsPublic
+                            { //ArtId, ArtName, Width, ArtLength, Encode, Date, IsPublic
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
                                 pixelGrid = pixelGrid,
@@ -222,6 +222,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
                     VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
                     SELECT SCOPE_IDENTITY();
+                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);
                 ";
 
                     using (var command = new SqlCommand(query, connection))

@@ -83,8 +83,8 @@ namespace MyTestVueApp.Server.Controllers
 
         public IEnumerable<Artist> GetAllArtists()
         {
-            
-            return LoginService.GetAllArtists();
+            var artistlist = LoginService.GetAllArtists();
+            return artistlist;
 
         }
 
