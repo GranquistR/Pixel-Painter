@@ -21,6 +21,9 @@
       </div>
     </template>
     <template #end>
+      <RouterLink class="mr-2" to="/notifications" v-if="isLoggedIn">
+        <Notification />
+      </RouterLink>
       <DarkModeSwitcher class="mr-2" />
       <GoogleLogin></GoogleLogin>
     </template>
@@ -34,17 +37,25 @@ import Button from "primevue/button";
 import DarkModeSwitcher from "./DarkModeToggle.vue";
 import GoogleLogin from "../GoogleLogin.vue";
 import Toolbar from "primevue/toolbar";
+import Notification from "./NotificationRedirect.vue";
+import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore.ts"
 
 const visible = ref(false);
 const password = ref(null);
 const layerStore = useLayerStore();
 
+const isLoggedIn = ref(false);
+
 onMounted(() => {
   layerStore.init();
   console.log(layerStore.grids);
-});
 
+  LoginService.isLoggedIn().then((result) => {
+    isLoggedIn.value = result;
+  });
+});
+//Will want to start calculating
 </script>
 
 <style scoped>
@@ -54,3 +65,4 @@ onMounted(() => {
   background-color: transparent;
 }
 </style>
+

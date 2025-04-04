@@ -138,11 +138,11 @@ watch(search, () => {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase()),
+      Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
   }
 });

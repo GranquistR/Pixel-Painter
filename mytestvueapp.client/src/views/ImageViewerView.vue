@@ -16,7 +16,20 @@
           {{ art.title }}
         </h3>
 
-        <div>By {{ art.artistName.toString() }}</div>
+        <div>
+          By
+          <div
+            v-for="(artist, index) in art.artistName"
+            :key="index"
+            class="py-1 font-semibold"
+            onclick="//thing to route"
+          >
+            {{ artist }}
+          </div>
+          <RouterLink to="/accountpage">
+            <Button>Account Page</Button>
+          </RouterLink>
+        </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
         <div class="flex flex-column gap-2 mt-4">
@@ -142,7 +155,7 @@ import { ref, onMounted, toRaw } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -169,11 +182,12 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-const Names = ref<String[]>([]);
 const user = ref<boolean>(false);
 var numberTotalComments = Number(0);
 const showFilters = ref(false);
 const ShowTones = ref(false);
+const Names = ref<String[]>([]);
+
 onMounted(() => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
@@ -202,6 +216,7 @@ function editArt() {
 }
 
 function updateComments() {
+  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -235,7 +250,7 @@ function buildCommentTree(comments: Comment[]): Comment[] {
         parentComment.replies!.push(currentComment);
       } else {
         console.warn(
-          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`,
+          `Parent with ID ${comment.replyId} not found for comment ID ${comment.id}`
         );
       }
     }
@@ -317,7 +332,7 @@ function FilterGreyScale(currentGrid: string): string {
     newrgb = rgbToGrayscale(
       currentcolorrgb[0],
       currentcolorrgb[1],
-      currentcolorrgb[2],
+      currentcolorrgb[2]
     );
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     newGrid += newhexcolor;
@@ -330,13 +345,13 @@ function GenerateGradient(toneOne: string, toneTwo: string): number[] {
   let gradient: number[] = [];
   for (var i = 0; i < 256 * 3; i += 3) {
     gradient[i] = Math.round(
-      ((256 - i / 4) * rgb1[0] + (i / 4) * rgb2[0]) / 256,
+      ((256 - i / 4) * rgb1[0] + (i / 4) * rgb2[0]) / 256
     );
     gradient[i + 1] = Math.round(
-      ((256 - i / 4) * rgb1[1] + (i / 4) * rgb2[1]) / 256,
+      ((256 - i / 4) * rgb1[1] + (i / 4) * rgb2[1]) / 256
     );
     gradient[i + 2] = Math.round(
-      ((256 - i / 4) * rgb1[2] + (i / 4) * rgb2[2]) / 256,
+      ((256 - i / 4) * rgb1[2] + (i / 4) * rgb2[2]) / 256
     );
   }
   return gradient;
@@ -344,7 +359,7 @@ function GenerateGradient(toneOne: string, toneTwo: string): number[] {
 function DuoTone(
   currentGrid: string,
   toneOne: string,
-  toneTwo: string,
+  toneTwo: string
 ): string {
   let j = 0;
   let newGrid: string = "";
@@ -366,7 +381,7 @@ function DuoTone(
     newGrid += rgbToHex(
       gradientGrid[k][0],
       gradientGrid[k][1],
-      gradientGrid[k][2],
+      gradientGrid[k][2]
     );
   }
   return newGrid;
@@ -378,7 +393,7 @@ const DuoToneFilter = (toneOne: string, toneTwo: string) => {
         squareColor.value = DuoTone(
           promise.pixelGrid.encodedGrid,
           toneOne,
-          toneTwo,
+          toneTwo
         );
         duotone.value = true;
         filtered.value = true;
@@ -429,7 +444,7 @@ function FilterSepia(currentGrid: string): string {
     newrgb = rgbToGrayscale(
       currentcolorrgb[0],
       currentcolorrgb[1],
-      currentcolorrgb[2],
+      currentcolorrgb[2]
     );
     newrgb = SepiaTone(newrgb[0], newrgb[1], newrgb[2]);
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
@@ -459,6 +474,7 @@ function GammaCorrection(OldColor: number): number {
   return NewColor;
 }
 function InverseGammaCorrection(OldColor: number): number {
+  // console.log(OldColor);
   if (OldColor < 0) {
     Math.abs(OldColor);
   }
@@ -535,6 +551,7 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
         sum += DeuteranopesCalc[i][k] * LMScolors[k][j];
       }
       DeuteranopesColors[i][j] = sum;
+      //console.log(i, j, sum);
     }
   }
 
@@ -637,6 +654,9 @@ function FilterDeu(currentGrid: string): string {
       InverseGammaCorrection(newrgb[2]),
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
+    if (newhexcolor.length != 6) {
+      console.error(`Found it! (${i}): ${newhexcolor}`);
+    }
     newGrid += newhexcolor;
   }
   return newGrid;
