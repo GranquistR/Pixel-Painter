@@ -193,7 +193,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    using (var reader = await command.ExecuteReaderAsync())
+                    using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
