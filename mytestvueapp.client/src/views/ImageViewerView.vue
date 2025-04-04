@@ -122,7 +122,7 @@
     </Card>
   </div>
 
-  <h2 class="px-4">{{ numberTotalComments }} Comments</h2>
+  <h2 class="px-4">{{ allComments.length }} Comments</h2>
 
   <div class="px-6">
     <!-- Initial comment. Reply to image -->
