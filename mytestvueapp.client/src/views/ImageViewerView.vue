@@ -190,6 +190,7 @@ onMounted(() => {
     .then((promise: Art) => {
       art.value = promise as Art;
       uploadDate.value = new Date(promise.creationDate);
+      Names.value = art.value.artistName;
     })
     .catch(() => {
       router.push("/gallery");
