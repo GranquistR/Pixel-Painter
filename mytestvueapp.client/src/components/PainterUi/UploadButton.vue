@@ -94,21 +94,21 @@ watch(visible, () => {
 
 // WHY CANT I JUST WATCH props.connection.state !!!!!!!
 // I even tried using computed and {deep: true}!!!!
-watch(() => props.connected, () => {
-  if (props.connection.state == HubConnectionState.Connected) {
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
-});
+// watch(() => props.connected, () => {
+//   if (props.connection.state == HubConnectionState.Connected) {
+//     props.connection.invoke("GetContributingArtists", props.groupName);
+//   } 
+// });
 
-onMounted(() => {
-  if (props.connection.state == HubConnectionState.Connected){
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
-});
+// onMounted(() => {
+//   if (props.connection.state == HubConnectionState.Connected){
+//     props.connection.invoke("GetContributingArtists", props.groupName);
+//   } 
+// });
 
-props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
-  contributors.value = allArtists;
-});
+// props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
+//   contributors.value = allArtists;
+// });
 
 function ToggleModal() {
   visible.value = !visible.value;
@@ -141,11 +141,16 @@ function Upload() {
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
       newArt.id = props.art.id;
-      newArt.encodedGrid = flattenArt();
-      if (props.connected){
-        newArt.artistName = contributors.value.map((artist) => artist.name);
-        newArt.artistId = contributors.value.map((artist) => artist.id);
-      }
+      //newArt.encodedGrid = flattenArt();
+      console.log("UB-All members Names: " + props.art.artistName.join(" "));
+      console.log("UB-All members ID: " + props.art.artistId.join(" "));
+      console.log("UB-artistId Length: " + props.art.artistId.length);
+      newArt.artistId = props.art.artistId;
+      newArt.artistName = props.art.artistName;
+      // if (props.connected){
+      //   newArt.artistName = contributors.value.map((artist) => artist.name);
+      //   newArt.artistId = contributors.value.map((artist) => artist.id);
+      // }
 
       ArtAccessService.SaveArt(newArt)
         .then((data: Art) => {

@@ -181,7 +181,7 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   art.value.pixelGrid.width = canvasSize;
   art.value.pixelGrid.height = canvasSize;
   art.value.pixelGrid.backgroundColor = backgroundColor;
-  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize, backgroundColor);
+  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize);
   canvas.value?.drawCanvas();
   canvas.value?.recenter();
   ReplaceCanvas(pixels);
@@ -203,6 +203,9 @@ const connect = (groupname: string) => {
                 connected.value = !connected.value;
             }
         ).catch(err => console.error("Error connecting to Hub:",err));
+        art.value.artistId = [artist.value.id]; 
+        art.value.artistName = [artist.value.name];
+    connection.invoke("GetContributingArtists", groupname);
   } else {
     toast.add({
           severity: "error",
