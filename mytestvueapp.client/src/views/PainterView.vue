@@ -23,7 +23,7 @@
           severity="secondary"
           @click="ResetArt()">
         </Button>
-        <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
+        <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
       </div>
