@@ -12,7 +12,7 @@ namespace MyTestVueApp.Server.Hubs
         private IConnectionManager _manager;
         private readonly ILogger<SignalHub> _logger;
 
-        private Dictionary<string, string> users = new();
+        private Dictionary<string, MembershipRecord> users = new();
 
         public SignalHub(IConnectionManager manager, ILogger<SignalHub> logger)
         {
@@ -38,7 +38,7 @@ namespace MyTestVueApp.Server.Hubs
         {
             // Add the user to the group
             _manager.AddUser(groupName, artist); 
-            users.Add(Context.ConnectionId, groupName);
+            users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
 
@@ -66,7 +66,7 @@ namespace MyTestVueApp.Server.Hubs
             // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(groupName, artist);
-            users.Add(Context.ConnectionId, groupName);
+            users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
 
             _logger.LogInformation("Group Info: " 
                 + _manager.GetGroup(groupName).Name + " " 
@@ -84,10 +84,16 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task LeaveGroup(string groupName, Artist member)
         {
-            _logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
-            _manager.RemoveUser(groupName, member);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
+            try
+            {
+                _manager.RemoveUser(groupName, member);
+                users.Remove(Context.ConnectionId);
+                //_logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+                await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
+            } catch (Exception e) {
+                _logger.LogError(e.ToString());
+            }
         }
 
         public async Task SendPixel(string room, string color, Coordinate coord)
@@ -126,6 +132,22 @@ namespace MyTestVueApp.Server.Hubs
         public async Task GetContributingArtists(string groupName)
         {
             await Clients.Group(groupName).SendAsync("ContributingArtists", _manager.GetGroup(groupName).MemberRecord);
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            if (exception != null)
+            {
+                users.TryGetValue(Context.ConnectionId, out MembershipRecord groupRecord);
+                if (groupRecord != null)
+                {
+                    _manager.GetGroup(groupRecord.GroupName).RemoveMember(groupRecord.Artist);
+                    // Log the disconnection and any error information
+                    _logger.LogInformation($"Client disconnected: {groupRecord.Artist.name}");
+                    _logger.LogError($"Error: {exception.Message}");
+                }
+            }
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

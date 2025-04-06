@@ -1,4 +1,6 @@
-﻿namespace MyTestVueApp.Server.Entities
+﻿using System.Collections.Generic;
+
+namespace MyTestVueApp.Server.Entities
 {
 
     public class Group(string groupName)
@@ -39,7 +41,9 @@
 
         public void RemoveMember(Artist member)
         {
-            CurrentMembers.Remove(member);
+            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.id == member.id);
+            if(itemToRemove != null)
+                CurrentMembers.Remove(itemToRemove);
         }
 
         public void PaintPixels(string color, Coordinate[] coords)

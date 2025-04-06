@@ -79,7 +79,7 @@ const isEditing = computed(() => {
   return props.art.id != 0;
 });
 
-const emit = defineEmits(["OpenModal"]);
+const emit = defineEmits(["OpenModal", "disconnect"]);
 
 watch(visible, () => {
   emit("OpenModal", visible.value);
@@ -107,6 +107,7 @@ function flattenArt(): string {
 }
 
 function Upload() {
+  emit("disconnect");
   loading.value = true;
 
   LoginService.isLoggedIn().then((isLoggedIn) => {

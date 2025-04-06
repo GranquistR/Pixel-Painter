@@ -23,9 +23,9 @@
           severity="secondary"
           @click="ResetArt()">
         </Button>
-        <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
+        <UploadButton :art="art" @OpenModal="ToggleKeybinds" @disconnect="disconnect" />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <ConnectButton @OpenModal="ToggleKeybinds" @connect="connect" @disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
 
@@ -201,11 +201,11 @@ const connect = (groupname: string) => {
                 connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
                 groupName.value = groupname;
                 connected.value = !connected.value;
+                art.value.artistId = [artist.value.id]; 
+                art.value.artistName = [artist.value.name];
+                connection.invoke("GetContributingArtists", groupname);
             }
         ).catch(err => console.error("Error connecting to Hub:",err));
-        art.value.artistId = [artist.value.id]; 
-        art.value.artistName = [artist.value.name];
-    connection.invoke("GetContributingArtists", groupname);
   } else {
     toast.add({
           severity: "error",
@@ -217,8 +217,9 @@ const connect = (groupname: string) => {
 }
 
 
-const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup", groupname, artist.value)
+const disconnect = () => {
+  console.log("Disconnecting...");
+  connection.invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection.stop()
         .then(() => {

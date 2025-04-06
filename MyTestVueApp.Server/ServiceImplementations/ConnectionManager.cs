@@ -31,9 +31,23 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public void RemoveUser(string groupName, Artist member)
         {
+            string memberList = "";
+            foreach (Artist mem in groups[groupName].MemberRecord)
+            {
+                memberList += mem.name;
+            }
+            Console.WriteLine("Members: " + memberList);
             groups[groupName].RemoveMember(member);
+            memberList = "";
+            foreach (Artist mem in groups[groupName].MemberRecord)
+            {
+                memberList += mem.name;
+            }
+            Console.WriteLine("Members: " + memberList);
+            Console.WriteLine("Remaining Users: "+  groups[groupName].MemberRecord.Count);
             if (groups[groupName].IsEmpty())
             {
+                Console.WriteLine("Deleting Group");
                 groups.Remove(groupName);
             }
         }
