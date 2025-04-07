@@ -10,8 +10,11 @@ import { useLayerStore } from "@/store/LayerStore.ts"
 
 const layerStore = useLayerStore();
 const props = defineProps<{
-  art: Art;
+    art: Art;
+    fps: number;
 }>();
+
+
 
 function handleClick() {
   if (props.art.pixelGrid.isGif) {
@@ -157,6 +160,6 @@ function saveGIF() {
     urls.push(strings[1]);
     i++;
   }
-  GIFCreationService.createGIF(urls);
+  GIFCreationService.createGIF(urls, props.fps);
 }
 </script>
