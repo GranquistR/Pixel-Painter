@@ -19,7 +19,7 @@ import { useLayerStore } from "@/store/LayerStore.ts"
 
 
 //Constants
-var PIXEL_SIZE = 10;
+const PIXEL_SIZE = 10;
 const layerStore = useLayerStore();
 
 //props
@@ -29,9 +29,6 @@ const props = defineProps<{
 
 //exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
 defineExpose({ recenter, updateCursor, drawLayers, updateCell, init });
-
-//other variables
-const firstLoad = ref<boolean>(true);
 
 //model
 const cursor = defineModel<Cursor>({
@@ -59,7 +56,7 @@ const app = new Application({
 });
 
 // creates the viewport
-var viewport = new Viewport({
+const viewport = new Viewport({
   screenWidth: window.innerWidth,
   screenHeight: window.innerHeight,
   worldWidth: 100,
@@ -97,6 +94,7 @@ function init() {
 function drawLayers(layer: number) {
   let dropShadow = viewport.children[0];
   let background = viewport.children[1];
+  background.tint = layerStore.grids[layer].backgroundColor;
   viewport.removeChildren();
   viewport.addChild(dropShadow);
   viewport.addChild(background);
@@ -126,11 +124,13 @@ function drawLayers(layer: number) {
 function updateCell(layer: number, x: number, y: number, color: string) {
   let idx = layerStore.grids[0].width ** 2 * layer + 2;
   idx += (x * layerStore.grids[0].width + y);
+
   if (color === "empty") {
     viewport.children[idx].alpha = 0;
   } else {
     viewport.children[idx].tint = color;
-    viewport.children[idx].alpha = 1;
+    if (layer <= layerStore.layer) viewport.children[idx].alpha = 1;
+    else viewport.children[idx].alpha = 0;
   }
 }
 

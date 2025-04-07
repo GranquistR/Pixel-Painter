@@ -64,8 +64,7 @@
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="
-        art.pixelGrid.randomizeGrid();"/>
+        @click="randomizeGrid()"/>
     </template>
   </Toolbar>
 </template>
@@ -105,7 +104,7 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
-import fallingSand from "@/utils/fallingSand";
+//import fallingSand from "@/utils/fallingSand";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
@@ -184,7 +183,7 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   art.value.pixelGrid.width = canvasSize;
   art.value.pixelGrid.height = canvasSize;
   art.value.pixelGrid.backgroundColor = backgroundColor;
-  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize, backgroundColor);
+  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize);
   canvas.value?.drawCanvas();
   canvas.value?.recenter();
   ReplaceCanvas(pixels);
@@ -324,6 +323,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  layerStore.layer = 0;
   document.removeEventListener("keydown", handleKeyDown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
@@ -612,6 +612,54 @@ function fill(x: number, y: number, color: string = cursor.value.color) : Vector
   }
 
   return vectors;
+}
+
+function randomizeGrid() {
+  for (let i = 0; i < layerStore.grids[layerStore.layer].height; i++) {
+    for (let j = 0; j < layerStore.grids[layerStore.layer].width; j++) {
+      let color = ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
+      layerStore.grids[layerStore.layer].grid[i][j] = color;
+      canvas.value?.updateCell(layerStore.layer, i, j, color);
+    }
+  }
+  layerStore.grids[layerStore.layer].encodedGrid = layerStore.grids[layerStore.layer].getEncodedGrid();
+}
+
+function fallingSand() {
+  let pixelGrid: PixelGrid = layerStore.grids[layerStore.layer];
+
+  for (let x = 0; x < pixelGrid.width; x++) {
+    for (let y = pixelGrid.height - 1; y >= 0; y--) {
+      if (pixelGrid.grid[x][y] !== "empty") {
+        if (
+          y + 1 < pixelGrid.height &&
+          pixelGrid.grid[x][y + 1] === "empty"
+        ) {
+          const below = pixelGrid.grid[x][y + 1];
+          pixelGrid.grid[x][y + 1] = pixelGrid.grid[x][y];
+          canvas.value?.updateCell(layerStore.layer, x, y+1, pixelGrid.grid[x][y]);
+          pixelGrid.grid[x][y] = below;
+          canvas.value?.updateCell(layerStore.layer, x, y, below);
+        } else {
+          //generate a random number either -1 or 1
+          const random = Math.random() > 0.5 ? 1 : -1;
+
+          if (
+            y + 1 < pixelGrid.height &&
+            x + random < pixelGrid.width &&
+            x + random >= 0 &&
+            pixelGrid.grid[x + random][y + 1] === "empty"
+          ) {
+            const belowRight = pixelGrid.grid[x + random][y + 1];
+            pixelGrid.grid[x + random][y + 1] = pixelGrid.grid[x][y];
+            canvas.value?.updateCell(layerStore.layer, x+random, y+1, pixelGrid.grid[x][y]);
+            pixelGrid.grid[x][y] = belowRight;
+            canvas.value?.updateCell(layerStore.layer, x, y, belowRight);
+          }
+        }
+      }
+    }
+  }
 }
 
 function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {

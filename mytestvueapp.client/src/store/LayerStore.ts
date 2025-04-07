@@ -31,11 +31,12 @@ export const useLayerStore = defineStore('layers', {
     },
     clearStorage() {
       localStorage.removeItem('grids');
-    }
-  },
-  getters: {
-    getGrid: (state) => (gridIndex: number) => {
-      return state.grids[gridIndex] || null;
+    },
+    getGridArray() {
+      const arr: string[][][] = [];
+      for (let i = 0; i < this.grids.length; i++)
+        arr.push(this.grids[i].grid);
+      return arr;
     }
   }
 });
