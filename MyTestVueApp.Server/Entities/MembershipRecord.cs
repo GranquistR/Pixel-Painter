@@ -1,14 +1,8 @@
 ﻿namespace MyTestVueApp.Server.Entities
 {
-    public class MembershipRecord
+    public class MembershipRecord(Artist artist, string group)
     {
-        public Artist Artist { get; set; }
-        public string GroupName { get; set; }
-
-        public MembershipRecord(Artist artist, string group)
-        {
-            Artist = artist;
-            GroupName = group;
-        } 
+        public Artist Artist { get; set; } = artist;
+        public string GroupName { get; set; } = group;
     }
 }

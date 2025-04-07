@@ -165,16 +165,8 @@ connection.onclose(error => {
     }
 });
 
-connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        DrawPixel(color, coord);
-});
-
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
         DrawPixels(color, coords);
-});
-
-connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        fill(coord.x, coord.y, color);
 });
 
 connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {

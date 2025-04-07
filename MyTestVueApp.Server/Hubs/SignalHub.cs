@@ -58,6 +58,8 @@ namespace MyTestVueApp.Server.Hubs
                 members = members + " " + member.name;
             }
             _logger.LogInformation("Members: " + members);
+
+            _logger.LogInformation("users.keys: " + string.Join(",", users.Keys));
         }
 
 
@@ -74,26 +76,16 @@ namespace MyTestVueApp.Server.Hubs
                 + _manager.GetGroup(groupName).BackgroundColor
                 );
 
-
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
-            // Give self to the frontend............ yeah i know.
-            await Clients.Group(groupName).SendAsync("NewMember", artist);
-
         }
 
         public async Task LeaveGroup(string groupName, Artist member)
         {
-            try
-            {
-                _manager.RemoveUser(groupName, member);
-                users.Remove(Context.ConnectionId);
-                //_logger.LogInformation("Leaving Group - MC: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-                await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
-            } catch (Exception e) {
-                _logger.LogError(e.ToString());
-            }
+            _manager.RemoveUser(groupName, member);
+            users.Remove(Context.ConnectionId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+            await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
         }
 
         public async Task SendPixel(string room, string color, Coordinate coord)
@@ -136,10 +128,14 @@ namespace MyTestVueApp.Server.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            _logger.LogError("So we back in the mine");
             if (exception != null)
             {
-                users.TryGetValue(Context.ConnectionId, out MembershipRecord groupRecord);
-                if (groupRecord != null)
+                _logger.LogError("Got my pickaxe swining from size to size");
+                _logger.LogError("ConnectionID: " + Context.ConnectionId);
+                _logger.LogError(string.Join(",", users.Keys));
+                MembershipRecord groupRecord;
+                if (users.TryGetValue(Context.ConnectionId, out groupRecord))
                 {
                     _manager.GetGroup(groupRecord.GroupName).RemoveMember(groupRecord.Artist);
                     // Log the disconnection and any error information

@@ -23,7 +23,6 @@ builder.Services.AddTransient<ILoginService, LoginService>();
 builder.Services.AddTransient<ILikeService, LikeService>();
 builder.Services.AddTransient<ICommentAccessService, CommentAccessService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
-
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 
 var app = builder.Build();

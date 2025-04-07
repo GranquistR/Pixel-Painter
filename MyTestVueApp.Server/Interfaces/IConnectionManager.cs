@@ -12,7 +12,8 @@ namespace MyTestVueApp.Server.Interfaces
         public void RemoveUser(string groupName, Artist member);
         public void PaintPixels(string groupName, string color, Coordinate[] vector);
         public Group GetGroup(string groupName);
-        public IEnumerable<string> GetGroups();
+        public IEnumerable<Group> GetGroups();
+        public IEnumerable<GroupAdvert> GetGroupAdverts();
         public IEnumerable<Artist> GetUsersInGroup(string groupName);
         public IEnumerable<Artist> GetContributingArtists(string groupName);
         public bool GroupExists(string groupName);

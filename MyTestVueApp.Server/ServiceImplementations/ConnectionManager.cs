@@ -52,9 +52,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public IEnumerable<string> GetGroups()
+        public IEnumerable<Group> GetGroups()
         {
-            return groups.Keys;
+            return groups.Values;
+        }
+
+        public IEnumerable<GroupAdvert> GetGroupAdverts()
+        {
+            List<GroupAdvert> groupAdverts = new();
+            foreach (Group group in  groups.Values)
+            {
+                groupAdverts.Add(new GroupAdvert(group.Name, group.CurrentMembers.Count));
+            }
+            return groupAdverts;
         }
 
         public IEnumerable<Artist> GetUsersInGroup(string groupName)
