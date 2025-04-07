@@ -4,7 +4,7 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ curArtist?.name }}</div>
+          <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="">{{ curArtist?.email }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
@@ -128,6 +128,7 @@ const toast = useToast();
 const route = useRoute();
 const changeArtist = ref(false);
 
+const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref("");
@@ -151,16 +152,13 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-  LoginService.GetAllArtists().then((newList: Artist[]) => {
-    curArtist.value = newList[1];
+  LoginService.GetArtistByName(name).then((promise: Artist) => {
+    console.log(route.params.artist);
+    curArtist.value = promise;
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
   });
-});
-
-watch(changeArtist, () => {
-  curArtist.value = artistList.value[0];
 });
 
 function logout() {

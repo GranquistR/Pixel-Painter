@@ -22,7 +22,7 @@
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            @click="router.push(`/accountpage/${art.artistName[index]}`)"
+            @click="router.push(`/accountpage/${artist}`)"
           >
             {{ artist }}
           </div>

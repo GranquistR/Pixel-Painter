@@ -269,17 +269,17 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
 
                 var query = $@" 
-                    SELECT [Id]
-                      ,[SubId]
-                      ,[Name]
-                      ,[IsAdmin]
-                      ,[CreationDate]
-                  FROM [PixelPainter].[dbo].[Artist]
+                  SELECT [Id]
+                    ,[SubId]
+                    ,[Name]
+                    ,[IsAdmin]
+                    ,[CreationDate]
+                FROM [PixelPainter].[dbo].[Artist]
+                where Artist.Name = @Name
                     ";
-                Console.WriteLine(name);
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("Name", name);
+                    command.Parameters.AddWithValue("@Name", name);
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
@@ -293,6 +293,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
                             };
+                            Console.WriteLine(artist);
                             return artist;
                         }
                     }
