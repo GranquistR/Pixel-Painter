@@ -22,13 +22,13 @@
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            onclick="//thing to route"
+            @click="router.push(`/accountpage/${art.artistName[index]}`)"
           >
             {{ artist }}
           </div>
-          <RouterLink to="/accountpage">
+          <!-- <RouterLink to="/accountpage">
             <Button>Account Page</Button>
-          </RouterLink>
+          </RouterLink> -->
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
