@@ -14,8 +14,13 @@
             >
             <Button
               :severity="route.hash == '#art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#art')"
+              @click="ChangeHash('#created_art')"
               >Creator's Art</Button
+            >
+            <Button
+              :severity="route.hash == '#likedart' ? 'primary' : 'secondary'"
+              @click="ChangeHash('#liked_art')"
+              >Liked Art</Button
             >
           </div>
         </template>
@@ -87,7 +92,7 @@
           </template>
         </Card>
       </div>
-      <div v-if="route.hash == '#art'">
+      <div v-if="route.hash == '#created_art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
           <ArtCard
@@ -147,7 +152,7 @@ onMounted(() => {
     artist.value = user;
   });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
-    curArtist.value = newList[5];
+    curArtist.value = newList[1];
     ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
       myArt.value = art;
     });
