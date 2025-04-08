@@ -13,7 +13,7 @@
               >Account Settings</Button
             >
             <Button
-              :severity="route.hash == '#art' ? 'primary' : 'secondary'"
+              :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
               @click="ChangeHash('#created_art')"
               >Creator's Art</Button
             >
@@ -155,6 +155,7 @@ onMounted(() => {
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     console.log(route.params.artist);
     curArtist.value = promise;
+    console.log(curArtist.value.id);
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
