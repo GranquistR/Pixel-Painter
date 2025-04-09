@@ -39,6 +39,9 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetLikedArt")]
+
+        [HttpGet]
         [Route("GetArtByLikes")]
         public IEnumerable<Art> GetArtByLikes(bool isAscending)
         {

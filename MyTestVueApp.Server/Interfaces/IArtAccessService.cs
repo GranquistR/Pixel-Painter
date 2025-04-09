@@ -24,7 +24,7 @@ namespace MyTestVueApp.Server.Interfaces
         public Task AddContributingArtist(int artId, int artistId);
         public Task<Art> UpdateArt(Artist artist, Art art);
 
-        public IEnumerable<Art> GetArtByLikes(int artistId);
+        public Task<IEnumerable<Art>> GetLikedArt(int artistId);
         
     }
 }
