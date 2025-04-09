@@ -184,7 +184,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     $@"
                       Select	
                         Art.ID,
-                        Art.Title
+                        Art.Title,
+                        Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate,
+	                    Art.isPublic
                       FROM ART
                       left join  ContributingArtists as CA on CA.ArtId = Art.Id
                       WHERE CA.ArtistId = @ArtistID
@@ -196,10 +201,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(2),
+                                height = reader.GetInt32(3),
+                                encodedGrid = reader.GetString(4)
+                            };
                             var painting = new Art
                             {   //ArtId, ArtName
                                 id = reader.GetInt32(0),
-                                title = reader.GetString(1)
+                                title = reader.GetString(1),
+                                pixelGrid = pixelGrid,
+                                creationDate = reader.GetDateTime(5),
+                                isPublic = reader.GetBoolean(6)
                             };
                             paintings.Add(painting);
                         }

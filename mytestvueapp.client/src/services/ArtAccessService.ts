@@ -38,7 +38,7 @@ export default class ArtAccessService {
 
         allArt.push(jsonArt as Art);
       }
-
+      console.log(allArt);
       return allArt;
     } catch (error) {
       console.error;
