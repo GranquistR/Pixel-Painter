@@ -8,7 +8,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         // groupName, Group
         Dictionary<string, Group> groups = new();
         Dictionary<string, Artist> artistLookup = new();
-        List<MembershipRecord> records = new();
+        Dictionary<int, MembershipRecord> records = new();
 
         public void AddGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
         {
@@ -22,16 +22,17 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 artistLookup.Add(connectionId, artist);
                 groups[groupName].AddMember(artist);
-                if (records.Any(mr => mr.ArtistId == artist.id))
+                if (records.ContainsKey(artist.id))
                 {
                     Console.WriteLine("User already exists, so adding to connections!");
-                    records.Find(mr => mr.ArtistId == artist.id).Connections.Add(new(connectionId, groupName));
+                    records[artist.id].Connections.Add(new(connectionId, groupName));
                 } else
                 {
                     Console.WriteLine("New User!");
-                    records.Add(new(connectionId, artist.id, groupName));
+                    records.Add(artist.id, new(connectionId, artist.id, groupName));
                 }
             }
+            Console.WriteLine(records.Count());
 
         }
 
@@ -39,13 +40,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             Console.WriteLine("#Users before removal: " + groups[groupName].CurrentMembers.Count);
 
-            MembershipRecord? record = records.Find(rec => rec.ArtistId == artist.id);
-            if (record == null)
+            if (!records.ContainsKey(artist.id))
             {
-                Console.WriteLine("User Doesnt Exist so cant be deleted!");
+                Console.WriteLine("RUFG: User Doesnt Exist so cant be deleted!");
                 return;
             }
 
+            MembershipRecord record = records[artist.id];
             List<ConnectionBinding> allUserConnections = new();
             ConnectionBinding? connectionToDelete = null;
             foreach(ConnectionBinding binding in record.Connections)
@@ -81,7 +82,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             if (record.Connections.Count == 0)
             { // Remove record from records if the Artist doesnt have any open connections;
                 Console.WriteLine("Artist has zero connections. Removing from List!");
-                records.Remove(record);
+                records.Remove(artist.id);
             }
           
             Console.WriteLine("Remaining Users: " +  groups[groupName].CurrentMembers.Count);
@@ -94,13 +95,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public void RemoveUserFromAllGroups(string connectionId)
         {
-            Artist artist = artistLookup[connectionId];
-            MembershipRecord? record = records.Find(rec => rec.ArtistId == artist.id);
-            if (record == null)
-            {
-                return;
 
+            if (!artistLookup.ContainsKey(connectionId) || !records.ContainsKey(artistLookup[connectionId].id) )
+            {
+                Console.WriteLine("RemoveUserFromAllGroups: User Doesnt Exist so cant be deleted!");
+                return;
             }
+
+            Artist artist = artistLookup[connectionId];
+            MembershipRecord record = records[artist.id];
             HashSet<string> groups = new();
             foreach (ConnectionBinding cb in record.Connections) {
                 groups.Add(cb.groupName);
@@ -110,7 +113,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 RemoveUserFromGroup(connectionId, artist, groupName);
             }
-            
         }
 
         public IEnumerable<Group> GetGroups()
@@ -155,7 +157,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public bool GroupExists(string groupName)
         {
-            Console.WriteLine("GroupExists!");
             return groups.ContainsKey(groupName);
         }
     }

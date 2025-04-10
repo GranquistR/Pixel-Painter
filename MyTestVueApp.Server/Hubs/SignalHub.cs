@@ -34,43 +34,21 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task JoinGroup(string groupName, Artist artist)
         {
-            // Add the user to the group
             _manager.AddUser(Context.ConnectionId, artist, groupName); 
-            //users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
-
-            _logger.LogInformation("Member Count: " + _manager.GetGroup(groupName).GetCurrentMemberCount());
            
-            // Send the group config and list of members to the joiner!
             await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", _manager.GetGroup(groupName).CanvasSize, _manager.GetGroup(groupName).BackgroundColor, _manager.GetGroup(groupName).GetPixelsAsList());
             await Clients.Client(Context.ConnectionId).SendAsync("Members", _manager.GetGroup(groupName).CurrentMembers);
             
-            // Tell Existing members about the new member!
             await Clients.Group(groupName).SendAsync("NewMember", artist);
-
-            // Log Members to console
-            string members = "";
-            foreach(Artist member in _manager.GetGroup(groupName).CurrentMembers)
-            {
-                members = members + " " + member.name;
-            }
-            _logger.LogInformation("Members: " + members);
         }
 
 
         public async Task CreateGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
         { 
-            // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(Context.ConnectionId, artist, groupName);
-            //users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
-
-            _logger.LogInformation("Group Info: " 
-                + _manager.GetGroup(groupName).Name + " " 
-                + _manager.GetGroup(groupName).CanvasSize + " "
-                + _manager.GetGroup(groupName).BackgroundColor
-                );
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
@@ -79,7 +57,6 @@ namespace MyTestVueApp.Server.Hubs
         public async Task LeaveGroup(string groupName, Artist member)
         {
             _manager.RemoveUserFromGroup(Context.ConnectionId, member, groupName);
-            //users.Remove(Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
         }
@@ -113,19 +90,10 @@ namespace MyTestVueApp.Server.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            _logger.LogError("So we back in the mine");
             if (exception != null)
             {
-                _logger.LogError("Got my pickaxe swining from size to size");
-
                 _manager.RemoveUserFromAllGroups(Context.ConnectionId);
-               
-                _logger.LogError("Removing Disconnected user from group!");
-                  
-                    // Log the disconnection and any error information
-                _logger.LogInformation($"Client disconnected: {_manager}");
-                _logger.LogError($"Error: {exception.Message}");
-                
+                _logger.LogError($"Error, Disconnected: {exception.Message}");
             }
             await base.OnDisconnectedAsync(exception);
         }
