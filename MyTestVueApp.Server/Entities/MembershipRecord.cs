@@ -1,8 +1,11 @@
-﻿namespace MyTestVueApp.Server.Entities
+﻿using Microsoft.AspNetCore.Connections.Features;
+
+namespace MyTestVueApp.Server.Entities
 {
-    public class MembershipRecord(Artist artist, string group)
+    public record ConnectionBinding (string connectionId, string groupName);
+    public class MembershipRecord(string connectionId, int artistId, string group)
     {
-        public Artist Artist { get; set; } = artist;
-        public string GroupName { get; set; } = group;
+        public int ArtistId { get; set; } = artistId;
+        public List<ConnectionBinding> Connections { get; set; } = new List<ConnectionBinding> { new(connectionId,group) };
     }
 }

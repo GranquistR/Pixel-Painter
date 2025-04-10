@@ -12,8 +12,6 @@ namespace MyTestVueApp.Server.Hubs
         private IConnectionManager _manager;
         private readonly ILogger<SignalHub> _logger;
 
-        private Dictionary<string, MembershipRecord> users = new();
-
         public SignalHub(IConnectionManager manager, ILogger<SignalHub> logger)
         {
             _manager = manager;
@@ -37,8 +35,8 @@ namespace MyTestVueApp.Server.Hubs
         public async Task JoinGroup(string groupName, Artist artist)
         {
             // Add the user to the group
-            _manager.AddUser(groupName, artist); 
-            users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
+            _manager.AddUser(Context.ConnectionId, artist, groupName); 
+            //users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
 
@@ -58,8 +56,6 @@ namespace MyTestVueApp.Server.Hubs
                 members = members + " " + member.name;
             }
             _logger.LogInformation("Members: " + members);
-
-            _logger.LogInformation("users.keys: " + string.Join(",", users.Keys));
         }
 
 
@@ -67,8 +63,8 @@ namespace MyTestVueApp.Server.Hubs
         { 
             // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
-            _manager.AddUser(groupName, artist);
-            users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
+            _manager.AddUser(Context.ConnectionId, artist, groupName);
+            //users.Add(Context.ConnectionId, new MembershipRecord(artist,groupName));
 
             _logger.LogInformation("Group Info: " 
                 + _manager.GetGroup(groupName).Name + " " 
@@ -82,27 +78,16 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task LeaveGroup(string groupName, Artist member)
         {
-            _manager.RemoveUser(groupName, member);
-            users.Remove(Context.ConnectionId);
+            _manager.RemoveUserFromGroup(Context.ConnectionId, member, groupName);
+            //users.Remove(Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
-        }
-
-        public async Task SendPixel(string room, string color, Coordinate coord)
-        {
-            _manager.PaintPixels(room, color, [coord]);
-            await Clients.Group(room).SendAsync("ReceivePixel", color, coord);
         }
 
         public async Task SendPixels(string room, string color, Coordinate[] coords)
         {
             _manager.PaintPixels(room, color, coords);
             await Clients.Group(room).SendAsync("ReceivePixels", color, coords);
-        }
-
-        public async Task SendBucket(string room, string color, Coordinate coord)
-        { // WARNING Not sending all painted pixels!
-            await Clients.Group(room).SendAsync("ReceiveBucket", color, coord);
         }
 
         public async Task SendMessage(string user, string room, string message)
@@ -132,16 +117,15 @@ namespace MyTestVueApp.Server.Hubs
             if (exception != null)
             {
                 _logger.LogError("Got my pickaxe swining from size to size");
-                _logger.LogError("ConnectionID: " + Context.ConnectionId);
-                _logger.LogError(string.Join(",", users.Keys));
-                MembershipRecord groupRecord;
-                if (users.TryGetValue(Context.ConnectionId, out groupRecord))
-                {
-                    _manager.GetGroup(groupRecord.GroupName).RemoveMember(groupRecord.Artist);
+
+                _manager.RemoveUserFromAllGroups(Context.ConnectionId);
+               
+                _logger.LogError("Removing Disconnected user from group!");
+                  
                     // Log the disconnection and any error information
-                    _logger.LogInformation($"Client disconnected: {groupRecord.Artist.name}");
-                    _logger.LogError($"Error: {exception.Message}");
-                }
+                _logger.LogInformation($"Client disconnected: {_manager}");
+                _logger.LogError($"Error: {exception.Message}");
+                
             }
             await base.OnDisconnectedAsync(exception);
         }
