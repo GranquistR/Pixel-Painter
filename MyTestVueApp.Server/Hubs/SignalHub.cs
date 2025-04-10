@@ -20,7 +20,7 @@ namespace MyTestVueApp.Server.Hubs
             _logger = logger;
         }
 
-        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             _logger.LogInformation("GroupName: " + groupName + " GroupExists: " + _manager.GroupExists(groupName));
             if (_manager.GroupExists(groupName))
@@ -29,6 +29,7 @@ namespace MyTestVueApp.Server.Hubs
                 await JoinGroup(groupName, artist);
             } else
             {
+                Console.WriteLine(canvas.Length);
                 _logger.LogInformation("Creating Group!");
                 await CreateGroup(groupName, artist, canvas, canvasSize, backgroundColor);
             }
@@ -61,8 +62,9 @@ namespace MyTestVueApp.Server.Hubs
         }
 
 
-        public async Task CreateGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         { 
+            Console.WriteLine(canvas.Length);
             // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(groupName, artist);
@@ -90,21 +92,10 @@ namespace MyTestVueApp.Server.Hubs
             await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
         }
 
-        public async Task SendPixel(string room, string color, Coordinate coord)
+        public async Task SendPixels(string room, int layer, string color, Coordinate[] coords)
         {
-            _manager.PaintPixels(room, color, [coord]);
-            await Clients.Group(room).SendAsync("ReceivePixel", color, coord);
-        }
-
-        public async Task SendPixels(string room, string color, Coordinate[] coords)
-        {
-            _manager.PaintPixels(room, color, coords);
-            await Clients.Group(room).SendAsync("ReceivePixels", color, coords);
-        }
-
-        public async Task SendBucket(string room, string color, Coordinate coord)
-        { // WARNING Not sending all painted pixels!
-            await Clients.Group(room).SendAsync("ReceiveBucket", color, coord);
+            _manager.PaintPixels(room, layer, color, coords);
+            await Clients.Group(room).SendAsync("ReceivePixels", layer, color, coords);
         }
 
         public async Task SendMessage(string user, string room, string message)

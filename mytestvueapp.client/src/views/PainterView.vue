@@ -45,7 +45,7 @@
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
       <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif"/>
+      <LayerSelection v-if="!art.pixelGrid.isGif" :updateLayers="updateLayers"/>
     </template>
     <template #end>
       <Button
@@ -55,12 +55,13 @@
         label="Recenter"
         @click="canvas?.recenter()" />
       <Button
+        :disabled="connected"
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
         class="mr-2 Rainbow"
         label="Gravity"
-        @click="runGravity()" />
-
+        @click="runGravity()"/>
       <Button
+        :disabled="connected"
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
@@ -104,13 +105,12 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
-//import fallingSand from "@/utils/fallingSand";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
 import * as SignalR from "@microsoft/signalr";
 import { FillStyle } from "pixi.js";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore"
 
 //variables
 const route = useRoute();
@@ -120,16 +120,16 @@ const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist);
 const layerStore = useLayerStore();
+const updateLayers = ref<number>(0);
 
 // Connection Information
-const connected = ref(false);
+const connected = ref<boolean>(false);
 const groupName = ref("");
 let connection = new SignalR.HubConnectionBuilder()
             .withUrl("https://localhost:7154/signalhub", {
                 skipNegotiation: true,
                 transport: SignalR.HttpTransportType.WebSockets
-            })
-            .build();
+            }).build();
 
 connection.on("Send", (user: string, msg: string) => {
         console.log("Received Message", user + " " + msg);
@@ -167,26 +167,23 @@ connection.onclose(error => {
     }
 });
 
-connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        DrawPixel(color, coord);
+connection.on("ReceivePixels", (layer: number, color: string, coords: Vector2[]) => {
+  DrawPixels(layer, color, coords);
 });
 
-connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        DrawPixels(color, coords);
-});
-
-connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        fill(coord.x, coord.y, color);
-});
-
-connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
+connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[][]) => {
+  layerStore.empty();
+  
   art.value.pixelGrid.width = canvasSize;
   art.value.pixelGrid.height = canvasSize;
   art.value.pixelGrid.backgroundColor = backgroundColor;
   art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize);
-  canvas.value?.drawCanvas();
-  canvas.value?.recenter();
   ReplaceCanvas(pixels);
+  updateLayers.value = layerStore.grids.length;
+  console.log(layerStore.grids);
+
+  canvas.value?.drawLayers(0);
+  canvas.value?.recenter();
 });
 
 connection.on("BackgroundColor", (backgroundColor: string) => {
@@ -199,8 +196,9 @@ const connect = (groupname: string) => {
     connection.start()
         .then(
             () => {
+                let grids = layerStore.getGridArray();
                 console.log("Connected to SignalR!");
-                connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
+                connection.invoke("CreateOrJoinGroup", groupname, artist.value, grids, layerStore.grids[0].width, layerStore.grids[0].backgroundColor);
                 groupName.value = groupname;
                 connected.value = !connected.value;
             }
@@ -211,7 +209,7 @@ const connect = (groupname: string) => {
           summary: "Error",
           detail: "Please log in before collaborating!",
           life: 3000,
-        });
+    });
   }
 }
 
@@ -248,10 +246,11 @@ let currentPallet: string[];
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
   if (temp) currentPallet = JSON.parse(temp);
-  for (let i = 0; i < currentPallet.length; i++)
+  for (let i = 0; i < currentPallet.length; i++) {
     if (currentPallet[i] === null || currentPallet[i] === "") {
       currentPallet[i] = "000000";
     }
+  }
 }
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -278,7 +277,7 @@ onBeforeRouteLeave((to, from, next) => {
   next();
 });
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -323,7 +322,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  layerStore.layer = 0;
   document.removeEventListener("keydown", handleKeyDown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
@@ -407,13 +405,15 @@ watch(selectedFrame, () => {
   }
 });
 
-//functions
-watch(() => layerStore.layer, (next, prev) => {
-  layerStore.layer = next;
-  tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
-  canvas.value?.drawLayers(next);
-  canvas.value?.recenter();
+watch(() => layerStore.layer, () => {
+  if (layerStore.grids.length > 0) {
+    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
+    canvas.value?.drawLayers(layerStore.layer);
+    canvas.value?.recenter();
+  }
 });
+
+//functions
 
 function runGravity() {
   if (intervalId.value != -1) {
@@ -461,27 +461,37 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   return pixels;
 }
 
-function DrawPixel(color: string, coord: Vector2) {
-  art.value.pixelGrid.grid[coord.x][coord.y] = color;
+function ReplaceCanvas(pixels: Pixel[][]) {
+  for (let l = 0; l < pixels.length; l++) {
+    layerStore.pushGrid(new PixelGrid(
+      art.value.pixelGrid.width,
+      art.value.pixelGrid.height,
+      art.value.pixelGrid.backgroundColor,
+      false
+    ));
+    console.log(layerStore.grids[l]);
+    for (let p = 0; p < pixels[l].length; p++) {
+      layerStore.grids[l]
+        .grid[pixels[l][p].x][pixels[l][p].y]
+        = pixels[l][p].color;
+    }
+  }
+
 }
 
-function ReplaceCanvas(pixels: Pixel[]) {
-  pixels.forEach(pixel => {
-    art.value.pixelGrid.grid[pixel.x][pixel.y] = pixel.color;
-  })
-}
-
-function DrawPixels(color: string, coords: Vector2[]) {
+function DrawPixels(layer: number, color: string, coords: Vector2[]) {
   for (const coord of coords) {
-    art.value.pixelGrid.grid[coord.x][coord.y] = color;
+    layerStore.grids[layer].grid[coord.x][coord.y] = color;
+    canvas.value?.updateCell(layer, coord.x, coord.y, color);
   }
 }
 
-function SendPixels(color: string, coords: Vector2[]) {
+function SendPixels(layer: number, color: string, coords: Vector2[]) {
   if (connected.value) {
     connection.invoke(
       "SendPixels",
       groupName.value,
+      layer,
       color,
       coords
     )
@@ -532,7 +542,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels(cursor.value.color, coordinates);
+        SendPixels(layerStore.layer, cursor.value.color, coordinates);
       } else if (cursor.value.selectedTool.label === "Eraser") {
         for (let i = 0; i < cursor.value.size; i++) {
           for (let j = 0; j < cursor.value.size; j++) {
@@ -551,7 +561,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels("empty", coordinates);
+        SendPixels(layerStore.layer, "empty", coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < layerStore.grids[layerStore.layer].width &&
@@ -566,7 +576,7 @@ function DrawAtCoords(coords: Vector2[]) {
             layerStore.grids[layerStore.layer].grid[coord.x][coord.y] != cursor.value.color
           ) {
             coordinates = fill(cursor.value.position.x, cursor.value.position.y);
-            SendPixels(cursor.value.color, coordinates);
+            SendPixels(layerStore.layer, cursor.value.color, coordinates);
           }
         } else if (
           cursor.value.selectedTool.label === "Rectangle" ||
@@ -855,6 +865,7 @@ function onMouseUp() {
     cursor.value.selectedTool.label == "Rectangle"
   ) {
     SendPixels(
+      layerStore.layer,
       cursor.value.color,
       GetRectanglePixels(startPix.value, endPix.value)
     );
@@ -865,6 +876,7 @@ function onMouseUp() {
     CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
     });
     SendPixels(
+      layerStore.layer,
       cursor.value.color,
       GetEllipsePixels(startPix.value, endPix.value)
     );

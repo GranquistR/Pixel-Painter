@@ -65,7 +65,7 @@ import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore"
 
 const layerStore = useLayerStore();
 const toast = useToast();

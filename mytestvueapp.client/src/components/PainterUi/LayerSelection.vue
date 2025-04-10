@@ -23,10 +23,14 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
-import { useLayerStore } from "@/store/LayerStore.ts"
-import { PixelGrid } from "@/entities/PixelGrid.ts"
+import { useLayerStore } from "@/store/LayerStore"
+import { PixelGrid } from "@/entities/PixelGrid"
 
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, watch } from 'vue';
+
+const props = defineProps<{
+  updateLayers: number;
+}>();
 
 const layerStore = useLayerStore();
 const selectedLayer = ref<number>(0);
@@ -49,7 +53,7 @@ function pushLayer() {
   }
 }
 
-function deleteLayer(idx) {
+function deleteLayer(idx: number) {
   if (layers.value.length > 1) {
     const isConfirmed = confirm("This will delete layer " + (idx+1) + ". Are you sure you want to delete this layer?");
     if (!isConfirmed) return;
@@ -70,8 +74,10 @@ function deleteLayer(idx) {
     if (!layers.value.some(layer => layer === selectedLayer.value)) {
       selectedLayer.value = layers.value[layers.value.length - 1] ?? 1;
       layerStore.layer = selectedLayer.value;
+    } else {
+      selectedLayer.value--;
+      layerStore.layer--;
     }
-    console.log(layers.value);
   }
 }
 
@@ -87,10 +93,20 @@ function popLayer() {
   }
 }
 
-function switchLayer(layer) {
+function switchLayer(layer: number) {
   selectedLayer.value = layer;
   layerStore.layer = layer;
 }
+
+watch(() => props.updateLayers, () => {
+  if (props.updateLayers) {
+    selectedLayer.value = 0;
+    layers.value.splice(0, layers.value.length);
+    for (let i = 0; i < layerStore.grids.length; i++) {
+      layers.value.push(i);
+    }
+  }
+});
 </script>
 
 <style scoped>

@@ -39,7 +39,7 @@
               :art-id="id"
               :likes="art.numLikes"
             ></LikeButton>
-            <SaveImageToFile :art="art" :selectedLayer="-1"></SaveImageToFile>
+            <SaveImageToFile :art="art" :fps="0" :selectedLayer="-1"></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded
@@ -164,7 +164,7 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore"
 
 const layerStore = useLayerStore();
 

@@ -14,7 +14,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore"
 
 
 
@@ -92,15 +92,24 @@ function init() {
 }
 
 function drawLayers(layer: number) {
-  let dropShadow = viewport.children[0];
-  let background = viewport.children[1];
-  background.tint = layerStore.grids[layer].backgroundColor;
-  viewport.removeChildren();
-  viewport.addChild(dropShadow);
-  viewport.addChild(background);
-
+  if (viewport.children.length > 2) {
+    viewport.removeChildren(2);
+  }
   let width = layerStore.grids[0].width;
   let height = layerStore.grids[0].height;
+
+  const dropShadow = viewport.children[0] as Sprite;
+  const background = viewport.children[1] as Sprite;
+
+  if (dropShadow.width != width) {
+    dropShadow.width = layerStore.grids[0].width * PIXEL_SIZE;
+    dropShadow.height = layerStore.grids[0].width * PIXEL_SIZE;
+
+    background.tint = layerStore.grids[layer].backgroundColor;
+    background.width = layerStore.grids[0].width * PIXEL_SIZE;
+    background.height = layerStore.grids[0].width * PIXEL_SIZE;
+  }
+
   for (let length = 0; length < layerStore.grids.length; length++) {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
@@ -122,15 +131,20 @@ function drawLayers(layer: number) {
 }
 
 function updateCell(layer: number, x: number, y: number, color: string) {
+  //square the width to get last index of grid before current,
+  //mult by layer to get selected layer,
+  //add by 2 to account for dropshadow and background sprites in viewport
   let idx = layerStore.grids[0].width ** 2 * layer + 2;
-  idx += (x * layerStore.grids[0].width + y);
 
+  //no way around this, viewport stores sprites in a 1d array
+  idx += (x * layerStore.grids[0].width + y);
+  const cell = viewport.children[idx] as Sprite;
   if (color === "empty") {
-    viewport.children[idx].alpha = 0;
+    cell.alpha = 0;
   } else {
-    viewport.children[idx].tint = color;
-    if (layer <= layerStore.layer) viewport.children[idx].alpha = 1;
-    else viewport.children[idx].alpha = 0;
+    cell.tint = color;
+    if (layer <= layerStore.layer) cell.alpha = 1;
+    else cell.alpha = 0;
   }
 }
 
@@ -206,8 +220,9 @@ function recenter() {
 }
 
 watch(() => props.grid.backgroundColor, (prev, next) => {
-  if (viewport.children[1].tint !== props.grid.backgroundColor) {
-    viewport.children[1].tint = props.grid.backgroundColor;
+  const bg = viewport.children[1] as Sprite;
+  if (bg.tint !== props.grid.backgroundColor) {
+    bg.tint = props.grid.backgroundColor;
   }
 });
 

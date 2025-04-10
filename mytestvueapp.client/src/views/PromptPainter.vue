@@ -64,7 +64,7 @@ import { onMounted, ref } from "vue";
 import router from "@/router";
 import { PixelGrid } from "@/entities/PixelGrid";
 import ToggleButton from "primevue/togglebutton";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore";
 
 const layerStore = useLayerStore();
 
