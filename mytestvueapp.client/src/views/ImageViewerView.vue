@@ -22,13 +22,18 @@
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            onclick="//thing to route"
+            @click="router.push(`/accountpage/${artist}`)"
+            v-on:mouseover="hover = true"
+            v-on:mouseleave="hover = false"
           >
             {{ artist }}
           </div>
-          <RouterLink to="/accountpage">
+          <div v-if="hover == true">
+            Click on the name to go to the account page!
+          </div>
+          <!-- <RouterLink to="/accountpage">
             <Button>Account Page</Button>
-          </RouterLink>
+          </RouterLink> -->
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
@@ -164,6 +169,7 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
+import type { Color } from "pixi.js";
 
 //filters
 const greyscale = ref<boolean>(false);
@@ -172,6 +178,7 @@ const duotone = ref<boolean>(false);
 const sepia = ref<boolean>(false);
 const prota = ref<boolean>(false);
 const Deu = ref<boolean>(false);
+const hover = ref(false);
 
 const route = useRoute();
 const toast = useToast();
