@@ -49,7 +49,6 @@ const isLoggedIn = ref(false);
 
 onMounted(() => {
   layerStore.init();
-  console.log(layerStore.grids);
 
   LoginService.isLoggedIn().then((result) => {
     isLoggedIn.value = result;

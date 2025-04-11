@@ -29,7 +29,6 @@ namespace MyTestVueApp.Server.Hubs
                 await JoinGroup(groupName, artist);
             } else
             {
-                Console.WriteLine(canvas.Length);
                 _logger.LogInformation("Creating Group!");
                 await CreateGroup(groupName, artist, canvas, canvasSize, backgroundColor);
             }
@@ -64,7 +63,6 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         { 
-            Console.WriteLine(canvas.Length);
             // Create the group, then add the user
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(groupName, artist);

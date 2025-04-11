@@ -183,7 +183,6 @@ connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixel
   art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize);
   ReplaceCanvas(pixels);
   updateLayers.value = layerStore.grids.length;
-  console.log(layerStore.grids);
 
   canvas.value?.drawLayers(0);
   canvas.value?.recenter();
@@ -393,7 +392,6 @@ watch(selectedFrame, () => {
       art.value.pixelGrid.isGif
     );
     layerStore.grids[0].DeepCopy(newGrid);
-    console.log(newGrid);
     canvas.value?.drawLayers(0);
 
     canvas.value?.recenter();
@@ -472,7 +470,6 @@ function ReplaceCanvas(pixels: Pixel[][]) {
       art.value.pixelGrid.backgroundColor,
       false
     ));
-    console.log(layerStore.grids[l]);
     for (let p = 0; p < pixels[l].length; p++) {
       layerStore.grids[l]
         .grid[pixels[l][p].x][pixels[l][p].y]
@@ -973,10 +970,7 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 function LocalSave() {
-  console.log(layerStore.grids);
-
   layerStore.save();
-  console.log("save");
 }
 
 function LocalSaveGif() {

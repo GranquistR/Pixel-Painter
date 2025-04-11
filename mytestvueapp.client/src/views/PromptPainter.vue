@@ -84,7 +84,6 @@ function updateLocalStorage() {
   );
 
   layerStore.pushGrid(pixelGrid);
-  console.log(layerStore.grids);
   router.push("/paint");
 }
 
