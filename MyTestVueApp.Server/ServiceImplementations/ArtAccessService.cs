@@ -306,6 +306,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
                         command.Parameters.AddWithValue("@CreationDate", art.creationDate);
                         command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+                        command.Parameters.AddWithValue("@ArtistId", artist.id);
 
                         var newArtId = await command.ExecuteScalarAsync();
                         art.id = Convert.ToInt32(newArtId);
