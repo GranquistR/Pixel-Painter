@@ -234,9 +234,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
                 var query =
                     $@"
-                    SELECT 
-	                      Likes.ArtistId,
+                    SELECT
 	                      Likes.ArtId,
+                          Art.Title,
 	                      Art.Width, 
 	                      Art.Height, 
 	                      Art.Encode, 

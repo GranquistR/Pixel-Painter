@@ -107,7 +107,7 @@
         <h2>Liked Art</h2>
         <div class="flex flex-wrap">
           <ArtCard
-            v-for="art in myArt"
+            v-for="art in likedArt"
             :key="art.id"
             :art="art"
             :size="7"
@@ -164,11 +164,12 @@ onMounted(() => {
     artist.value = user;
   });
   LoginService.GetArtistByName(name).then((promise: Artist) => {
-    console.log(route.params.artist);
     curArtist.value = promise;
-    console.log(curArtist.value.id);
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
+    });
+    ArtAccessService.getLikedArt(curArtist.value.id).then((art) => {
+      likedArt.value = art;
     });
   });
 });

@@ -41,6 +41,11 @@ namespace MyTestVueApp.Server.Controllers
         [HttpGet]
         [Route("GetLikedArt")]
 
+        public async Task<IEnumerable<Art>> GetLikedArt(int artistId)
+        {
+            return await ArtAccessService.GetLikedArt(artistId);
+        }
+
         [HttpGet]
         [Route("GetArtByLikes")]
         public IEnumerable<Art> GetArtByLikes(bool isAscending)
