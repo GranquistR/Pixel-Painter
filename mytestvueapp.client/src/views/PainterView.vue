@@ -45,7 +45,10 @@
       @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
       <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif" :updateLayers="updateLayers"/>
+      <LayerSelection 
+      v-if="!art.pixelGrid.isGif" 
+      :updateLayers="updateLayers" 
+      :connected="connected" />
     </template>
     <template #end>
       <Button
@@ -597,7 +600,7 @@ function fill(x: number, y: number, color: string = cursor.value.color) : Vector
     layerStore.grids[layerStore.layer].grid[x][y] = color;
     canvas.value?.updateCell(layerStore.layer, x, y, color);
     vectors.push(new Vector2(x,y));
-    if (oldColor != color) {
+    if ("empty" !== color) {
       if (x + 1 < layerStore.grids[layerStore.layer].width) {
         if (layerStore.grids[layerStore.layer].grid[x + 1][y] === oldColor) {
           vectors = vectors.concat(fill(x + 1, y, color));

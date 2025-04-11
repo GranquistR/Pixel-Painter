@@ -131,20 +131,21 @@ function drawLayers(layer: number) {
 }
 
 function updateCell(layer: number, x: number, y: number, color: string) {
-  //square the width to get last index of grid before current,
-  //mult by layer to get selected layer,
-  //add by 2 to account for dropshadow and background sprites in viewport
-  let idx = layerStore.grids[0].width ** 2 * layer + 2;
+  if (layer <= layerStore.layer) {
+    //square the width to get last index of grid before current,
+    //mult by layer to get selected layer,
+    //add by 2 to account for dropshadow and background sprites in viewport
+    let idx = layerStore.grids[0].width ** 2 * layer + 2;
 
-  //no way around this, viewport stores sprites in a 1d array
-  idx += (x * layerStore.grids[0].width + y);
-  const cell = viewport.children[idx] as Sprite;
-  if (color === "empty") {
-    cell.alpha = 0;
-  } else {
-    cell.tint = color;
-    if (layer <= layerStore.layer) cell.alpha = 1;
-    else cell.alpha = 0;
+    //no way around this, viewport stores sprites in a 1d array
+    idx += (x * layerStore.grids[0].width + y);
+    const cell = viewport.children[idx] as Sprite;
+    if (color === "empty") {
+      cell.alpha = 0;
+    } else {
+      cell.tint = color;
+      cell.alpha = 1;
+    }
   }
 }
 

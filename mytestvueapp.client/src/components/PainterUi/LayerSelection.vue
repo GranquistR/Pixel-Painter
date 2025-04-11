@@ -6,17 +6,18 @@
                 width=""
                 :default-open="false">
 
-    <Button class="mr-1" :disabled="layers.length == 1" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
+    <Button class="mr-1" :disabled="layers.length == 1 || props.connected" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
 
     <template v-for="layer in layers">
       <Button icon="pi pi-stop"
               :class="['m-1', { 'selected-layer': layer === selectedLayer } ]"
               severity="secondary"
               @click="switchLayer(layer)"
-              @contextmenu.prevent="deleteLayer(layer)"/>
+              @contextmenu.prevent="deleteLayer(layer)"
+              v-tooltip.bottom="(layers.length > 1 && !props.connected) ? `Right click to delete layer ${layer+1}.` : null"/>
     </template>
 
-    <Button class="ml-1" :disabled="layers.length==8" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
+    <Button class="ml-1" :disabled="(layers.length==8 || props.connected)" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
   </FloatingCard>
 </template>
 
@@ -25,11 +26,13 @@ import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
 import { useLayerStore } from "@/store/LayerStore"
 import { PixelGrid } from "@/entities/PixelGrid"
+import { Tooltip } from "primevue";
 
 import { ref, onBeforeMount, watch } from 'vue';
 
 const props = defineProps<{
   updateLayers: number;
+  connected: boolean;
 }>();
 
 const layerStore = useLayerStore();
@@ -54,7 +57,7 @@ function pushLayer() {
 }
 
 function deleteLayer(idx: number) {
-  if (layers.value.length > 1) {
+  if (layers.value.length > 1 && !props.connected) {
     const isConfirmed = confirm("This will delete layer " + (idx+1) + ". Are you sure you want to delete this layer?");
     if (!isConfirmed) return;
 
@@ -99,13 +102,11 @@ function switchLayer(layer: number) {
 }
 
 watch(() => props.updateLayers, () => {
-  if (props.updateLayers) {
-    selectedLayer.value = 0;
-    layers.value.splice(0, layers.value.length);
-    for (let i = 0; i < layerStore.grids.length; i++) {
-      layers.value.push(i);
-    }
+  layers.value.splice(0, layers.value.length);
+  for (let i = 0; i < layerStore.grids.length; i++) {
+    layers.value.push(i);
   }
+  selectedLayer.value = layerStore.layer;
 });
 </script>
 
