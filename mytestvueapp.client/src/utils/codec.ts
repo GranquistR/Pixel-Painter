@@ -46,7 +46,7 @@ export default class codec {
     }
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        decodedPicture.grid[i][j] = "#" + encodedString.slice(k, k + 6);
+        decodedPicture.grid[i][j] = encodedString.slice(k, k + 6);
         k = k + 6;
       }
     }

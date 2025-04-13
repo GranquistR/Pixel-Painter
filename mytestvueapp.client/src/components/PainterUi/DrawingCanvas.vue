@@ -14,20 +14,21 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
+import { useLayerStore } from "@/store/LayerStore"
+
+
 
 //Constants
-var PIXEL_SIZE = 10;
+const PIXEL_SIZE = 10;
+const layerStore = useLayerStore();
 
 //props
 const props = defineProps<{
-  pixelGrid: PixelGrid;
+  grid: PixelGrid
 }>();
 
-//exposes the recenter function to be called in parent component
-  defineExpose({ recenter, updateCursor, updateCanvas, drawCanvas });
-
-//other variables
-const firstLoad = ref<boolean>(true);
+//exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
+defineExpose({ recenter, updateCursor, drawLayers, updateCell, init });
 
 //model
 const cursor = defineModel<Cursor>({
@@ -42,8 +43,8 @@ const cursor = defineModel<Cursor>({
 //Runs on mounted, creates the canvas
 onMounted(() => {
   document.getElementById("canvas")?.appendChild(app.view as any);
-
-  drawCanvas();
+  init();
+  drawLayers(0);
   recenter();
   checkIfPan();
 });
@@ -55,7 +56,7 @@ const app = new Application({
 });
 
 // creates the viewport
-var viewport = new Viewport({
+const viewport = new Viewport({
   screenWidth: window.innerWidth,
   screenHeight: window.innerHeight,
   worldWidth: 100,
@@ -68,64 +69,82 @@ app.stage.addChild(viewport);
 // activate viewport plugins
 viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 
-function updateCanvas() {
-  //dropshadow and background are idx 0 and 1 respectively
-  let idx = 2;
-
-  if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
-    viewport.children[1].tint = props.pixelGrid.backgroundColor;
-  }
-  else { 
-    for (var i = 0; i < props.pixelGrid.height; i++) {
-      for (var j = 0; j < props.pixelGrid.width; j++) {
-        //tint of erased values doesn't matter since we look at the grid
-        if (props.pixelGrid.grid[i][j] === "empty") {
-          viewport.children[idx].alpha = 0;
-        } else {
-          viewport.children[idx].tint = props.pixelGrid.grid[i][j];
-          viewport.children[idx].alpha = 1;
-        }
-        idx++;
-      }
-    }
-  }
-}
-
-//Draws the canvas
-function drawCanvas() {
+//Creates dropshadow and background layer
+function init() {
   viewport.removeChildren();
 
   var dropShadowFilter = new DropShadowFilter();
   dropShadowFilter.distance = 0;
 
   const dropShadow = new Sprite(Texture.WHITE);
-  dropShadow.width = props.pixelGrid.width * PIXEL_SIZE;
-  dropShadow.height = props.pixelGrid.height * PIXEL_SIZE;
+  dropShadow.width = layerStore.grids[0].width * PIXEL_SIZE;
+  dropShadow.height = layerStore.grids[0].width * PIXEL_SIZE;
   dropShadow.tint = 0x000000;
   dropShadow.filters = [dropShadowFilter];
 
   const background = new Sprite(Texture.WHITE);
-  background.width = props.pixelGrid.width * PIXEL_SIZE;
-  background.height = props.pixelGrid.height * PIXEL_SIZE;
-
-  background.tint = props.pixelGrid.backgroundColor;
+  background.width = layerStore.grids[0].width * PIXEL_SIZE;
+  background.height = layerStore.grids[0].width * PIXEL_SIZE;
+  background.tint = layerStore.grids[0].backgroundColor;
 
   viewport.addChild(dropShadow);
   viewport.addChild(background);
+}
 
-  for (var i = 0; i < props.pixelGrid.height; i++) {
-    for (var j = 0; j < props.pixelGrid.width; j++) {
-      const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
-      if (props.pixelGrid.grid[i][j] === "empty") {
-        sprite.tint = props.pixelGrid.backgroundColor;
-        sprite.alpha = 0;
-      } else {
-        sprite.tint = props.pixelGrid.grid[i][j];
-        sprite.alpha = 1;
+function drawLayers(layer: number) {
+  if (viewport.children.length > 2) {
+    viewport.removeChildren(2);
+  }
+  let width = layerStore.grids[0].width;
+  let height = layerStore.grids[0].height;
+
+  const dropShadow = viewport.children[0] as Sprite;
+  const background = viewport.children[1] as Sprite;
+
+  if (dropShadow.width != width) {
+    dropShadow.width = layerStore.grids[0].width * PIXEL_SIZE;
+    dropShadow.height = layerStore.grids[0].width * PIXEL_SIZE;
+
+    background.tint = layerStore.grids[layer].backgroundColor;
+    background.width = layerStore.grids[0].width * PIXEL_SIZE;
+    background.height = layerStore.grids[0].width * PIXEL_SIZE;
+  }
+
+  for (let length = 0; length < layerStore.grids.length; length++) {
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const sprite = viewport.addChild(new Sprite(Texture.WHITE));
+        if (layerStore.grids[length].grid[i][j] === "empty") {
+          sprite.tint = layerStore.grids[length].backgroundColor;
+          sprite.alpha = 0;
+        } else {
+          sprite.tint = layerStore.grids[length].grid[i][j];
+          sprite.alpha = 1;
+        }
+        sprite.width = sprite.height = PIXEL_SIZE;
+        sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
+        sprite.interactive = (length === layer) ? true : false; //reduce lag
       }
-      sprite.width = sprite.height = PIXEL_SIZE;
-      sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
-      sprite.interactive = true;
+    }
+    if (length === layer) break;
+  }
+}
+
+function updateCell(layer: number, x: number, y: number, color: string) {
+  if (layer <= layerStore.layer) {
+    //square the width to get last index of grid before current,
+    //mult by layer to get selected layer,
+    //add by 2 to account for dropshadow and background sprites in viewport
+    let idx = layerStore.grids[0].width ** 2 * layer + 2;
+
+    //no way around this, viewport stores sprites in a 1d array
+    idx += (x * layerStore.grids[0].width + y);
+    const cell = viewport.children[idx] as Sprite;
+    if (color === "empty") {
+      cell.alpha = 0;
+    } else {
+      cell.tint = color;
+      cell.alpha = 1;
     }
   }
 }
@@ -194,20 +213,17 @@ function updateCursor() {
 //centers the canvas
 function recenter() {
   viewport.fit();
-  viewport.setZoom(40 / props.pixelGrid.width);
+  viewport.setZoom(40 / layerStore.grids[0].width);
   viewport.moveCenter(
-    (props.pixelGrid.width * PIXEL_SIZE) / 2,
-    (props.pixelGrid.height * PIXEL_SIZE) / 2 + props.pixelGrid.height * 2.5,
+    (layerStore.grids[0].width * PIXEL_SIZE) / 2,
+    (layerStore.grids[0].height * PIXEL_SIZE) / 2 + layerStore.grids[0].height * 2.5,
   );
 }
 
-watch(props.pixelGrid, (prev, next) => {
-  if (firstLoad.value) {
-    drawCanvas();
-    updateCanvas();
-    firstLoad.value = false;
-  } else {
-    updateCanvas();
+watch(() => props.grid.backgroundColor, (prev, next) => {
+  const bg = viewport.children[1] as Sprite;
+  if (bg.tint !== props.grid.backgroundColor) {
+    bg.tint = props.grid.backgroundColor;
   }
 });
 

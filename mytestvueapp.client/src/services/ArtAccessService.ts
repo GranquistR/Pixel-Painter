@@ -175,7 +175,7 @@ export default class ArtAccessService {
 
       const artpiece = json as Art;
 
-      artpiece.pixelGrid.backgroundColor = "#ffffff";
+      artpiece.pixelGrid.backgroundColor = "FFFFFF";
       artpiece.pixelGrid.grid = codec.Decode(
         artpiece.pixelGrid.encodedGrid || "",
         artpiece.pixelGrid.height,
