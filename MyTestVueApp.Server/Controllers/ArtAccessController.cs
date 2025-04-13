@@ -153,6 +153,12 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetGif")]
+        public IEnumerable<Art> GetGif(int id)
+        {
+            return ArtAccessService.GetGif(id);
+        }
 
         [HttpGet]
         [Route("GetArtists")]
@@ -221,17 +227,17 @@ namespace MyTestVueApp.Server.Controllers
                         return BadRequest("User not logged in");
                     }
 
-                    if (art[0].id == 0) //New art
+                    if (art[0].id == 0) //New Gif
                     {
                         var result = await ArtAccessService.SaveGif(artist, art, fps);
                         return Ok(result);
                     }
-                    else //Update art
+                    else //Update Gif
                     {
-                        var result = await ArtAccessService.UpdateArt(artist, art[0]); //remember to fix before merge
+                        var result = await ArtAccessService.UpdateGif(art,fps);
                         if (result == null)
                         {
-                            return BadRequest("Could not update this art");
+                            return BadRequest("Could not update this gif"); //need to update fps as well
                         }
                         return Ok(result);
                     }

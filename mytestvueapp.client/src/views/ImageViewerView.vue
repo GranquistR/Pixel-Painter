@@ -3,12 +3,13 @@
     <div class="border-2">
       <MyCanvas
         v-model="squareColor"
-        v-if="art"
+        v-if="!art.isGif && art"
         :key="art.id"
         :art="art"
         :pixelSize="20"
         :canvas-number="1"
       />
+      <!-- <img v-if="art.isGif && art" :src="GifURL" alt="" /> -->
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -22,13 +23,10 @@
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            onclick="//thing to route"
+            @click="router.push(`/accountpage/${artist}`)"
           >
             {{ artist }}
           </div>
-          <RouterLink to="/accountpage">
-            <Button>Account Page</Button>
-          </RouterLink>
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
@@ -164,6 +162,7 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
+import GIFCreationService from "@/services/GIFCreationService";
 
 //filters
 const greyscale = ref<boolean>(false);
@@ -183,6 +182,8 @@ const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
+var numberTotalComments;
+const GifURL = ref<string>;
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -202,6 +203,7 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
+  //GIFCreationService.createGIFcode
 });
 
 function updateComments() {
@@ -251,11 +253,8 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-//const changeColor = () => {
-//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
-//};
-//
 const GreyScaleFilter = () => {
+  console.log(art.value);
   ArtAccessService.getArtById(id).then((promise: Art) => {
     //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
@@ -294,11 +293,6 @@ const rgbToHex = (r: number, g: number, b: number) =>
     })
     .join("");
 function rgbToGrayscale(red: number, green: number, blue: number) {
-  /* remember: if you multiply a number by a decimal between 0
-    and 1, it will make the number smaller. That's why we don't
-    need to divide the result by three - unlike the previous
-    example - because it's already balanced. */
-
   let r = red * 0.3; // ------> Red is low
   let g = green * 0.59; // ---> Green is high
   let b = blue * 0.11; // ----> Blue is very low
@@ -583,6 +577,17 @@ function LMStoRGB(LMScolors: number[][]): number[] {
   reformatedcolors[2] = RGBcolors[2][0];
   return reformatedcolors;
 }
+
+/*
+ Calculations made from:
+Digital Video Colourmaps for
+Checking the Legibility of
+Displays by Dichromats
+Francoise Vie´not,Hans Brettel,John D. Mollon
+
+https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf
+*/
+
 function FilterProtanope(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
@@ -598,6 +603,12 @@ function FilterProtanope(currentGrid: string): string {
       GammaCorrection(currentcolorrgb[1]),
       GammaCorrection(currentcolorrgb[2]),
     ];
+
+    //after gamma adjustment
+    currentcolorrgb[0] = 0.992052 * currentcolorrgb[0] + 0.003974;
+    currentcolorrgb[1] = 0.992052 * currentcolorrgb[1] + 0.003974;
+    currentcolorrgb[2] = 0.992052 * currentcolorrgb[2] + 0.003974;
+
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoProtanopes(currentcolorlms);
     newrgb = LMStoRGB(newcolorlms);
@@ -644,6 +655,11 @@ function FilterDeu(currentGrid: string): string {
       GammaCorrection(currentcolorrgb[1]),
       GammaCorrection(currentcolorrgb[2]),
     ];
+    //after gamma adjustment Deu
+    currentcolorrgb[0] = 0.957237 * currentcolorrgb[0] + 0.0213814;
+    currentcolorrgb[1] = 0.957237 * currentcolorrgb[1] + 0.0213814;
+    currentcolorrgb[2] = 0.957237 * currentcolorrgb[2] + 0.0213814;
+
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoDeuteranopes(currentcolorlms);
     newrgb = LMStoRGB(newcolorlms);
