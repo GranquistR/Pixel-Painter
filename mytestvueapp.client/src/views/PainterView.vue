@@ -12,8 +12,10 @@
     @mouseup="
       mouseButtonHeldDown = false;
       setEndVector();
-      onMouseUp()"
-    @contextmenu.prevent />
+      onMouseUp();
+    "
+    @contextmenu.prevent
+  />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
       <div class="flex gap-2">
@@ -21,11 +23,27 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()">
+          @click="ResetArt()"
+        >
         </Button>
         <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <UploadButton
+          :art="art"
+          :connection="connection"
+          :connected="connected"
+          :group-name="groupName"
+          @OpenModal="ToggleKeybinds"
+        />
+        <SaveImageToFile :art="art"></SaveImageToFile>
+        <ConnectButton
+          @OpenModal="ToggleKeybinds"
+          @Connect="connect"
+          @Disconnect="disconnect"
+          :connected="connected"
+          :isGif="art.pixelGrid.isGif"
+        />
       </div>
     </template>
 
@@ -56,7 +74,8 @@
         class="mr-2"
         severity="primary"
         label="Recenter"
-        @click="canvas?.recenter()" />
+        @click="canvas?.recenter()"
+      />
       <Button
         :disabled="connected"
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
@@ -135,39 +154,39 @@ let connection = new SignalR.HubConnectionBuilder()
             }).build();
 
 connection.on("Send", (user: string, msg: string) => {
-        console.log("Received Message", user + " " + msg);
+  console.log("Received Message", user + " " + msg);
 });
 
 connection.on("NewMember", (newartist: Artist) => {
-  console.log("New Member: "+ newartist.name);
-  if (!art.value.artistId.includes(newartist.id)){
+  console.log("New Member: " + newartist.name);
+  if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
   }
-  console.log("NewMember-Members: " +  art.value.artistName.join(" "))
+  console.log("NewMember-Members: " + art.value.artistName.join(" "));
 });
 
 connection.on("Members", (artists: Artist[]) => {
   console.log("Recieved All Members");
-  artists.forEach(artist => {
-    if (!art.value.artistId.includes(artist.id)){
+  artists.forEach((artist) => {
+    if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
     }
-  })
-  console.log("Members-Members: " +  art.value.artistName.join(" "))
+  });
+  console.log("Members-Members: " + art.value.artistName.join(" "));
 });
 
-connection.onclose(error => {
+connection.onclose((error) => {
   if (error) {
     toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: "You have disconnected!",
-            life: 3000,
-          });
+      severity: "error",
+      summary: "Error",
+      detail: "You have disconnected!",
+      life: 3000,
+    });
     connected.value = false;
-    }
+  }
 });
 
 connection.on("ReceivePixels", (layer: number, color: string, coords: Vector2[]) => {
@@ -193,7 +212,6 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
 });
 
 const connect = (groupname: string) => {
-
   if (artist.value.id != 0){
     connection.start()
         .then(
@@ -213,19 +231,21 @@ const connect = (groupname: string) => {
           life: 3000,
     });
   }
-}
-
+};
 
 const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup", groupname, artist.value)
+  connection
+    .invoke("LeaveGroup", groupname, artist.value)
     .then(() => {
-      connection.stop()
+      connection
+        .stop()
         .then(() => {
           connected.value = !connected.value;
-        }).catch(err => console.error("Error Disconnecting:", err));
-    }
-    ).catch(err => console.error("Error Leaving Group:",err));
-}
+        })
+        .catch((err) => console.error("Error Disconnecting:", err));
+    })
+    .catch((err) => console.error("Error Leaving Group:", err));
+};
 //End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
@@ -287,7 +307,7 @@ onMounted(async () => {
   LoginService.GetCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       artist.value.id = 0;
-      artist.value.name = "Guest"
+      artist.value.name = "Guest";
     }
     artist.value = user;
   });
@@ -397,6 +417,11 @@ watch(selectedFrame, () => {
     canvas.value?.recenter();
     localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[0]));
 
+    canvas.value?.recenter();
+    localStorage.setItem(
+      `frame${selectedFrame.value}`,
+      JSON.stringify(art.value.pixelGrid)
+    );
   } else {
     layerStore.grids[0].DeepCopy(workingGrid);
     canvas.value?.drawLayers(0);
@@ -476,7 +501,6 @@ function ReplaceCanvas(pixels: Pixel[][]) {
         = pixels[l][p].color;
     }
   }
-
 }
 
 function DrawPixels(layer: number, color: string, coords: Vector2[]) {
@@ -500,18 +524,14 @@ function SendPixels(layer: number, color: string, coords: Vector2[]) {
 
 function ChangeBackgroundColor(color: string) {
   if (connected.value) {
-    connection.invoke(
-      "ChangeBackgroundColor",
-      groupName.value,
-      color
-    )
+    connection.invoke("ChangeBackgroundColor", groupName.value, color);
   }
 }
 
 function DrawAtCoords(coords: Vector2[]) {
-    let coordinates: Vector2[] = [];
+  let coordinates: Vector2[] = [];
 
-    if (
+  if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
   ) {
@@ -590,7 +610,11 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
+function fill(
+  x: number,
+  y: number,
+  color: string = cursor.value.color
+): Vector2[] {
   let vectors: Vector2[] = [];
   if (y >= 0 && y < layerStore.grids[layerStore.layer].height) {
     const oldColor = layerStore.grids[layerStore.layer].grid[x][y];
@@ -767,7 +791,6 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
 
   let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
 
-
   let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
   let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
 
@@ -861,20 +884,15 @@ function ResetArt() {
 }
 
 function onMouseUp() {
-  if (
-    cursor.value.selectedTool.label == "Rectangle"
-  ) {
+  if (cursor.value.selectedTool.label == "Rectangle") {
     SendPixels(
       layerStore.layer,
       cursor.value.color,
       GetRectanglePixels(startPix.value, endPix.value)
     );
   }
-  if (
-    cursor.value.selectedTool.label == "Ellipse"
-  ) {
-    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
-    });
+  if (cursor.value.selectedTool.label == "Ellipse") {
+    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {});
     SendPixels(
       layerStore.layer,
       cursor.value.color,
@@ -984,7 +1002,6 @@ function LocalSaveGif() {
 
   localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[layerStore.layer]));
 }
-
 </script>
 <style scoped>
 .Rainbow,
