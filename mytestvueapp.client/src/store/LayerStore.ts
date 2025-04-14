@@ -28,6 +28,7 @@ export const useLayerStore = defineStore('layers', {
     },
     empty() {
       this.grids.splice(0, this.grids.length);
+      this.layer = 0;
     },
     clearStorage() {
       localStorage.removeItem('grids');

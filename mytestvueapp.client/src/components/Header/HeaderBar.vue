@@ -39,7 +39,7 @@ import GoogleLogin from "../GoogleLogin.vue";
 import Toolbar from "primevue/toolbar";
 import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore"
 
 const visible = ref(false);
 const password = ref(null);
@@ -49,7 +49,6 @@ const isLoggedIn = ref(false);
 
 onMounted(() => {
   layerStore.init();
-  console.log(layerStore.grids);
 
   LoginService.isLoggedIn().then((result) => {
     isLoggedIn.value = result;

@@ -64,7 +64,7 @@ import { onMounted, ref } from "vue";
 import router from "@/router";
 import { PixelGrid } from "@/entities/PixelGrid";
 import ToggleButton from "primevue/togglebutton";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import { useLayerStore } from "@/store/LayerStore";
 
 const layerStore = useLayerStore();
 
@@ -76,7 +76,7 @@ function updateLocalStorage() {
   layerStore.empty(); //just in case
 
 
-  var pixelGrid = new PixelGrid(
+  let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
     backgroundColor.value,
@@ -84,7 +84,6 @@ function updateLocalStorage() {
   );
 
   layerStore.pushGrid(pixelGrid);
-  console.log(layerStore.grids);
   router.push("/paint");
 }
 

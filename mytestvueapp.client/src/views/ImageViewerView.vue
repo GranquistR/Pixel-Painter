@@ -19,16 +19,22 @@
         <div>
           By
           <div
+            :style="{
+              textDecoration: hover ? 'underline' : 'none',
+              cursor: hover ? 'pointer' : 'none',
+            }"
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            onclick="//thing to route"
+            @click="router.push(`/accountpage/${artist}`)"
+            v-on:mouseover="hover = true"
+            v-on:mouseleave="hover = false"
           >
             {{ artist }}
           </div>
-          <RouterLink to="/accountpage">
+          <!-- <RouterLink to="/accountpage">
             <Button>Account Page</Button>
-          </RouterLink>
+          </RouterLink> -->
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
@@ -39,7 +45,11 @@
               :art-id="id"
               :likes="art.numLikes"
             ></LikeButton>
-            <SaveImageToFile :art="art" :selectedLayer="-1"></SaveImageToFile>
+            <SaveImageToFile
+              :art="art"
+              :fps="0"
+              :selectedLayer="-1"
+            ></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded
@@ -164,7 +174,9 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import { useLayerStore } from "@/store/LayerStore.ts"
+import type { Color } from "pixi.js";
+import { useLayerStore } from "@/store/LayerStore";
+import type { Tooltip } from "primevue";
 
 const layerStore = useLayerStore();
 
@@ -175,6 +187,7 @@ const duotone = ref<boolean>(false);
 const sepia = ref<boolean>(false);
 const prota = ref<boolean>(false);
 const Deu = ref<boolean>(false);
+const hover = ref(false);
 
 const route = useRoute();
 const toast = useToast();
