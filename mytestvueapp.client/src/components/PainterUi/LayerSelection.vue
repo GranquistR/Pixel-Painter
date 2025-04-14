@@ -30,11 +30,10 @@
         @click="showLayers = !showLayers; changeGreyscale()"
       />
       <Button
-        v-if="showLayers"
         :label="greyscale ? 'Disable Greyscale' : 'Enable Greyscale'"
         :icon="'pi pi-palette'"
         :severity="greyscale ? 'primary' : 'secondary'"
-        :disabled="layers.length==1"
+        :disabled="(layers.length==1 || !showLayers)"
         size="small"
         class="w-full"
         @click="greyscale = !greyscale"
