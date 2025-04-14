@@ -72,7 +72,6 @@
         label="Gravity"
         @click="runGravity()"/>
       <Button
-        :disabled="connected"
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
@@ -644,6 +643,11 @@ function randomizeGrid() {
       let color = ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
       layerStore.grids[layerStore.layer].grid[i][j] = color;
       canvas.value?.updateCell(layerStore.layer, i, j, color);
+      if (connected.value) {
+        let coords: Vector2[] = [];
+        coords.push(new Vector2(i,j));
+        SendPixels(layerStore.layer, color, coords);
+      }
     }
   }
   layerStore.grids[layerStore.layer].encodedGrid = layerStore.grids[layerStore.layer].getEncodedGrid();

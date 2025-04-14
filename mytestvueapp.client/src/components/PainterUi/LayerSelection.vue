@@ -1,11 +1,11 @@
 <template>
-  <FloatingCard position="bottom"
-                header="Layers"
-                button-icon="pi pi-clone"
-                button-label=""
-                width=""
-                :default-open="false">
-
+  <FloatingCard 
+  position="bottomleft"
+  header="Layers [Right click to delete]"
+  button-icon="pi pi-clone"
+  button-label=""
+  width=""
+  :default-open="false">
     <Button class="mr-1" :disabled="layers.length == 1 || props.connected" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
 
     <template v-for="layer in layers">
@@ -14,30 +14,31 @@
               severity="secondary"
               @click="switchLayer(layer)"
               @contextmenu.prevent="deleteLayer(layer)"
-              v-tooltip.bottom="(layers.length > 1 && !props.connected) ? `Right click to delete layer ${layer+1}.` : null"/>
+              v-tooltip.bottom="(layers.length > 1 && !props.connected) ? `Right click to delete layer ${layer+1}.` : null"
+      />
     </template>
 
     <Button class="ml-1" :disabled="(layers.length==8 || props.connected)" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
     <div class="mt-4 space-y-2">
-      <div class="flex items-left">
-        <input
-          id="showLayers"
-          type="checkbox"
-          v-model="showLayers"
-          @change="changeGreyscale"
-          class="mr-2"
-        />
-        <label for="showLayers" class="text-sm">Show Layers</label>
-      </div>
-      <div class="flex items-left" v-if="showLayers">
-        <input
-          id="greyscale"
-          type="checkbox"
-          v-model="greyscale"
-          class="mr-2"
-        />
-        <label for="greyscale" class="text-sm">Greyscale</label>
-      </div>
+      <Button
+        :label="showLayers ? 'Hide Layers' : 'Show Layers'"
+        :icon="showLayers ? 'pi pi-eye-slash' : 'pi pi-eye'"
+        :severity="showLayers ? 'primary' : 'secondary'"
+        :disabled="layers.length==1"
+        size="small"
+        class="w-full"
+        @click="showLayers = !showLayers; changeGreyscale()"
+      />
+      <Button
+        v-if="showLayers"
+        :label="greyscale ? 'Disable Greyscale' : 'Enable Greyscale'"
+        :icon="'pi pi-palette'"
+        :severity="greyscale ? 'primary' : 'secondary'"
+        :disabled="layers.length==1"
+        size="small"
+        class="w-full"
+        @click="greyscale = !greyscale"
+      />
     </div>
   </FloatingCard>
 </template>
@@ -61,7 +62,7 @@ const selectedLayer = ref<number>(0);
 const layers = ref<number[]>([0]);
 
 const showLayers = defineModel<boolean>("showLayers", { default: true });
-const greyscale = defineModel<boolean>("greyscale", { default: true });
+const greyscale = defineModel<boolean>("greyscale", { default: false });
 
 onBeforeMount(() => {
   for (let i = 1; i < layerStore.grids.length; i++)
