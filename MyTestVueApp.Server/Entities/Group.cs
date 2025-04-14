@@ -54,7 +54,11 @@ namespace MyTestVueApp.Server.Entities
         {
             foreach (Coordinate coord in coords)
             {
-                Pixels[layer][coord.X][coord.Y] = color;
+                if (coord.X >= 0 && coord.X < Pixels[0].GetLength(0) &&
+                    coord.Y >= 0 && coord.Y < Pixels[0].GetLength(0))
+                {
+                    Pixels[layer][coord.X][coord.Y] = color;
+                }
             }
         }
 

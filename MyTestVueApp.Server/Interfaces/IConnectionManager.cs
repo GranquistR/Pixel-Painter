@@ -5,7 +5,6 @@ namespace MyTestVueApp.Server.Interfaces
 {
     public interface IConnectionManager
     {
-        public void AddGroup(string groupName);
         public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor);
         public void RemoveGroup(string groupName);
         public void AddUser(string connectionId, Artist member, string groupName);
