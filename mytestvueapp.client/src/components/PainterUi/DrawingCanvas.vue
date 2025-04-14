@@ -28,7 +28,7 @@ const props = defineProps<{
 }>();
 
 //exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
-defineExpose({ recenter, updateCursor, drawLayers, updateCell, init });
+defineExpose({ recenter, updateCursor, drawLayers, updateCell, init, drawFrame, updateCellFrame });
 
 //model
 const cursor = defineModel<Cursor>({
@@ -121,10 +121,36 @@ function drawLayers(layer: number) {
   }
 }
 
+    function drawFrame(frame: number) {
+        let dropShadow = viewport.children[0];
+        let background = viewport.children[1];
+        background.tint = layerStore.grids[frame].backgroundColor;
+        viewport.removeChildren();
+        viewport.addChild(dropShadow);
+        viewport.addChild(background);
+
+        let width = layerStore.grids[0].width;
+        let height = layerStore.grids[0].height;
+        for (let i = 0; i < width; i++) {
+            for (let j = 0; j < height; j++) {
+                const sprite = viewport.addChild(new Sprite(Texture.WHITE));
+                if (layerStore.grids[frame].grid[i][j] === "empty") {
+                    sprite.tint = layerStore.grids[frame].backgroundColor;
+                    sprite.alpha = 0;
+                } else {
+                    sprite.tint = layerStore.grids[frame].grid[i][j];
+                    sprite.alpha = 1;
+                }
+                sprite.width = sprite.height = PIXEL_SIZE;
+                sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
+                // sprite.interactive = (length === frame) ? true : false; //reduce lag
+            }
+        }
+    }
+
 function updateCell(layer: number, x: number, y: number, color: string) {
   let idx = layerStore.grids[0].width ** 2 * layer + 2;
   idx += (x * layerStore.grids[0].width + y);
-
   if (color === "empty") {
     viewport.children[idx].alpha = 0;
   } else {
@@ -133,6 +159,17 @@ function updateCell(layer: number, x: number, y: number, color: string) {
     else viewport.children[idx].alpha = 0;
   }
 }
+
+    function updateCellFrame(frame: number, x: number, y: number, color: string) {
+        let idx = (x * layerStore.grids[0].width + y + 2);
+
+        if (color === "empty") {
+            viewport.children[idx].alpha = 0;
+        } else {
+            viewport.children[idx].tint = color;
+            viewport.children[idx].alpha = 1;
+        }
+    }
 
 const pos = ref<any>();
 
