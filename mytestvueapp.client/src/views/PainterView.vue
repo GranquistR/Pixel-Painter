@@ -3,6 +3,8 @@
     ref="canvas"
     :style="{ cursor: cursor.selectedTool.cursor }"
     :grid="art.pixelGrid"
+    :showLayers="showLayers"
+    :greyscale="greyscale"
     v-model="cursor"
     @mousedown="
       mouseButtonHeldDown = true;
@@ -29,21 +31,6 @@
         <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
-        <UploadButton
-          :art="art"
-          :connection="connection"
-          :connected="connected"
-          :group-name="groupName"
-          @OpenModal="ToggleKeybinds"
-        />
-        <SaveImageToFile :art="art"></SaveImageToFile>
-        <ConnectButton
-          @OpenModal="ToggleKeybinds"
-          @Connect="connect"
-          @Disconnect="disconnect"
-          :connected="connected"
-          :isGif="art.pixelGrid.isGif"
-        />
       </div>
     </template>
 
@@ -66,7 +53,9 @@
       <LayerSelection 
       v-if="!art.pixelGrid.isGif" 
       :updateLayers="updateLayers" 
-      :connected="connected" />
+      :connected="connected"
+      v-model:showLayers="showLayers"
+      v-model:greyscale="greyscale"/>
     </template>
     <template #end>
       <Button
@@ -143,6 +132,8 @@ const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist);
 const layerStore = useLayerStore();
 const updateLayers = ref<number>(0);
+const showLayers = ref<boolean>(true);
+const greyscale = ref<boolean>(false);
 
 // Connection Information
 const connected = ref<boolean>(false);
@@ -435,7 +426,6 @@ watch(() => layerStore.layer, () => {
   if (layerStore.grids.length > 0) {
     tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
     canvas.value?.drawLayers(layerStore.layer);
-    canvas.value?.recenter();
   }
 });
 

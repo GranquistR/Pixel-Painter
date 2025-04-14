@@ -18,6 +18,27 @@
     </template>
 
     <Button class="ml-1" :disabled="(layers.length==8 || props.connected)" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
+    <div class="mt-4 space-y-2">
+      <div class="flex items-left">
+        <input
+          id="showLayers"
+          type="checkbox"
+          v-model="showLayers"
+          @change="changeGreyscale"
+          class="mr-2"
+        />
+        <label for="showLayers" class="text-sm">Show Layers</label>
+      </div>
+      <div class="flex items-left" v-if="showLayers">
+        <input
+          id="greyscale"
+          type="checkbox"
+          v-model="greyscale"
+          class="mr-2"
+        />
+        <label for="greyscale" class="text-sm">Greyscale</label>
+      </div>
+    </div>
   </FloatingCard>
 </template>
 
@@ -38,6 +59,9 @@ const props = defineProps<{
 const layerStore = useLayerStore();
 const selectedLayer = ref<number>(0);
 const layers = ref<number[]>([0]);
+
+const showLayers = defineModel<boolean>("showLayers", { default: true });
+const greyscale = defineModel<boolean>("greyscale", { default: true });
 
 onBeforeMount(() => {
   for (let i = 1; i < layerStore.grids.length; i++)
@@ -100,6 +124,12 @@ function switchLayer(layer: number) {
   selectedLayer.value = layer;
   layerStore.layer = layer;
 }
+
+const changeGreyscale = () => {
+  if (!showLayers.value) {
+    greyscale.value = false;
+  }
+};
 
 watch(() => props.updateLayers, () => {
   layers.value.splice(0, layers.value.length);

@@ -24,7 +24,9 @@ const layerStore = useLayerStore();
 
 //props
 const props = defineProps<{
-  grid: PixelGrid
+  grid: PixelGrid;
+  showLayers: boolean;
+  greyscale: boolean;
 }>();
 
 //exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
@@ -92,6 +94,11 @@ function init() {
 }
 
 function drawLayers(layer: number) {
+  let from = 0;
+  if (!props.showLayers) {
+    from = layerStore.layer; //for showing only the selected layer
+  }
+
   if (viewport.children.length > 2) {
     viewport.removeChildren(2);
   }
@@ -110,7 +117,7 @@ function drawLayers(layer: number) {
     background.height = layerStore.grids[0].width * PIXEL_SIZE;
   }
 
-  for (let length = 0; length < layerStore.grids.length; length++) {
+  for (let length = from; length <= layerStore.layer; length++) {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         const sprite = viewport.addChild(new Sprite(Texture.WHITE));
@@ -118,7 +125,11 @@ function drawLayers(layer: number) {
           sprite.tint = layerStore.grids[length].backgroundColor;
           sprite.alpha = 0;
         } else {
-          sprite.tint = layerStore.grids[length].grid[i][j];
+          let tmp = layerStore.grids[length].grid[i][j];
+          if (length < layerStore.layer && props.greyscale) { 
+            tmp = filterGreyScale(tmp); 
+          }
+          sprite.tint = tmp;
           sprite.alpha = 1;
         }
         sprite.width = sprite.height = PIXEL_SIZE;
@@ -126,7 +137,6 @@ function drawLayers(layer: number) {
         sprite.interactive = (length === layer) ? true : false; //reduce lag
       }
     }
-    if (length === layer) break;
   }
 }
 
@@ -135,7 +145,10 @@ function updateCell(layer: number, x: number, y: number, color: string) {
     //square the width to get last index of grid before current,
     //mult by layer to get selected layer,
     //add by 2 to account for dropshadow and background sprites in viewport
-    let idx = layerStore.grids[0].width ** 2 * layer + 2;
+    let idx=layerStore.grids[0].width ** 2 * layer + 2;;
+    if (!props.showLayers) {
+      idx = 2;
+    }
 
     //no way around this, viewport stores sprites in a 1d array
     idx += (x * layerStore.grids[0].width + y);
@@ -143,10 +156,54 @@ function updateCell(layer: number, x: number, y: number, color: string) {
     if (color === "empty") {
       cell.alpha = 0;
     } else {
-      cell.tint = color;
+      let tmp = color;
+      if (layer < layerStore.layer && props.greyscale) {
+        tmp = filterGreyScale(tmp);
+      }
+      cell.tint = tmp;
       cell.alpha = 1;
     }
   }
+}
+
+function filterGreyScale(hex: string): string {
+  let newrgb: number[] = [];
+  newrgb = rgbToGrayscale(hexToRgb(hex));
+  return rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
+}
+
+function hexToRgb(hex: string): number[] {
+  let rgb: number[] = [];
+  let r = parseInt(hex.slice(0, 2), 16),
+    g = parseInt(hex.slice(2, 4), 16),
+    b = parseInt(hex.slice(4, 6), 16);
+
+  rgb[0] = r;
+  rgb[1] = g;
+  rgb[2] = b;
+
+  return rgb;
+}
+
+function rgbToGrayscale(rgb: number[]): number[] {
+  let r = rgb[0] * 0.3; 
+  let g = rgb[1] * 0.59;
+  let b = rgb[2] * 0.11; 
+  r = Math.round(r);
+  g = Math.round(g);
+  b = Math.round(b);
+
+  let gray = r + g + b;
+
+  return [gray, gray, gray];
+}
+
+function rgbToHex (r: number, g: number, b: number): string {
+  let val = [Math.round(r), Math.round(g), Math.round(b)].map((x) => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  }).join("");
+  return val;
 }
 
 const pos = ref<any>();
@@ -225,6 +282,14 @@ watch(() => props.grid.backgroundColor, (prev, next) => {
   if (bg.tint !== props.grid.backgroundColor) {
     bg.tint = props.grid.backgroundColor;
   }
+});
+
+watch(() => props.showLayers, () => {
+  drawLayers(layerStore.layer);
+});
+
+watch(() => props.greyscale, () => {
+  drawLayers(layerStore.layer);
 });
 
 //disable panning when not in pan mode
