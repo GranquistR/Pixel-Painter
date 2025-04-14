@@ -18,7 +18,7 @@ namespace MyTestVueApp.Server.Hubs
             _logger = logger;
         }
 
-        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             _logger.LogInformation("GroupName: " + groupName + " GroupExists: " + _manager.GroupExists(groupName));
             if (_manager.GroupExists(groupName))
@@ -45,7 +45,7 @@ namespace MyTestVueApp.Server.Hubs
         }
 
 
-        public async Task CreateGroup(string groupName, Artist artist, string[][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         { 
             _manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             _manager.AddUser(Context.ConnectionId, artist, groupName);
@@ -61,10 +61,10 @@ namespace MyTestVueApp.Server.Hubs
             await Clients.Group(groupName).SendAsync("Send", $"{member.name} has left the group {groupName}.");
         }
 
-        public async Task SendPixels(string room, string color, Coordinate[] coords)
+        public async Task SendPixels(string room, int layer, string color, Coordinate[] coords)
         {
-            _manager.PaintPixels(room, color, coords);
-            await Clients.Group(room).SendAsync("ReceivePixels", color, coords);
+            _manager.PaintPixels(room, layer, color, coords);
+            await Clients.Group(room).SendAsync("ReceivePixels", layer, color, coords);
         }
 
         public async Task SendMessage(string user, string room, string message)
