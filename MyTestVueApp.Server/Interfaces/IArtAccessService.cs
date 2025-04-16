@@ -24,6 +24,8 @@ namespace MyTestVueApp.Server.Interfaces
         public Task AddContributingArtist(int artId, int artistId);
         public Task<Art> UpdateArt(Artist artist, Art art);
         public Task<Art[]> SaveGif(Artist artist, Art[] art, int fps);
+
+        public Task<IEnumerable<Art>> GetLikedArt(int artistId);
         public IEnumerable<Art> GetGif(int id);
         public Task<Art> UpdateGif(Art[] art, int fps);
     }

@@ -305,7 +305,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Title", art.title);
-                        command.Parameters.AddWithValue("@ArtistId", artist.id);
                         command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
                         command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
                         command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
