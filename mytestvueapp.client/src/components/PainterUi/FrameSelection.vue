@@ -29,32 +29,13 @@ import { useLayerStore } from "@/store/LayerStore.ts"
 import { PixelGrid } from "@/entities/PixelGrid.ts"
 
     let selectedFrame = defineModel<number>("selFrame", { default: 0 });
-    //let oldFrame = defineModel<number>("lastFrame", { default: 1 });
-    //let index = defineModel<number>("frameIndex", { default: 2 });
-
     const frameStore = useLayerStore();
-    // const selFrame = ref<number>(0);
-    // const frames = ref<number[]>([0]);
-
     let frameCount = 1;
     const frames = ref([
         { id: 0, icon: 'pi pi-image', class: 'm-1', severity: 'secondary' }
     ]);
 
     onBeforeMount(() => {
-        //var count = 2;
-        //while (localStorage.getItem(`frame${count}`) != null) {
-        //    frames.value.push({
-        //        id: count,
-        //        icon: 'pi pi-image',
-        //        class: 'mr-1',
-        //        severity: 'secondary'
-        //    });
-
-        //    frameCount++;
-        //    count++;
-        //    index.value++;
-        //}
         for (let i = 1; i < frameStore.grids.length; i++) {
             frames.value.push({
                     id: i,
@@ -68,8 +49,6 @@ import { PixelGrid } from "@/entities/PixelGrid.ts"
     });
 
     function addFrame() {
-        //frameCount++;
-        //index.value++;
         frames.value.push({
             id: frameStore.grids.length,
             icon: 'pi pi-image',
@@ -88,16 +67,10 @@ import { PixelGrid } from "@/entities/PixelGrid.ts"
         if (frames.value.length > 1) {
             frames.value.pop();
             frameStore.popGrid();
-            //frameCount--;
-            //index.value--;
-
-            if (selectedFrame.value == frameCount + 1) {
-                localStorage.getItem(`frame${frameCount}`)
+            
+            if (selectedFrame.value >= frames.value.length) {
+                switchFrame(selectedFrame.value - 1);
             }
-        }
-
-        if (localStorage.getItem(`frame${frameCount + 1}`) != null) {
-            localStorage.removeItem(`frame${frameCount + 1}`);
         }
     }
 
@@ -106,9 +79,6 @@ import { PixelGrid } from "@/entities/PixelGrid.ts"
             nFrame.severity = 'secondary';
         });
         frames.value[frameID].severity = 'primary';
-
-        //oldFrame.value = selectedFrame.value;
-        //selectedFrame.value = frameID;
 
         selectedFrame.value = frameID;
         frameStore.layer = frameID;
