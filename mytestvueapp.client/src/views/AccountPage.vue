@@ -4,8 +4,7 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ curArtist?.name }}</div>
-          <div class="">{{ artist?.email }}</div>
+          <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
@@ -13,9 +12,14 @@
               >Account Settings</Button
             >
             <Button
-              :severity="route.hash == '#art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#art')"
+              :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
+              @click="ChangeHash('#created_art')"
               >Creator's Art</Button
+            >
+            <Button
+              :severity="route.hash == '#liked_art' ? 'primary' : 'secondary'"
+              @click="ChangeHash('#liked_art')"
+              >Liked Art</Button
             >
           </div>
         </template>
@@ -87,14 +91,26 @@
           </template>
         </Card>
       </div>
-      <div v-if="route.hash == '#art'">
+      <div v-if="route.hash == '#created_art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
           <ArtCard
             v-for="art in myArt"
             :key="art.id"
             :art="art"
-            :size="10"
+            :size="7"
+            :position="art.id"
+          />
+        </div>
+      </div>
+      <div v-if="route.hash == '#liked_art'">
+        <h2>Liked Art</h2>
+        <div class="flex flex-wrap">
+          <ArtCard
+            v-for="art in likedArt"
+            :key="art.id"
+            :art="art"
+            :size="7"
             :position="art.id"
           />
         </div>
@@ -123,14 +139,15 @@ const toast = useToast();
 const route = useRoute();
 const changeArtist = ref(false);
 
+const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
-const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
+var likedArt = ref<Art[]>([]);
 
 onMounted(() => {
   LoginService.GetCurrentUser().then((user: Artist) => {
@@ -146,17 +163,15 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-  LoginService.GetAllArtists().then((newList: Artist[]) => {
-    artistList.value = newList;
-    curArtist.value = newList[5];
-    ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
+  LoginService.GetArtistByName(name).then((promise: Artist) => {
+    curArtist.value = promise;
+    ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
+    ArtAccessService.getLikedArt(curArtist.value.id).then((art) => {
+      likedArt.value = art;
+    });
   });
-});
-
-watch(changeArtist, () => {
-  curArtist.value = artistList.value[0];
 });
 
 function logout() {

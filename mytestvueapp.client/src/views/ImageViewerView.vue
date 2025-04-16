@@ -20,10 +20,16 @@
         <div>
           By
           <div
+            :style="{
+              textDecoration: hover ? 'underline' : 'none',
+              cursor: hover ? 'pointer' : 'none',
+            }"
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
             @click="router.push(`/accountpage/${artist}`)"
+            v-on:mouseover="hover = true"
+            v-on:mouseleave="hover = false"
           >
             {{ artist }}
           </div>
@@ -37,7 +43,11 @@
               :art-id="id"
               :likes="art.numLikes"
             ></LikeButton>
-            <SaveImageToFile :art="art"></SaveImageToFile>
+            <SaveImageToFile
+              :art="art"
+              :fps="0"
+              :selectedLayer="-1"
+            ></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded
@@ -52,14 +62,14 @@
               label="Edit"
               icon="pi pi-pencil"
               severity="secondary"
-              @click="router.push(`/paint/${id}`)"
+              @click="editArt()"
             ></Button>
             <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
             </DeleteArtButton>
           </div>
           <div v-if="showFilters == true" class="">
             <h3>Filters</h3>
-            <ButtonGroup>
+            <div>
               <Button
                 @click="GreyScaleFilter"
                 :disabled="filtered && greyscale == false"
@@ -89,7 +99,7 @@
                 :severity="Deu ? 'primary' : 'secondary'"
                 >Deuteranope</Button
               >
-            </ButtonGroup>
+            </div>
             <div v-if="ShowTones" class="flex flex-column gap-2 mt-4">
               <h4 class="m-auto">Color 1</h4>
               <h4 class="m-auto">{{ toneOne }}</h4>
@@ -163,6 +173,11 @@ import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
+import type { Color } from "pixi.js";
+import { useLayerStore } from "@/store/LayerStore";
+import type { Tooltip } from "primevue";
+
+const layerStore = useLayerStore();
 
 //filters
 const greyscale = ref<boolean>(false);
@@ -171,6 +186,7 @@ const duotone = ref<boolean>(false);
 const sepia = ref<boolean>(false);
 const prota = ref<boolean>(false);
 const Deu = ref<boolean>(false);
+const hover = ref(false);
 
 const route = useRoute();
 const toast = useToast();
@@ -205,6 +221,13 @@ onMounted(() => {
   getIsAdmin();
   //GIFCreationService.createGIFcode
 });
+
+function editArt() {
+  layerStore.empty();
+  layerStore.clearStorage();
+  layerStore.pushGrid(art.value.pixelGrid);
+  router.push(`/paint/${id}`);
+}
 
 function updateComments() {
   numberTotalComments = art.value.numComments;
@@ -254,9 +277,7 @@ const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
 const GreyScaleFilter = () => {
-  console.log(art.value);
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (greyscale.value == false) {
         squareColor.value = FilterGreyScale(promise.pixelGrid.encodedGrid);
@@ -372,7 +393,6 @@ function DuoTone(
 }
 const DuoToneFilter = (toneOne: string, toneTwo: string) => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (duotone.value == false) {
         squareColor.value = DuoTone(
@@ -439,7 +459,6 @@ function FilterSepia(currentGrid: string): string {
 }
 const SepiaFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (sepia.value == false) {
         squareColor.value = FilterSepia(promise.pixelGrid.encodedGrid);
@@ -466,7 +485,6 @@ function InverseGammaCorrection(OldColor: number): number {
   }
   let expo = 1 / 2.2;
   let NewColor = Math.pow(OldColor, expo);
-  //console.log(NewColor);
   NewColor = NewColor * 255;
   if (NewColor > 255) {
     NewColor = 255;
@@ -501,7 +519,6 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   return LMSColors;
 }
 function LMStoProtanopes(LMScolors: number[][]): number[][] {
-  //console.log(LMScolors);
   let ProtanopeColors: number[][] = [];
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
@@ -517,7 +534,6 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
       let sum = 0;
       for (let k = 0; k < PTPcolumns; k++) {
         sum += ProtanopeCalc[i][k] * LMScolors[k][j];
-        //console.log(j);
       }
       ProtanopeColors[i][j] = sum;
     }
@@ -583,7 +599,7 @@ function LMStoRGB(LMScolors: number[][]): number[] {
 Digital Video Colourmaps for
 Checking the Legibility of
 Displays by Dichromats
-Francoise Vie´not,Hans Brettel,John D. Mollon
+Francoise Vie�not,Hans Brettel,John D. Mollon
 
 https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf
 */
@@ -624,7 +640,6 @@ function FilterProtanope(currentGrid: string): string {
 }
 const ProtanopeFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log(promise.pixelGrid.encodedGrid);
     if (promise.pixelGrid.encodedGrid) {
       if (prota.value == false) {
         squareColor.value = FilterProtanope(promise.pixelGrid.encodedGrid);

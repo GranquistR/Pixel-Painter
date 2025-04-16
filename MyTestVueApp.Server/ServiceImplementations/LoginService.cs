@@ -186,7 +186,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     @"SELECT [Id]
                         ,[SubId] 
                         ,[Name] 
-                        ,[IsAdmin] 
+                        ,[IsAdmin]
+						,[PrivateProfile]
                         ,[CreationDate] 
                     FROM [PixelPainter].[dbo].[Artist]
                     ";
@@ -203,7 +204,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 subId = reader.GetString(1),
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4)
+                                privateProfile = reader.GetBoolean(4),
+                                creationDate = reader.GetDateTime(5)
                             };
                             artistList.Add(artist);
                         }
@@ -260,6 +262,51 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        public async Task<Artist> GetArtistByName(string name)
+        {
+            var artist = new Artist();
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = $@" 
+                  SELECT [Id]
+                    ,[SubId]
+                    ,[Name]
+                    ,[IsAdmin]
+                    ,[CreationDate]
+                    ,[PrivateProfile]
+                FROM [PixelPainter].[dbo].[Artist]
+                where Artist.Name = @Name
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", name);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+
+                            artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4),
+                                privateProfile = reader.GetBoolean(5),
+
+                            };
+                            
+                            return artist;
+                        }
+                    }
+                    return null;
+                }
+            }
+        }
+
         public async Task<Artist> GetUserBySubId(string subId)
         {
             var artist = new Artist();
@@ -275,6 +322,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           ,[Name]
                           ,[IsAdmin]
                           ,[CreationDate]
+                          ,[PrivateProfile]
                           ,[Email]
                       FROM [PixelPainter].[dbo].[Artist]
                       WHERE SubId = @SubId
@@ -294,7 +342,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                privateProfile = reader.GetBoolean(5),
+                                email = reader.GetString(6),
                             };
                             return artist;
                         }
