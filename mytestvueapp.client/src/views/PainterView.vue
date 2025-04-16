@@ -279,11 +279,7 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-	if (art.value.pixelGrid.isGif) {
-		LocalSaveGif();
-	} else {
 		LocalSave();
-	}
   }
   next();
 });
@@ -346,11 +342,7 @@ const ToggleKeybinds = (disable: boolean) => {
 };
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-  if (art.value.pixelGrid.isGif) {
-	LocalSaveGif();
-  } else { 
 	LocalSave();
-  }
 }
 
 watch(
@@ -385,14 +377,6 @@ watch(() => art.value.pixelGrid.backgroundColor, (next, prev) => {
 });
 	
 watch(selectedFrame, () => {
-  if (lastFrame.value <= index.value) {
-	// localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(layerStore.grids[layerStore.layer]));
-  }
-
-  //const workingGrid = JSON.parse(
-  //  localStorage.getItem(`frame${selectedFrame.value}`) as string
-		//) as PixelGrid;
-
   const workingGrid = layerStore.grids[selectedFrame.value];
 
   if (workingGrid == null) {
@@ -405,16 +389,10 @@ watch(selectedFrame, () => {
     layerStore.grids[0].DeepCopy(newGrid);
     canvas.value?.drawLayers(0);
 
-	canvas.value?.recenter();
-	
-	// localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[0]));
+		canvas.value?.recenter();
 
   } else {
-	// layerStore.grids[0].DeepCopy(workingGrid);
-	// canvas.value?.drawLayers(0);
-
-	canvas.value?.recenter();
-	// localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[0]));
+		canvas.value?.recenter();
   }
 });
 
@@ -425,9 +403,9 @@ watch(() => layerStore.layer, (next, prev) => {
 		tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
 		canvas.value?.drawFrame(layerStore.layer);
 	} else {
-        layerStore.layer = next;
-        tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
-        canvas.value?.drawLayers(next);
+    layerStore.layer = next;
+    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
+    canvas.value?.drawLayers(next);
 	}
 });
 
@@ -1040,17 +1018,6 @@ function LocalSave() {
   layerStore.save();
 }
 
-function LocalSaveGif() {
-  //const workingGrid = JSON.parse(
-  //  localStorage.getItem("frame0") as string
-  //) as PixelGrid;
-
-  // layerStore.pushGrid(workingGrid);
-// layerStore.grids[0].DeepCopy(workingGrid);
-  layerStore.save();
-
-  // localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(layerStore.grids[layerStore.layer]));
-}
 </script>
 <style scoped>
 .Rainbow,
