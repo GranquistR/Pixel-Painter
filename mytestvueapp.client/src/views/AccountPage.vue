@@ -1,5 +1,6 @@
 <template>
   <div class="m-4">
+    <v-switch></v-switch>
     <div class="flex gap-4 justify-content-center">
       <Card class="h-fit">
         <template #content>
@@ -157,8 +158,20 @@ onMounted(() => {
         severity: "error",
         summary: "Warning",
         detail: "User must be logged in to view account page",
-        life: 3000,
+        life: 3000
       });
+      if (
+        curArtist.value.privateProfile == false &&
+        user.id != curArtist.value.id
+      ) {
+        router.push("/");
+        toast.add({
+          severity: "error",
+          summary: "Warning",
+          detail: "Account page is declared as private",
+          life: 3000
+        });
+      }
     }
     newUsername.value = user.name;
     artist.value = user;
@@ -181,7 +194,7 @@ function logout() {
       severity: "success",
       summary: "Success",
       detail: "User logged out",
-      life: 3000,
+      life: 3000
     });
   });
 }
@@ -211,7 +224,7 @@ function UpdateUsername() {
           severity: "success",
           summary: "Success",
           detail: "Username successfully changed",
-          life: 3000,
+          life: 3000
         });
         artist.value.name = newUsername.value;
         isEditing.value = false;
@@ -220,7 +233,7 @@ function UpdateUsername() {
           severity: "error",
           summary: "Error",
           detail: "Username is already taken. Try another",
-          life: 3000,
+          life: 3000
         });
       }
     })
@@ -229,7 +242,7 @@ function UpdateUsername() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred. Please try again later",
-        life: 3000,
+        life: 3000
       });
     });
 }
@@ -242,7 +255,7 @@ function ConfirmDelete() {
         severity: "success",
         summary: "User Deleted",
         detail: "The User has been deleted successfully",
-        life: 3000,
+        life: 3000
       });
     })
     .catch(() => {
@@ -251,7 +264,7 @@ function ConfirmDelete() {
         summary: "Error",
         detail:
           "error deleting user, please make sure you have spelt it correctly",
-        life: 3000,
+        life: 3000
       });
     });
 }
