@@ -214,6 +214,43 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        public async Task<bool> ChangeStatus(Artist artist)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                if (artist.privateProfile == true)
+                {
+                    var query =
+                        @"update Artist
+                          set PrivateProfile = 1
+                          wheere Id = @Id";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", artist.id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                }
+                else 
+                {
+                    var query =
+                        @"update Artist
+                          set PrivateProfile = 0
+                          wheere Id = @Id";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", artist.id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
+                        command.ExecuteNonQuery();
+                        return false;
+                    }
+                }
+            }
+        }
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try

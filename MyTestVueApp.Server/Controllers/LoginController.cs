@@ -98,6 +98,14 @@ namespace MyTestVueApp.Server.Controllers
             return BadRequest("User is not logged in.");
         }
 
+        [HttpPost]
+        [Route("ChangeStatus")]
+
+        public async Task<bool> ChangeStatus(Artist artist)
+        {
+            return await LoginService.ChangeStatus(artist);
+        }
+
         [HttpGet]
         [Route("GetArtistByName")]
         public async Task<Artist> GetArtistByName(string name)

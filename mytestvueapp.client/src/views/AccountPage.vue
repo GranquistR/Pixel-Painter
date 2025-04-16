@@ -92,9 +92,7 @@
         </Card>
         <div class="flex flex-column gap-2">
           Public/Private switch
-          <ToggleSwitch v-off:value-change="'Private'"
-            >Private/Public</ToggleSwitch
-          >
+          <ToggleSwitch v-off:value-change="'Private'"></ToggleSwitch>
         </div>
       </div>
       <div v-if="route.hash == '#created_art'">
