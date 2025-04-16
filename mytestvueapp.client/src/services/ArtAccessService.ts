@@ -236,7 +236,6 @@ export default class ArtAccessService {
             return artpiece[0];
         } catch (error) {
             console.error(error);
-            throw error;
         }
     }
 

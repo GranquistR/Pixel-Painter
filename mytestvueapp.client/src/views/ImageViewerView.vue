@@ -9,7 +9,6 @@
         :pixelSize="20"
         :canvas-number="1"
       />
-      <!-- <img v-if="art.isGif && art" :src="GifURL" alt="" /> -->
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -22,7 +21,7 @@
           <div
             :style="{
               textDecoration: hover ? 'underline' : 'none',
-              cursor: hover ? 'pointer' : 'none',
+              cursor: hover ? 'pointer' : 'none'
             }"
             v-for="(artist, index) in art.artistName"
             :key="index"
@@ -199,7 +198,7 @@ const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
 var numberTotalComments;
-const GifURL = ref<string>;
+const GifURL = ref<string>("");
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -219,7 +218,6 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
-  //GIFCreationService.createGIFcode
 });
 
 function editArt() {
@@ -683,9 +681,6 @@ function FilterDeu(currentGrid: string): string {
       InverseGammaCorrection(newrgb[1]),
       InverseGammaCorrection(newrgb[2])
     ];
-    if (i == 180) {
-      console.log(newrgb);
-    }
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     if (newhexcolor.length != 6) {
       console.error(`Found it! (${i}): ${newhexcolor}`);
