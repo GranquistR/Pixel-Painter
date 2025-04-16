@@ -6,49 +6,49 @@ namespace MyTestVueApp.Server.ServiceImplementations
     public class ConnectionManager : IConnectionManager
     {
         // groupName, Group
-        Dictionary<string, Group> groups = new();
-        Dictionary<string, Artist> artistLookup = new();
-        Dictionary<int, MembershipRecord> records = new();
+        Dictionary<string, Group> Groups = new();
+        Dictionary<string, Artist> ArtistLookup = new();
+        Dictionary<int, MembershipRecord> Records = new();
 
         public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor)
         {
-            groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
+            Groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
         }
 
         public void AddUser(string connectionId, Artist artist, string groupName)
         {
-            Console.WriteLine("AddUser: (" + connectionId + ", " + artist.id + ", " + groupName);
-            if (groups.ContainsKey(groupName))
+            Console.WriteLine("AddUser: (" + connectionId + ", " + artist.id + ", " + groupName); // Presentation
+            if (Groups.ContainsKey(groupName))
             {
-                artistLookup.Add(connectionId, artist);
-                groups[groupName].AddMember(artist);
-                if (records.ContainsKey(artist.id))
+                ArtistLookup.Add(connectionId, artist);
+                Groups[groupName].AddMember(artist);
+                if (Records.ContainsKey(artist.id))
                 {
-                    Console.WriteLine("User already exists, so adding to connections!");
-                    records[artist.id].Connections.Add(new(connectionId, groupName));
+                    Console.WriteLine("User already exists, so adding to connections!"); // Presentation
+                    Records[artist.id].Connections.Add(new(connectionId, groupName));
                 } else
                 {
-                    Console.WriteLine("New User!");
-                    records.Add(artist.id, new(connectionId, artist.id, groupName));
+                    Console.WriteLine("New User!"); // Presentation
+                    Records.Add(artist.id, new(connectionId, artist.id, groupName));
                 }
             }
-            Console.WriteLine(records.Count());
+            Console.WriteLine(Records.Count());
 
         }
 
         public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName)
         {
-            Console.WriteLine("#Users before removal: " + groups[groupName].CurrentMembers.Count);
+            Console.WriteLine("#Users before removal: " + Groups[groupName].CurrentMembers.Count); //Presentation
 
-            if (!records.ContainsKey(artist.id))
+            if (!Records.ContainsKey(artist.id))
             {
-                Console.WriteLine("RUFG: User Doesnt Exist so cant be deleted!");
-                return;
+                throw new ArgumentException("This artist is not tracked by the connection manager, so we cant remove them!");
             }
 
-            MembershipRecord record = records[artist.id];
+            MembershipRecord record = Records[artist.id];
             List<ConnectionBinding> allUserConnections = new();
             ConnectionBinding? connectionToDelete = null;
+
             foreach(ConnectionBinding binding in record.Connections)
             {
 
@@ -64,46 +64,44 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             if (connectionToDelete == null || allUserConnections.Count == 0) 
             { // Invalid request
-                Console.WriteLine("RemoveUserFromGroup: Invalid ConnectionId!");
-                return;
+                throw new ArgumentException("RemoveUserFromGroup: Invalid ConnectionId!");
             }
             
             if (allUserConnections.Count() == 1)
             { // Remove member from group
-                groups[groupName].RemoveMember(artist);
+                Groups[groupName].RemoveMember(artist);
                 record.Connections.Remove(connectionToDelete);
-                artistLookup.Remove(connectionId);
+                ArtistLookup.Remove(connectionId);
             }else
             { // Just remove the connection
                 record.Connections.Remove(connectionToDelete);
-                artistLookup.Remove(connectionId);
+                ArtistLookup.Remove(connectionId);
             }
 
             if (record.Connections.Count == 0)
             { // Remove record from records if the Artist doesnt have any open connections;
-                Console.WriteLine("Artist has zero connections. Removing from List!");
-                records.Remove(artist.id);
+                Console.WriteLine("Artist has zero connections. Removing from List!"); // Presentation
+                Records.Remove(artist.id);
             }
           
-            Console.WriteLine("Remaining Users: " +  groups[groupName].CurrentMembers.Count);
-            if (groups[groupName].IsEmpty())
+            Console.WriteLine("Remaining Users: " +  Groups[groupName].CurrentMembers.Count); // Presentation
+            if (Groups[groupName].IsEmpty())
             { // Delete group if it is empty
-                Console.WriteLine("Deleting Group");
-                groups.Remove(groupName);
+                Console.WriteLine("Deleting Group"); // Presentation
+                Groups.Remove(groupName);
             }
         }
 
         public void RemoveUserFromAllGroups(string connectionId)
         {
 
-            if (!artistLookup.ContainsKey(connectionId) || !records.ContainsKey(artistLookup[connectionId].id) )
+            if (!ArtistLookup.ContainsKey(connectionId) || !Records.ContainsKey(ArtistLookup[connectionId].id) )
             {
-                Console.WriteLine("RemoveUserFromAllGroups: User Doesnt Exist so cant be deleted!");
-                return;
+                throw new ArgumentException("RemoveUserFromGroup: This connection doesnt exist, so we cannot remove it!");
             }
 
-            Artist artist = artistLookup[connectionId];
-            MembershipRecord record = records[artist.id];
+            Artist artist = ArtistLookup[connectionId];
+            MembershipRecord record = Records[artist.id];
             HashSet<string> groups = new();
             foreach (ConnectionBinding cb in record.Connections) {
                 groups.Add(cb.groupName);
@@ -111,19 +109,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             foreach (string groupName in groups)
             {
-                RemoveUserFromGroup(connectionId, artist, groupName);
+                try
+                {
+                    RemoveUserFromGroup(connectionId, artist, groupName);
+                } catch 
+                {
+                    throw;
+                }
             }
         }
 
         public IEnumerable<Group> GetGroups()
         {
-            return groups.Values;
+            return Groups.Values;
         }
 
         public IEnumerable<GroupAdvert> GetGroupAdverts()
         {
             List<GroupAdvert> groupAdverts = new();
-            foreach (Group group in  groups.Values)
+            foreach (Group group in  Groups.Values)
             {
                 groupAdverts.Add(new GroupAdvert(group.Name, group.CurrentMembers.Count));
             }
@@ -132,32 +136,32 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public IEnumerable<Artist> GetUsersInGroup(string groupName)
         {
-            return groups[groupName].CurrentMembers;
+            return Groups[groupName].CurrentMembers;
         }
 
         public IEnumerable<Artist> GetContributingArtists(string groupName)
         {
-            return groups[groupName].MemberRecord;
+            return Groups[groupName].MemberRecord;
         }
 
         public void PaintPixels(string groupName, int layer, string color, Coordinate[] vector)
         {
-            groups[groupName].PaintPixels(layer, color, vector);
+            Groups[groupName].PaintPixels(layer, color, vector);
         }
 
         public void RemoveGroup(string groupName)
         {
-            groups.Remove(groupName);
+            Groups.Remove(groupName);
         }
 
         public Group GetGroup(string groupName)
         {
-            return groups[groupName];
+            return Groups[groupName];
         }
 
         public bool GroupExists(string groupName)
         {
-            return groups.ContainsKey(groupName);
+            return Groups.ContainsKey(groupName);
         }
     }
 }

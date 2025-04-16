@@ -28,9 +28,9 @@
           @click="ResetArt()"
         >
         </Button>
-        <UploadButton :art="art" @OpenModal="ToggleKeybinds" @disconnect="disconnect" />
+        <UploadButton :art="art" @openModal="ToggleKeybinds" @disconnect="disconnect" />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @connect="connect" @disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <ConnectButton @openModal="ToggleKeybinds" @connect="connect" @disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
 
@@ -227,7 +227,6 @@ const connect = (groupname: string) => {
 };
 
 const disconnect = () => {
-  console.log("Disconnecting...");
   connection.invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection

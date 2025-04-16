@@ -8,21 +8,26 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class SocketController : ControllerBase
     {
-        private ILogger<SocketController> _Logger;
-        private IConnectionManager _ConnectionManager;
+        private readonly ILogger<SocketController> Logger;
+        private readonly IConnectionManager ConnectionManager;
         
         public SocketController(IConnectionManager connectionManager, ILogger<SocketController> logger)
         {
-            this._ConnectionManager = connectionManager;
-            this._Logger = logger;
+            ConnectionManager = connectionManager;
+            Logger = logger;
         }
 
         [HttpGet]
         [Route("GetGroups")]
-        public IEnumerable<GroupAdvert> GetGroups()
+        public IActionResult GetGroups()
         {
-            IEnumerable<GroupAdvert> groups = _ConnectionManager.GetGroupAdverts();
-            return groups;
+            try
+            {
+                return Ok(ConnectionManager.GetGroupAdverts());
+            } catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
     }
 }

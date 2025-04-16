@@ -48,7 +48,7 @@
     import Dialog from "primevue/dialog";
     import InputText from "primevue/inputtext";
 
-    const emit = defineEmits(["OpenModal","connect", "disconnect"]);
+    const emit = defineEmits(["openModal","connect", "disconnect"]);
 
     const props = defineProps<{
         connected: boolean;
@@ -79,6 +79,6 @@
     }
 
     watch(visible, () => {
-        emit("OpenModal", visible.value);
+        emit("openModal", visible.value);
     });
 </script>
