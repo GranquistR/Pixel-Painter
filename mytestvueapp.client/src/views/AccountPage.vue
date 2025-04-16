@@ -1,6 +1,5 @@
 <template>
   <div class="m-4">
-    <v-switch></v-switch>
     <div class="flex gap-4 justify-content-center">
       <Card class="h-fit">
         <template #content>
@@ -91,6 +90,12 @@
             </div>
           </template>
         </Card>
+        <div class="flex flex-column gap-2">
+          Public/Private switch
+          <ToggleSwitch v-off:value-change="'Private'"
+            >Private/Public</ToggleSwitch
+          >
+        </div>
       </div>
       <div v-if="route.hash == '#created_art'">
         <h2>My Art</h2>
@@ -135,6 +140,7 @@ import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import { RefSymbol } from "@vue/reactivity";
+import { ToggleSwitch } from "primevue";
 
 const toast = useToast();
 const route = useRoute();
