@@ -196,7 +196,6 @@ const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
 const user = ref<boolean>(false);
-var numberTotalComments = Number(0);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
@@ -214,7 +213,7 @@ onMounted(() => {
         severity: "error",
         summary: "Error",
         detail: "Art not found",
-        life: 3000,
+        life: 3000
       });
     });
   updateComments();
@@ -229,7 +228,6 @@ function editArt() {
 }
 
 function updateComments() {
-  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -506,7 +504,7 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   const LMSCalc: number[][] = [
     [17.8824, 43.5161, 4.11935],
     [3.45565, 27.1554, 3.86714],
-    [0.0299566, 0.184309, 1.46709],
+    [0.0299566, 0.184309, 1.46709]
   ];
   var LMScolumns = LMSCalc[0].length;
   var LMSRows = LMSCalc.length;
@@ -528,7 +526,7 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
     [0, 1, 0],
-    [0, 0, 1],
+    [0, 0, 1]
   ];
   let PTPcolumns = ProtanopeCalc[0].length;
   let PTPRows = ProtanopeCalc.length;
@@ -551,7 +549,7 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
   const DeuteranopesCalc: number[][] = [
     [1, 0, 0],
     [0.494207, 0, 1.24827],
-    [0, 0, 1],
+    [0, 0, 1]
   ];
   let DEUcolumns = DeuteranopesCalc[0].length;
   let DEURows = DeuteranopesCalc.length;
@@ -576,7 +574,7 @@ function LMStoRGB(LMScolors: number[][]): number[] {
   const RGBCal: number[][] = [
     [0.080944, -0.130504, 0.116721],
     [-0.0102485, 0.0540194, -0.113615],
-    [-0.000365294, -0.00412163, 0.693513],
+    [-0.000365294, -0.00412163, 0.693513]
   ];
   let LMScolumns = LMScolors[0].length;
   let RGBRows = RGBCal.length;
@@ -611,7 +609,7 @@ function FilterProtanope(currentGrid: string): string {
     currentcolorrgb = [
       GammaCorrection(currentcolorrgb[0]),
       GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2]),
+      GammaCorrection(currentcolorrgb[2])
     ];
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoProtanopes(currentcolorlms);
@@ -619,7 +617,7 @@ function FilterProtanope(currentGrid: string): string {
     newrgb = [
       InverseGammaCorrection(newrgb[0]),
       InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2]),
+      InverseGammaCorrection(newrgb[2])
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     newGrid += newhexcolor;
@@ -656,7 +654,7 @@ function FilterDeu(currentGrid: string): string {
     currentcolorrgb = [
       GammaCorrection(currentcolorrgb[0]),
       GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2]),
+      GammaCorrection(currentcolorrgb[2])
     ];
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoDeuteranopes(currentcolorlms);
@@ -664,7 +662,7 @@ function FilterDeu(currentGrid: string): string {
     newrgb = [
       InverseGammaCorrection(newrgb[0]),
       InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2]),
+      InverseGammaCorrection(newrgb[2])
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     if (newhexcolor.length != 6) {
