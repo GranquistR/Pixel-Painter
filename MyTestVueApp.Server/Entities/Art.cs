@@ -13,7 +13,7 @@ namespace MyTestVueApp.Server.Entities
 
         //Optional external values
         public string[] artistName { get; set; }
-        public bool isGif { get; set; }
+        public bool IsGif { get; set; }
         public int gifID { get; set; }
         public int gifFrameNum { get; set; }
         public int numLikes { get; set; }

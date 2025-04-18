@@ -163,9 +163,17 @@ namespace MyTestVueApp.Server.Controllers
         }
         [HttpGet]
         [Route("GetGif")]
-        public IEnumerable<Art> GetGif(int id)
+        public async Task<IActionResult> GetGif(int id)
         {
-            return ArtAccessService.GetGif(id);
+            try
+            {
+                var gif = await ArtAccessService.GetGif(id);
+                return Ok(gif);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -220,9 +228,9 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("SaveGif")]
-        public async Task<IActionResult> SaveGif(Art[] art, int fps)
+        public async Task<IActionResult> SaveGif([FromBody] Art[] art, int fps)
         {
             try
             {

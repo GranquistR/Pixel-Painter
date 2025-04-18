@@ -3,7 +3,7 @@
     <div class="border-2">
       <MyCanvas
         v-model="squareColor"
-        v-if="!art.isGif && art"
+        v-if="!art.IsGif && art"
         :key="art.id"
         :art="art"
         :pixelSize="20"
@@ -197,7 +197,6 @@ const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
-var numberTotalComments;
 const GifURL = ref<string>("");
 
 onMounted(() => {
@@ -228,7 +227,6 @@ function editArt() {
 }
 
 function updateComments() {
-  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });

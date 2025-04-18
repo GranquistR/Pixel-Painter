@@ -65,7 +65,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 title = reader.GetString(1),
                                 creationDate = reader.GetDateTime(5),
                                 isPublic = reader.GetBoolean(6),
-                                isGif = reader.GetBoolean(7),
+                                IsGif = reader.GetBoolean(7),
                                 numLikes = reader.GetInt32(8),
                                 numComments = reader.GetInt32(9),
                                 gifID = reader.GetInt32(10),
@@ -326,7 +326,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<Art[]> SaveGif(Artist artist, Art[] art, int fps)
+        public async Task<IEnumerable<Art>> SaveGif(Artist artist, Art[] art, int fps)
         {
 
             try
@@ -381,8 +381,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         }
                     }
                 }
-
-                return art;
+                return  art;
             }
             catch (Exception ex)
             {
@@ -391,7 +390,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public IEnumerable<Art> GetGif(int id)
+        public async Task<IEnumerable<Art>> GetGif(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;
             var paintings = new List<Art>();
@@ -407,7 +406,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@gifId", id);
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
