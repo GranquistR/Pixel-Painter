@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using MyTestVueApp.Server.ServiceImplementations;
 using MyTestVueApp.Server.Entities;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -100,11 +101,17 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPost]
         [Route("ChangeStatus")]
-
-        public async Task<bool> ChangeStatus(Artist artist)
+        public async Task<IActionResult> ChangeStatus([FromBody, BindRequired]Artist artist) 
         {
-            return await LoginService.ChangeStatus(artist);
-        }
+            try
+            {
+                var status = await LoginService.ChangeStatus(artist);
+                return Ok(status);
+            } catch(Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+            }
 
         [HttpGet]
         [Route("GetArtistByName")]

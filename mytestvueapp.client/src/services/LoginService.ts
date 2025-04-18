@@ -118,8 +118,12 @@ export default class LoginService {
   }
   public static async ChangeStatus(artist: Artist): Promise<void> {
     try {
-      const response = await fetch(`/login/ChangeStatus?artist=${artist}`);
-
+      const response = await fetch(`/login/ChangeStatus`, {
+        method: "POST",
+        body: JSON.stringify(artist),
+        headers: { "Content-Type": "application/json" }
+      });
+      console.log(response);
       if (!response.ok) {
         throw new Error("Error: Bad response");
       }

@@ -90,11 +90,13 @@
             </div>
           </template>
         </Card>
-        <div>
-          <h2>Current Page Status: {{ pageStatus }}</h2>
-        </div>
         <div class="flex flex-column gap-2">
-          <Button class="block m-2" label="Click to change page status" />
+          <h2>Current Page Status: {{ pageStatus }}</h2>
+          <Button
+            class="block m-2"
+            label="Click to change page status"
+            :onclick="changeStatus()"
+          />
         </div>
       </div>
       <div v-if="route.hash == '#created_art'">
@@ -289,7 +291,7 @@ function getIsAdmin() {
     user.value = promise;
   });
 }
-function changeStatus() {
-  LoginService.ChangeStatus(curArtist.value);
+async function changeStatus() {
+  await LoginService.ChangeStatus(curArtist.value);
 }
 </script>
