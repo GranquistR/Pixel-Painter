@@ -116,7 +116,18 @@ export default class LoginService {
       return false;
     }
   }
+  public static async ChangeStatus(artist: Artist): Promise<void> {
+    try {
+      const response = await fetch(`/login/ChangeStatus?artist=${artist}`);
 
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
   public static async DeleteArtist(ArtistName: string): Promise<void> {
     try {
       const response = await fetch(

@@ -225,8 +225,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     var query =
                         @"update Artist
-                          set PrivateProfile = 1
-                          wheere Id = @Id";
+                          set PrivateProfile = 0
+                          where Id = @Id";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Id", artist.id);
@@ -239,8 +239,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     var query =
                         @"update Artist
-                          set PrivateProfile = 0
-                          wheere Id = @Id";
+                          set PrivateProfile = 1
+                          where Id = @Id";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Id", artist.id);

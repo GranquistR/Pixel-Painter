@@ -90,9 +90,11 @@
             </div>
           </template>
         </Card>
+        <div>
+          <h2>Current Page Status: {{ pageStatus }}</h2>
+        </div>
         <div class="flex flex-column gap-2">
-          Public/Private switch
-          <ToggleSwitch v-off:value-change="'Private'"></ToggleSwitch>
+          <Button class="block m-2" label="Click to change page status" />
         </div>
       </div>
       <div v-if="route.hash == '#created_art'">
@@ -150,6 +152,7 @@ const isEditing = ref<boolean>(false);
 const newUsername = ref("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
+const pageStatus = ref("");
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
@@ -179,6 +182,11 @@ onMounted(() => {
     }
     newUsername.value = user.name;
     artist.value = user;
+    if (curArtist.value.privateProfile == true) {
+      pageStatus.value = "Private";
+    } else {
+      pageStatus.value = "Public";
+    }
   });
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
@@ -280,5 +288,8 @@ function getIsAdmin() {
   LoginService.GetIsAdmin().then((promise: boolean) => {
     user.value = promise;
   });
+}
+function changeStatus() {
+  LoginService.ChangeStatus(curArtist.value);
 }
 </script>
