@@ -224,7 +224,7 @@ export default class ArtAccessService {
             const request = "/artaccess/SaveGif";
 
             const response = await fetch(request, {
-                method: "POST",
+                method: "PUT",
                 body: JSON.stringify(art),
                 headers: { "Content-Type": "application/json" },
             });
