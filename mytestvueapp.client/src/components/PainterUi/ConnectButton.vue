@@ -48,7 +48,7 @@
     import Dialog from "primevue/dialog";
     import InputText from "primevue/inputtext";
 
-    const emit = defineEmits(["OpenModal","Connect", "Disconnect"]);
+    const emit = defineEmits(["openModal","connect", "disconnect"]);
 
     const props = defineProps<{
         connected: boolean;
@@ -67,18 +67,18 @@
     }
 
     function connect() {
-        emit("Connect", groupname.value);
+        emit("connect", groupname.value);
         visible.value = !visible.value;
     }
 
     function disconnect() {
-        emit("Disconnect", groupname.value);
+        emit("disconnect");
         if (!props.connected) {
             ToggleModal();
         }
     }
 
     watch(visible, () => {
-        emit("OpenModal", visible.value);
+        emit("openModal", visible.value);
     });
 </script>

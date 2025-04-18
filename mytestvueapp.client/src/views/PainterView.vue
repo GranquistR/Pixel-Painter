@@ -266,9 +266,8 @@ const connect = (groupname: string) => {
   }
 };
 
-const disconnect = (groupname: string) => {
-  connection
-    .invoke("LeaveGroup", groupname, artist.value)
+const disconnect = () => {
+  connection.invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection
         .stop()
