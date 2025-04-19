@@ -1,15 +1,16 @@
 <template>
   <div class="justify-content-center flex w-full h-full align-items-center">
-    <div class="border-2">
+    <div v-if="!art.isGif && art" class="border-2">
       <MyCanvas
         v-model="squareColor"
-        v-if="!art.IsGif && art"
+        v-if="!art.isGif && art"
         :key="art.id"
         :art="art"
         :pixelSize="20"
         :canvas-number="1"
       />
     </div>
+    <div class=""><img v-if="GifURL" :src="GifURL" alt="" /></div>
     <Card class="w-20rem ml-5">
       <template #content>
         <h3 class="flex">
@@ -197,7 +198,7 @@ const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
-const GifURL = ref<string>("");
+const GifURL = ref("");
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -217,6 +218,7 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
+  GifDisplay();
 });
 
 function editArt() {
@@ -704,6 +706,84 @@ const DeuFilter = () => {
         filtered.value = false;
         return;
       }
+  });
+};
+function ArtToGif(Paintings: Art[]): string[] {
+  let urls: string[] = [];
+  Paintings.forEach((element) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("Could not get context");
+    }
+    const image = context.createImageData(
+      element.pixelGrid.width,
+      element.pixelGrid.height
+    );
+    var hexBegin = 0;
+    var hexEnd = 6;
+    canvas.width = element.pixelGrid.width;
+    canvas.height = element.pixelGrid.height;
+
+    for (let x = 0; x < element.pixelGrid.height; x++) {
+      for (let y = 0; y < element.pixelGrid.width; y++) {
+        let pixelHex;
+
+        pixelHex = element.pixelGrid.encodedGrid?.substring(hexBegin, hexEnd);
+        if (pixelHex) pixelHex = pixelHex.replace("#", "").toUpperCase();
+        const index = (x + y * element.pixelGrid.width) * 4;
+        if (pixelHex)
+          image?.data.set(
+            [
+              parseInt(pixelHex.substring(0, 2), 16),
+              parseInt(pixelHex.substring(2, 4), 16),
+              parseInt(pixelHex.substring(4, 6), 16),
+              255
+            ],
+            index
+          );
+        hexBegin += 6;
+        hexEnd += 6;
+      }
+    }
+    context?.putImageData(image, 0, 0);
+
+    let upsizedCanvas = document.createElement("canvas");
+    upsizedCanvas.width = 360;
+    upsizedCanvas.height = 360;
+    let upsizedContext = upsizedCanvas.getContext("2d");
+    if (!upsizedContext) {
+      throw new Error("Could not get context");
+    }
+    upsizedContext.imageSmoothingEnabled = false;
+    upsizedContext.drawImage(
+      canvas,
+      0,
+      0,
+      upsizedCanvas.width,
+      upsizedCanvas.height
+    );
+    let dataURL = upsizedCanvas.toDataURL("image/png");
+    const strings = dataURL.split(",");
+    urls.push(strings[1]);
+  });
+  return urls;
+}
+
+const GifDisplay = () => {
+  var urls: string[] = [];
+  ArtAccessService.getArtById(id).then((promise: Art) => {
+    //console.log("id is: " + id);
+    //console.log("Gifid is: " + promise.gifID);
+    ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
+      urls = ArtToGif(promiseGif);
+      GIFCreationService.createGIFcode(urls, promiseGif[0].gifFps).then(
+        (Blob) => {
+          console.log(Blob);
+          GifURL.value = Blob;
+        }
+      );
+    });
   });
 };
 </script>

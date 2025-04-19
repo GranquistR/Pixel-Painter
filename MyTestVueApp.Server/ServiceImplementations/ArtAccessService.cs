@@ -3,6 +3,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
+using ImageMagick;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -135,13 +136,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
 	                    Art.Encode, 
 	                    Art.CreationDate,
 	                    Art.isPublic,
+                        Art.IsGif,
+                        Art.GifId,
 	                    COUNT(distinct Likes.ArtistId) as Likes, 
 	                    Count(distinct Comment.Id) as Comments  
                     FROM ART  
                     LEFT JOIN Likes ON Art.ID = Likes.ArtID  
                     LEFT JOIN Comment ON Art.ID = Comment.ArtID  
                     WHERE Art.ID =  {id} 
-                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, Art.isGif,Art.GifId;
                     ";
 
                 using (var command = new SqlCommand(query, connection))
@@ -164,8 +167,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 pixelGrid = pixelGrid,
                                 creationDate = reader.GetDateTime(5),
                                 isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(7),
-                                numComments = reader.GetInt32(8)
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10),
+                                IsGif = reader.GetBoolean(7),
+                                gifID = reader.GetInt32(8)
                             };
                             painting.SetArtists(GetArtists(painting.id));
                             return painting;
@@ -326,7 +331,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
-        public async Task<IEnumerable<Art>> SaveGif(Artist artist, Art[] art, int fps)
+        public async Task<IEnumerable<Art>> SaveGif(Artist artist, Art[] art)
         {
 
             try
@@ -341,7 +346,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 ";
                     using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@FPS", fps);
+                        command.Parameters.AddWithValue("@FPS", art[0].gifFps);
                         var GifID = await command.ExecuteScalarAsync();
                         foreach (var item in art)
                         {
@@ -401,7 +406,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query =
                     @"
                         Select id,Title,gifId,gifFrameNum,Width,Height,Encode from art
-                        where gifId = 1
+                        where gifId = @gifId
                         Order by gifFrameNum";
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -421,13 +426,41 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 id = reader.GetInt32(0),
                                 gifID = reader.GetInt32(2),
                                 gifFrameNum = reader.GetInt32(3),
-                                pixelGrid = pixelGrid
+                                pixelGrid = pixelGrid,
+                                gifFps = await GetGifFps(id)
 
                             };
                             Gifframes.SetArtists(GetArtists(Gifframes.id));
                             paintings.Add(Gifframes);
                         }
                         return paintings;
+                    }
+                }
+            }
+        }
+
+        public async Task<int> GetGifFps(int id)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            var fps = 0;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var query =
+                    @"
+                        Select FPS from GIF
+                        where Id = @gifId";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@gifId", id);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            fps = reader.GetInt32(0);
+                        }
+                        return fps;
                     }
                 }
             }

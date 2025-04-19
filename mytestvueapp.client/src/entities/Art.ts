@@ -18,8 +18,9 @@ export default class Art {
   currentUserIsOwner: boolean;
 
   IsGif: boolean;
-  gifId: number;
+  gifID: number;
   gifFrameNum: number;
+  gifFps: number
 
   constructor() {
     this.id = 0;
@@ -36,6 +37,7 @@ export default class Art {
 
     this.IsGif = false;
     this.gifFrameNum = 0;
-    this.gifId = 0;
+    this.gifID = 0;
+    this.gifFps = 0;
   }
 }

@@ -43,6 +43,7 @@
         autofocus
       />
       <Button
+        v-if="props.art.IsGif"
         :label="isEditing ? 'Save' : 'Upload'"
         severity="secondary"
         @click="Upload()"
@@ -51,7 +52,6 @@
     </template>
   </Dialog>
 </template>
-
 <script setup lang="ts">
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
@@ -65,8 +65,7 @@ import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
-import { useLayerStore } from "@/store/LayerStore"
-
+import { useLayerStore } from "@/store/LayerStore";
 const layerStore = useLayerStore();
 const toast = useToast();
 const visible = ref(false);
@@ -79,6 +78,7 @@ const contributors = ref<Artist[]>([]);
 
 const props = defineProps<{
   art: Art;
+  fps: number;
   connection: signalR.HubConnection;
   connected: boolean;
   groupName: string;
@@ -96,16 +96,19 @@ watch(visible, () => {
 
 // WHY CANT I JUST WATCH props.connection.state !!!!!!!
 // I even tried using computed and {deep: true}!!!!
-watch(() => props.connected, () => {
-  if (props.connection.state == HubConnectionState.Connected) {
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
-});
+watch(
+  () => props.connected,
+  () => {
+    if (props.connection.state == HubConnectionState.Connected) {
+      props.connection.invoke("GetContributingArtists", props.groupName);
+    }
+  }
+);
 
 onMounted(() => {
-  if (props.connection.state == HubConnectionState.Connected){
+  if (props.connection.state == HubConnectionState.Connected) {
     props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
+  }
 });
 
 props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
@@ -128,7 +131,6 @@ function flattenArtEncode(): string {
     Array(width).fill(layerStore.grids[0].backgroundColor)
   );
 
-
   for (let length = 0; length < layerStore.grids.length; length++) {
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
@@ -140,69 +142,149 @@ function flattenArtEncode(): string {
       }
     }
   }
-  return arr.flat().join('');
+  return arr.flat().join("");
 }
+function FlattenFrameEncode(index: number): string {
+  let width = layerStore.grids[index].width;
+  let height = layerStore.grids[index].height;
+  let arr: string[][] = Array.from({ length: height }, () =>
+    Array(width).fill(layerStore.grids[0].backgroundColor)
+  );
 
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      if (layerStore.grids[index].grid[i][j] !== "empty") {
+        arr[i][j] = layerStore.grids[index].grid[i][j];
+      }
+    }
+  }
+  return arr.flat().join("");
+}
 function Upload() {
   loading.value = true;
 
-  LoginService.isLoggedIn().then((isLoggedIn) => {
-    if (isLoggedIn) {
-      let newArt = new Art();
-      newArt.title = newName.value;
-      newArt.isPublic = newPrivacy.value;
-      newArt.pixelGrid.DeepCopy(layerStore.grids[0]);
-      newArt.id = props.art.id;
-      newArt.pixelGrid.encodedGrid = flattenArtEncode();
-      if (props.connected){
-        newArt.artistName = contributors.value.map((artist) => artist.name);
-        newArt.artistId = contributors.value.map((artist) => artist.id);
-      }
-
-      ArtAccessService.SaveArt(newArt)
-        .then((data: Art) => {
-          if (data.id != undefined) {
-            toast.add({
-              severity: "success",
-              summary: "Success",
-              detail: "Art uploaded successfully",
-              life: 3000,
+  if (props.art.IsGif) {
+    //console.log(layerStore.grids);
+    const paintings = ref<Art[]>([]);
+    LoginService.isLoggedIn().then((isLoggedIn) => {
+      if (isLoggedIn) {
+        for (let i = 0; i < layerStore.grids.length; i++) {
+          let newArt = new Art();
+          newArt.title = newName.value;
+          newArt.isPublic = newPrivacy.value;
+          newArt.pixelGrid.DeepCopy(layerStore.grids[i]);
+          newArt.id = props.art.id;
+          newArt.gifFrameNum = i + 1;
+          newArt.IsGif = true;
+          newArt.pixelGrid.encodedGrid = FlattenFrameEncode(i);
+          newArt.gifFps = props.fps;
+          paintings.value.push(newArt);
+        }
+        if (paintings.value)
+          ArtAccessService.SaveGif(paintings.value)
+            .then((data: Art) => {
+              if (data.id != undefined) {
+                toast.add({
+                  severity: "success",
+                  summary: "Success",
+                  detail: "Art uploaded successfully",
+                  life: 3000
+                });
+                layerStore.empty();
+                localStorage.clear();
+                router.push("/art/" + data.id); //may need fix
+              } else {
+                toast.add({
+                  severity: "error",
+                  summary: "Error",
+                  detail: "Failed to upload art",
+                  life: 3000
+                });
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+              toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Failed to upload art",
+                life: 3000
+              });
+            })
+            .finally(() => {
+              loading.value = false;
+              visible.value = false;
             });
-            layerStore.empty();
-            localStorage.clear();
-            router.push("/art/" + data.id);
-          } else {
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "You must be logged in to upload art"
+        });
+        loading.value = false;
+        visible.value = false;
+        return;
+      }
+    });
+  } else {
+    LoginService.isLoggedIn().then((isLoggedIn) => {
+      if (isLoggedIn) {
+        let newArt = new Art();
+        newArt.title = newName.value;
+        newArt.isPublic = newPrivacy.value;
+        newArt.pixelGrid.DeepCopy(layerStore.grids[0]);
+        newArt.id = props.art.id;
+        newArt.pixelGrid.encodedGrid = flattenArtEncode();
+        if (props.connected) {
+          newArt.artistName = contributors.value.map((artist) => artist.name);
+          newArt.artistId = contributors.value.map((artist) => artist.id);
+        }
+
+        ArtAccessService.SaveArt(newArt)
+          .then((data: Art) => {
+            if (data.id != undefined) {
+              toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "Art uploaded successfully",
+                life: 3000
+              });
+              layerStore.empty();
+              localStorage.clear();
+              router.push("/art/" + data.id);
+            } else {
+              toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Failed to upload art",
+                life: 3000
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
             toast.add({
               severity: "error",
               summary: "Error",
               detail: "Failed to upload art",
-              life: 3000,
+              life: 3000
             });
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: "Failed to upload art",
-            life: 3000,
+          })
+          .finally(() => {
+            loading.value = false;
+            visible.value = false;
           });
-        })
-        .finally(() => {
-          loading.value = false;
-          visible.value = false;
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "You must be logged in to upload art"
         });
-    } else {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: "You must be logged in to upload art",
-      });
-      loading.value = false;
-      visible.value = false;
-      return;
-    }
-  });
+        loading.value = false;
+        visible.value = false;
+        return;
+      }
+    });
+  }
 }
 </script>

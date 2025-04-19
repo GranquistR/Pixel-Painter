@@ -245,7 +245,7 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (art[0].id == 0) //New Gif
                     {
-                        var result = await ArtAccessService.SaveGif(artist, art, fps);
+                        var result = await ArtAccessService.SaveGif(artist, art);
                         return Ok(result);
                     }
                     else //Update Gif

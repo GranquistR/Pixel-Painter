@@ -16,9 +16,12 @@ namespace MyTestVueApp.Server.Entities
         public bool IsGif { get; set; }
         public int gifID { get; set; }
         public int gifFrameNum { get; set; }
+        public int gifFps { get; set; }
         public int numLikes { get; set; }
         public int numComments { get; set; }
         public bool currentUserIsOwner { get; set; } = false;
+
+
 
         public void SetArtists(Artist[] artist)
         {

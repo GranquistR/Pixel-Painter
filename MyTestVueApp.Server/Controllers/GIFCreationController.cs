@@ -53,22 +53,24 @@ namespace MyTestVueApp.Server.Controllers
         }
         [HttpPost]
         [Route("CreateGifCode")]
-        public async Task<IActionResult> CreateGifCode([FromBody] List<string> frames)
+        public async Task<IActionResult> CreateGifCode([FromBody] GIFModel gifModel)
         {
-            if (frames == null || frames.Count == 0)
+            if (gifModel.Frames == null || gifModel.Frames.Length == 0)
             {
                 return BadRequest("There are no frames.");
             }
 
             using (var gif = new MagickImageCollection())
             {
-                foreach (var frame in frames)
+                foreach (var frame in gifModel.Frames)
                 {
                     byte[] imageBytes = Convert.FromBase64String(frame);
                     using (var stream = new MemoryStream(imageBytes))
                     {
                         var gifFrame = new MagickImage(stream);
-                        gifFrame.AnimationDelay = 100;
+                        uint delayCS = (uint)(100 / gifModel.FPS); // Calculte the delay in centiseconds
+
+                        gifFrame.AnimationDelay = delayCS; // Animation delay is in centiseconds
                         gif.Add(gifFrame);
                     }
                 }
