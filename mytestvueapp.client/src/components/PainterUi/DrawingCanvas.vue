@@ -147,33 +147,6 @@ function drawLayers(layer: number) {
   }
 }
 
-function drawFrame(frame: number) {
-  let dropShadow = viewport.children[0];
-  let background = viewport.children[1] as Sprite;
-  background.tint = layerStore.grids[frame].backgroundColor;
-  viewport.removeChildren();
-  viewport.addChild(dropShadow);
-  viewport.addChild(background);
-
-  let width = layerStore.grids[0].width;
-  let height = layerStore.grids[0].height;
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-      if (layerStore.grids[frame].grid[i][j] === "empty") {
-        sprite.tint = layerStore.grids[frame].backgroundColor;
-        sprite.alpha = 0;
-      } else {
-        sprite.tint = layerStore.grids[frame].grid[i][j];
-        sprite.alpha = 1;
-      }
-      sprite.width = sprite.height = PIXEL_SIZE;
-      sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
-      // sprite.interactive = (length === frame) ? true : false; //reduce lag
-    }
-  }
-}
-
 function updateCell(layer: number, x: number, y: number, color: string) {
   if (layer <= layerStore.layer) {
     
