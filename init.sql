@@ -112,7 +112,19 @@ AS
 Create trigger ContributingArtistDeleteTrigger ON ContributingArtists
 	for delete
 AS
-delete from Art where id not in (select artid from ContributingArtists where ArtId is not null);
+delete from Art where id not in (select artid from ContributingArtists where ArtId is not null) and art.gifFrameNum = 1;
+GO
+
+CREATE TRIGGER GifDeleteTrigger
+ON Art
+AFTER DELETE
+AS
+BEGIN
+    DELETE A
+    FROM Art A
+    INNER JOIN deleted D ON A.gifId = D.gifId
+    WHERE A.Id != D.Id AND D.gifId != 0;
+END;
 GO
 
 

@@ -359,30 +359,59 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 foreach (var item in art)
                 {
                     item.creationDate = DateTime.UtcNow;
+                    if(item.gifFrameNum == 1) {
+                        using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                        {
+                            connection.Open();
 
-                    using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
-                    {
-                        connection.Open();
-
-                        var query = @"
+                            var query = @"
                     INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic, IsGIF, gifId,gifFrameNum)
                     VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic,1,@gifNum,@frameNum);
                     SELECT SCOPE_IDENTITY();
                     INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);";
-                        using (var command = new SqlCommand(query, connection))
-                        {
-                            command.Parameters.AddWithValue("@Title", item.title);
-                            command.Parameters.AddWithValue("@ArtistId", artist.id);
-                            command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
-                            command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
-                            command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
-                            command.Parameters.AddWithValue("@CreationDate", item.creationDate);
-                            command.Parameters.AddWithValue("@IsPublic", item.isPublic);
-                            command.Parameters.AddWithValue("@gifNum", item.gifID);
-                            command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
+                            using (var command = new SqlCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("@Title", item.title);
+                                command.Parameters.AddWithValue("@ArtistId", artist.id);
+                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@CreationDate", item.creationDate);
+                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
+                                command.Parameters.AddWithValue("@gifNum", item.gifID);
+                                command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
 
-                            var newArtId = await command.ExecuteScalarAsync();
-                            item.id = Convert.ToInt32(newArtId);
+                                var newArtId = await command.ExecuteScalarAsync();
+                                item.id = Convert.ToInt32(newArtId);
+                            }
+                        }
+
+                    }
+                    else {
+                        using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                        {
+                            connection.Open();
+
+                            var query = @"
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic, IsGIF, gifId,gifFrameNum)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic,1,@gifNum,@frameNum);
+                    SELECT SCOPE_IDENTITY();
+                    ;";
+                            using (var command = new SqlCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("@Title", item.title);
+                                command.Parameters.AddWithValue("@ArtistId", artist.id);
+                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@CreationDate", item.creationDate);
+                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
+                                command.Parameters.AddWithValue("@gifNum", item.gifID);
+                                command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
+
+                                var newArtId = await command.ExecuteScalarAsync();
+                                item.id = Convert.ToInt32(newArtId);
+                            }
                         }
                     }
                 }

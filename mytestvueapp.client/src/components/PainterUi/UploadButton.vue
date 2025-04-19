@@ -43,7 +43,6 @@
         autofocus
       />
       <Button
-        v-if="props.art.IsGif"
         :label="isEditing ? 'Save' : 'Upload'"
         severity="secondary"
         @click="Upload()"

@@ -89,7 +89,7 @@ const loading = ref(true);
 const sortBy = ref([
   { sort: "Likes", code: "L" },
   { sort: "Comments", code: "C" },
-  { sort: "Date", code: "D" },
+  { sort: "Date", code: "D" }
 ]);
 const paginationOptions = ref<Number[]>([12, 24, 36]);
 const sortType = ref("D"); // Value binded to sort drop down
