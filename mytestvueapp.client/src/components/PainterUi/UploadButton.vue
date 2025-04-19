@@ -83,10 +83,10 @@ const isEditing = computed(() => {
   return props.art.id != 0;
 });
 
-const emit = defineEmits(["OpenModal", "disconnect"]);
+const emit = defineEmits(["openModal", "disconnect"]);
 
 watch(visible, () => {
-  emit("OpenModal", visible.value);
+  emit("openModal", visible.value);
 });
 
 function ToggleModal() {
