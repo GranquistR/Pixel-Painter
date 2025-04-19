@@ -217,7 +217,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public async Task<bool> ChangeStatus(Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            await using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
@@ -232,6 +232,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@Id", artist.id);
                         command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
                         command.ExecuteNonQuery();
+                        Console.WriteLine("Hit true");
                         return true;
                     }
                 }
@@ -246,6 +247,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@Id", artist.id);
                         command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
                         command.ExecuteNonQuery();
+                        Console.WriteLine("Hit false");
                         return false;
                     }
                 }

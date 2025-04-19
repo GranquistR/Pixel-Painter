@@ -103,9 +103,11 @@ namespace MyTestVueApp.Server.Controllers
         [Route("ChangeStatus")]
         public async Task<IActionResult> ChangeStatus([FromBody, BindRequired]Artist artist) 
         {
+            
             try
             {
                 var status = await LoginService.ChangeStatus(artist);
+                Console.WriteLine("Hit controller");
                 return Ok(status);
             } catch(Exception ex)
             {
