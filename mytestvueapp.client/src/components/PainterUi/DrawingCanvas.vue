@@ -33,8 +33,7 @@ defineExpose({
   updateCursor,
   drawLayers,
   updateCell,
-  init,
-  drawFrame
+  init
 });
 
 //model
@@ -133,7 +132,10 @@ function drawLayers(layer: number) {
           sprite.alpha = 0;
         } else {
           let tmp = layerStore.grids[index].grid[i][j];
-					if (index < layerStore.layer && (props.greyscale || props.grid.isGif)) {
+          if (
+            index < layerStore.layer &&
+            (props.greyscale || props.grid.isGif)
+          ) {
             tmp = filterGreyScale(tmp);
           }
           sprite.tint = tmp;
@@ -149,7 +151,6 @@ function drawLayers(layer: number) {
 
 function updateCell(layer: number, x: number, y: number, color: string) {
   if (layer <= layerStore.layer) {
-    
     let idx = 2;
 
     if (!props.grid.isGif) {
@@ -194,7 +195,6 @@ function filterGreyScale(hex: string): string {
   let val = newrgb.map((x) => x.toString(16).padStart(2, "0")).join("");
   return val;
 }
-
 
 const pos = ref<any>();
 
