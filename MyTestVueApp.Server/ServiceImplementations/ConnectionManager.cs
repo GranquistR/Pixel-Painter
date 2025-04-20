@@ -163,5 +163,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             return Groups.ContainsKey(groupName);
         }
+
+        public bool HasConnection(string connectionId)
+        {
+            return ArtistLookup.ContainsKey(connectionId);
+        }
     }
 }
