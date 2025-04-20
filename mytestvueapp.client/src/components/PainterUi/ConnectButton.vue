@@ -39,7 +39,7 @@
                                 </template>
                             </column>
                         </DataTable>
-                        <span v-else>No Groups Are Online :(</span>
+                        <span v-else class="mt-2">No Groups Are Online :(</span>
                     </div>
                 </TabPanel>
                 <TabPanel value="1">
