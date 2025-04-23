@@ -137,7 +137,7 @@
     </Card>
   </div>
 
-  <h2 class="px-4">{{ allComments.length }} Comments</h2>
+  <h2 class="px-4">{{ totalNumComments }} Comments</h2>
 
   <div class="px-6">
     <!-- Initial comment. Reply to image -->
@@ -190,6 +190,7 @@ const route = useRoute();
 const toast = useToast();
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
+const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
 const user = ref<boolean>(false);
@@ -240,12 +241,14 @@ function getIsAdmin() {
 }
 
 function buildCommentTree(comments: Comment[]): Comment[] {
+  totalNumComments.value = 0;
   const commentMap: { [id: number]: Comment } = {};
   const roots: Comment[] = [];
 
   // Create a map of comments by their ID
   for (const comment of comments) {
     commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
+    totalNumComments.value++;
   }
 
   // Build the tree by associating replies with their parents
