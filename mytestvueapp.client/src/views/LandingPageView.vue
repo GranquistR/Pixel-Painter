@@ -5,7 +5,7 @@
     <Button
       class="mt-4 text-2xl"
       label="Get Started"
-      @click="router.push('/new')"
+      @click="router.push('/paint')"
     />
 
     <img

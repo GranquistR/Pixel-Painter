@@ -1,7 +1,6 @@
 import "./assets/main.css";
 
 // Vue 3
-import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
 
@@ -22,7 +21,8 @@ import Tooltip from "primevue/tooltip"
 
 
 
-const pinia = createPinia();
+
+
 
 createApp(App)
   .use(PrimeVue, {
@@ -35,7 +35,6 @@ createApp(App)
   })
   .use(router)
   .use(ToastService)
-  .use(pinia)
   .directive('tooltip', Tooltip)
   .mount("#app");
 

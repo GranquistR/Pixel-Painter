@@ -51,6 +51,7 @@ import { ref, watch } from "vue";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
+import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import Message from "primevue/message";
 
@@ -68,7 +69,7 @@ watch(visible, (newVal) => {
 });
 
 function ConfirmDelete() {
-  ArtAccessService.DeleteContributingArtist(props.art.id)
+  ArtAccessService.DeleteArt(props.art.id)
     .then(() => {
       router.push("/account#art");
       toast.add({

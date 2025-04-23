@@ -10,7 +10,6 @@ using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
 
-
 namespace MyTestVueApp.Server.Controllers
 {
     [ApiController]
@@ -21,7 +20,6 @@ namespace MyTestVueApp.Server.Controllers
         private ICommentAccessService CommentAccessService { get; }
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILoginService LoginService { get; }
-         
         public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig, ILoginService loginService)
         {
             Logger = logger;
@@ -34,7 +32,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetCommentsByArtId")]
         public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
         {
-            var comments = CommentAccessService.GetCommentsByArtId(artId);
+            var comments = CommentAccessService.GetCommentsById(artId);
 
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
@@ -60,7 +58,7 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
+                var comment = CommentAccessService.GetCommentByCommentId(commentId);
                 var subid = await LoginService.GetUserBySubId(userId);
                 if(comment.artistId == subid.id)
                 {    // You can add additional checks here if needed
@@ -96,10 +94,9 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
-                var artist = await LoginService.GetUserBySubId(userId);
+                var comment = CommentAccessService.GetCommentByCommentId(commentId);
                 var subid = await LoginService.GetUserBySubId(userId);
-                if (comment.artistId == subid.id || artist.isAdmin)
+                if (comment.artistId == subid.id)
                 {
                     // You can add additional checks here if needed
                     var rowsChanged = await CommentAccessService.DeleteComment(commentId);
@@ -109,7 +106,7 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        return BadRequest("Failed to delete Comment");
+                        return BadRequest("Failed to delte Comment");
                     }
                 }
                 else

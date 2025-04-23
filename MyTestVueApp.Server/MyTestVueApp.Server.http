@@ -8,7 +8,4 @@ Accept: application/json
 
 GET {{MyTestVueApp.Server_HostAddress}}/commentaccess/
 Accept: application/json
-
-GET {{MyTestVueApp.Server_HostAddress}}/notifcation/
-Accept: application/json
 ###
