@@ -76,9 +76,7 @@ import Art from "@/entities/Art";
 import ArtAccessService from "@/services/ArtAccessService";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
-import Checkbox from "primevue/checkbox";
 import ToggleButton from "primevue/togglebutton";
-import Button from "primevue/button";
 import ArtPaginator from "@/components/Gallery/ArtPaginator.vue";
 
 const publicArt = ref<Art[]>([]);
@@ -97,7 +95,6 @@ const isSorted = ref(false); // Renders the Descending checkbox while true
 const isSortedByDate = ref(true);
 const checkAscending = ref(false);
 const isModified = ref(false);
-const tempArt = ref([]);
 const currentPage = ref<number>(1);
 const perPage = ref<number>(12);
 const pages = computed(() => {

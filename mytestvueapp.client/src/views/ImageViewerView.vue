@@ -159,11 +159,10 @@ import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
-import { ref, onMounted, toRaw } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute, RouterLink } from "vue-router";
+import { useRoute } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -173,9 +172,8 @@ import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
-import type { Color } from "pixi.js";
 import { useLayerStore } from "@/store/LayerStore";
-import type { Tooltip } from "primevue";
+import { onMounted, ref } from "vue";
 
 const layerStore = useLayerStore();
 

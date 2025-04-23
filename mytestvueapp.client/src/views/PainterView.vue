@@ -148,7 +148,6 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
 import * as SignalR from "@microsoft/signalr";
-import { FillStyle } from "pixi.js";
 import { useLayerStore } from "@/store/LayerStore";
 
 //variables
