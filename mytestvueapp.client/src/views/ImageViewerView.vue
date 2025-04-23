@@ -206,6 +206,9 @@ onMounted(() => {
       art.value = promise as Art;
       uploadDate.value = new Date(promise.creationDate);
       Names.value = art.value.artistName;
+      if (promise.isGif) {
+        GifDisplay();
+      }
     })
     .catch(() => {
       router.push("/gallery");
@@ -218,7 +221,6 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
-  GifDisplay();
 });
 
 function editArt() {
