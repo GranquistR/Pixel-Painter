@@ -29,6 +29,17 @@
             <span class="pi pi-minus" />
           </template>
         </InputNumber>
+        <br />
+        <label for="type" class="mb-5">Type: </label>
+        <ToggleButton
+          id="type"
+          class="mx-1 p-2 w-2.5"
+          v-model="isImage"
+          onLabel="Image"
+          onIcon="pi pi-image"
+          offLabel="GIF"
+          offIcon="pi pi-images"
+        />
       </template>
     </Card>
   </div>
@@ -51,25 +62,31 @@ import InputNumber from "primevue/inputnumber";
 import { onMounted, ref } from "vue";
 import router from "@/router";
 import { PixelGrid } from "@/entities/PixelGrid";
+import ToggleButton from "primevue/togglebutton";
+import { useLayerStore } from "@/store/LayerStore";
+
+const layerStore = useLayerStore();
 
 const resolution = ref<number>(32);
-const backgroundColor = ref<string>("#ffffff");
+const backgroundColor = ref<string>("FFFFFF");
+const isImage = ref(true);
 
 function updateLocalStorage() {
-  var pixelGrid = new PixelGrid(
+  layerStore.empty(); //just in case
+
+  let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
-    backgroundColor.value
+    backgroundColor.value,
+    !isImage.value // Constructor wants isGif so pass in !isImage
   );
 
-  localStorage.setItem("working-art", JSON.stringify(pixelGrid));
-
+  layerStore.pushGrid(pixelGrid);
   router.push("/paint");
 }
 
 onMounted(() => {
-  var art = localStorage.getItem("working-art");
-  if (art !== null) {
+  if (layerStore.grids.length > 0) {
     router.push("/paint");
   }
 });

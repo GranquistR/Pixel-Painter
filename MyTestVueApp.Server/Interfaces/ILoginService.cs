@@ -11,5 +11,9 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<bool> UpdateUsername(string newUsername, string subId);
         public Task<Artist> GetUserBySubId(string SubId);
         Task DeleteArtist(int artistId);
+        public Task<bool> IsUserAdmin(string userId);
+
+        public Task<Artist> GetArtistByName(string name);
+        public Task<IEnumerable<Artist>> GetAllArtists();
     }
 }

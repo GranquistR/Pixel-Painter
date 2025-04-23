@@ -47,40 +47,75 @@
           @click="handleCheckBox()"
         />
       </h1>
+      <div style="display: inline-flex">
+        <p>Art per page: &nbsp;</p>
+        <Dropdown
+          class="pl my-2 text-base w-1.5 font-normal"
+          v-model="perPage"
+          :options="paginationOptions"
+        />
+      </div>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
-      <ArtCard v-for="art in displayArt" :key="art.id" :art="art" :size="6" />
+      <ArtCard
+        v-for="index in displayAmount"
+        :key="index"
+        :art="displayArt[index + offset]"
+        :size="6"
+        :position="index"
+      />
     </div>
+    <ArtPaginator :pages="pages" @page-change="changePage" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import Art from "@/entities/Art";
 import ArtAccessService from "@/services/ArtAccessService";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
-import Checkbox from "primevue/checkbox";
 import ToggleButton from "primevue/togglebutton";
-import Button from "primevue/button";
+import ArtPaginator from "@/components/Gallery/ArtPaginator.vue";
 
-const publicArt = ref<Art[]>();
-const displayArt = ref<Art[]>();
+const publicArt = ref<Art[]>([]);
+const displayArt = ref<Art[]>([]);
 const search = ref("");
 const filter = ref("");
 const loading = ref(true);
 const sortBy = ref([
   { sort: "Likes", code: "L" },
   { sort: "Comments", code: "C" },
-  { sort: "Date", code: "D" },
+  { sort: "Date", code: "D" }
 ]);
-const sortType = ref(""); // Value binded to sort drop down
+const paginationOptions = ref<Number[]>([12, 24, 36]);
+const sortType = ref("D"); // Value binded to sort drop down
 const isSorted = ref(false); // Renders the Descending checkbox while true
-const isSortedByDate = ref(false);
+const isSortedByDate = ref(true);
 const checkAscending = ref(false);
 const isModified = ref(false);
-const tempArt = ref([]);
+const currentPage = ref<number>(1);
+const perPage = ref<number>(12);
+const pages = computed(() => {
+  return Math.ceil(displayArt.value.length / perPage.value);
+});
+const displayAmount = computed(() => {
+  if (currentPage.value == pages.value) {
+    if (displayArt.value.length % perPage.value == 0) return perPage.value;
+    return displayArt.value.length % perPage.value;
+  }
+  return perPage.value;
+});
+const offset = computed(() => {
+  return perPage.value * (currentPage.value - 1) - 1;
+});
+const flicker = ref<boolean>(true);
+watch(perPage, () => {
+  flicker.value = false;
+  changePage(1);
+  flicker.value = true;
+});
 
 onMounted(() => {
   ArtAccessService.getAllArt() // Get All Art
@@ -97,7 +132,10 @@ watch(search, () => {
   if (publicArt.value) {
     isModified.value = true;
     displayArt.value = publicArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
@@ -118,15 +156,25 @@ watch(filter, () => {
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase())
     );
   }
 });
 
+function changePage(page: number) {
+  currentPage.value = page;
+}
+
 function searchAndFilter() {
   if (displayArt.value) {
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>

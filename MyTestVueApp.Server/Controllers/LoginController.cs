@@ -79,6 +79,14 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllArtists")]
+
+        public async Task<IEnumerable<Artist>> GetAllArtists()
+        {
+            return await LoginService.GetAllArtists();
+        }
+
+        [HttpGet]
         [Route("GetCurrentUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -88,6 +96,42 @@ namespace MyTestVueApp.Server.Controllers
                 return Ok(artist);
             }
             return BadRequest("User is not logged in.");
+        }
+
+        [HttpGet]
+        [Route("GetArtistByName")]
+        public async Task<Artist> GetArtistByName(string name)
+        {
+            return await LoginService.GetArtistByName(name);
+        }
+
+        [HttpGet]
+        [Route("GetIsAdmin")]
+        public async Task<IActionResult> GetIsAdmin()
+        {
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if(artist == null) { return Ok(false); }
+                    if (artist.isAdmin)
+                    {
+                        return Ok(true);
+                    }
+                    else { return Ok(false); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -124,13 +168,43 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.name == ArtistName)
+                    if(artist.name == ArtistName || artist.isAdmin)
                     {
                         await LoginService.DeleteArtist(artist.id);
-                        Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
                     else { return BadRequest("Username is incorrect"); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("DeleteSelectedArtist")]
+        public async Task<IActionResult> DeleteSelectedArtist(int id)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.id == id || artist.isAdmin)
+                    {
+                        await LoginService.DeleteArtist(id);
+                        return Ok();
+                    }
+                    else { return BadRequest("Current User does not have access tot his function"); }
 
                 }
                 else
