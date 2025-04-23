@@ -195,7 +195,6 @@ export default class ArtAccessService {
       art.creationDate = new Date().toISOString();
 
       let request = "/artaccess/SaveArt";
-      console.log("#Artists: " + art.artistId.length);
       if (art.artistId.length > 1) {
         request = "/artaccess/SaveArtCollab";
       }

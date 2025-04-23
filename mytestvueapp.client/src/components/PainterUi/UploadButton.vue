@@ -55,7 +55,7 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
@@ -73,8 +73,6 @@ const loading = ref(false);
 const newName = ref("");
 const newPrivacy = ref(false);
 
-const contributors = ref<Artist[]>([]);
-
 const props = defineProps<{
   art: Art;
   fps: number;
@@ -87,7 +85,7 @@ const isEditing = computed(() => {
   return props.art.id != 0;
 });
 
-const emit = defineEmits(["OpenModal"]);
+const emit = defineEmits(["openModal", "disconnect"]);
 
 watch(visible, () => {
   emit("OpenModal", visible.value);
@@ -160,6 +158,7 @@ function FlattenFrameEncode(index: number): string {
   return arr.flat().join("");
 }
 function Upload() {
+  emit("disconnect");
   loading.value = true;
 
   if (props.art.isGif) {
