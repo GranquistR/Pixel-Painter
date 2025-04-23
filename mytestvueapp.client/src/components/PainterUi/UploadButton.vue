@@ -55,7 +55,7 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
@@ -76,9 +76,6 @@ const newPrivacy = ref(false);
 const props = defineProps<{
   art: Art;
   fps: number;
-  connection: signalR.HubConnection;
-  connected: boolean;
-  groupName: string;
 }>();
 
 const isEditing = computed(() => {
@@ -88,28 +85,13 @@ const isEditing = computed(() => {
 const emit = defineEmits(["openModal", "disconnect"]);
 
 watch(visible, () => {
-  emit("OpenModal", visible.value);
+  emit("openModal", visible.value);
 });
 
 // WHY CANT I JUST WATCH props.connection.state !!!!!!!
 // I even tried using computed and {deep: true}!!!!
-watch(
-  () => props.connected,
-  () => {
-    if (props.connection.state == HubConnectionState.Connected) {
-      props.connection.invoke("GetContributingArtists", props.groupName);
-    }
-  }
-);
-
-onMounted(() => {
-  if (props.connection.state == HubConnectionState.Connected) {
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  }
-});
-
-props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
-  contributors.value = allArtists;
+watch(visible, () => {
+  emit("openModal", visible.value);
 });
 
 function ToggleModal() {
@@ -175,6 +157,8 @@ function Upload() {
           newArt.gifFrameNum = i + 1;
           newArt.isGif = true;
           newArt.pixelGrid.encodedGrid = FlattenFrameEncode(i);
+          newArt.artistId = props.art.artistId;
+          newArt.artistName = props.art.artistName;
           newArt.gifFps = props.fps;
           paintings.value.push(newArt);
         }
