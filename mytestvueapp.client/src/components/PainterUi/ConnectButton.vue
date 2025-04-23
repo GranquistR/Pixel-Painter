@@ -1,11 +1,11 @@
 <template>
-    <Button
-        :label="connected ? 'Disconnect' : 'Connect'"
-        :severity="connected ? 'danger': 'primary'"
-        :disabled ="isGif"
-        icon="pi pi-wifi"
-        @click="ToggleModal()"
-    />
+  <Button
+    :label="connected ? 'Disconnect' : 'Connect'"
+    :severity="connected ? 'danger' : 'primary'"
+    :disabled="isGif"
+    icon="pi pi-wifi"
+    @click="ToggleModal()"
+  />
 
     <Dialog v-model:visible="visible" modal :style="{width:'25rem'}" :show-header="false">
         <div class="inline-flex items-center justify-content-between w-full">
@@ -78,23 +78,23 @@
 
     const emit = defineEmits(["openModal","connect", "disconnect"]);
 
-    const props = defineProps<{
-        connected: boolean;
-        isGif: boolean;
-    }>();
+const props = defineProps<{
+  connected: boolean;
+  isGif: boolean;
+}>();
 
     const visible = ref(false);
     const groupname = ref("");
     const groups = ref<GroupAdvert[]>([]);
     const tab = ref(0);
 
-    function ToggleModal() {
-        if (!props.connected) {
-            visible.value = !visible.value;
-        } else {
-            disconnect();
-        }
-    }
+function ToggleModal() {
+  if (!props.connected) {
+    visible.value = !visible.value;
+  } else {
+    disconnect();
+  }
+}
 
     function connect() {
         emit("connect", groupname.value);
