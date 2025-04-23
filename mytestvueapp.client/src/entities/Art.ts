@@ -17,10 +17,10 @@ export default class Art {
   numComments: number;
   currentUserIsOwner: boolean;
 
-  IsGif: boolean;
+  isGif: boolean;
   gifID: number;
   gifFrameNum: number;
-  gifFps: number
+  gifFps: number;
 
   constructor() {
     this.id = 0;
@@ -35,7 +35,7 @@ export default class Art {
     this.pixelGrid = new PixelGrid(1, 1, "FF0000", false);
     this.currentUserIsOwner = false;
 
-    this.IsGif = false;
+    this.isGif = false;
     this.gifFrameNum = 0;
     this.gifID = 0;
     this.gifFps = 0;

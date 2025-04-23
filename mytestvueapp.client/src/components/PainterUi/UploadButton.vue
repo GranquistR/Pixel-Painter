@@ -162,7 +162,7 @@ function FlattenFrameEncode(index: number): string {
 function Upload() {
   loading.value = true;
 
-  if (props.art.IsGif) {
+  if (props.art.isGif) {
     //console.log(layerStore.grids);
     const paintings = ref<Art[]>([]);
     LoginService.isLoggedIn().then((isLoggedIn) => {
@@ -174,7 +174,7 @@ function Upload() {
           newArt.pixelGrid.DeepCopy(layerStore.grids[i]);
           newArt.id = props.art.id;
           newArt.gifFrameNum = i + 1;
-          newArt.IsGif = true;
+          newArt.isGif = true;
           newArt.pixelGrid.encodedGrid = FlattenFrameEncode(i);
           newArt.gifFps = props.fps;
           paintings.value.push(newArt);

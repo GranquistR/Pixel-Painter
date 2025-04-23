@@ -10,7 +10,7 @@
         :canvas-number="1"
       />
     </div>
-    <div class=""><img v-if="GifURL" :src="GifURL" alt="" /></div>
+    <div><img v-if="GifURL" :src="GifURL" alt="" /></div>
     <Card class="w-20rem ml-5">
       <template #content>
         <h3 class="flex">
@@ -198,7 +198,8 @@ const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
-const GifURL = ref("");
+const GifURL = ref<string>("");
+const urls = ref<string[]>([]);
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -418,6 +419,18 @@ function ResetFilters() {
   Deu.value = false;
   sepia.value = false;
   ArtAccessService.getArtById(id).then((promise: Art) => {
+    if (promise.isGif) {
+      ArtAccessService.GetGif(promise.id).then((promiseGif: Art[]) => {
+        urls.value = ArtToGif(promiseGif);
+        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
+          (Blob) => {
+            //console.log(Blob);
+            GifURL.value = Blob;
+          }
+        );
+      });
+    }
+
     if (promise.pixelGrid.encodedGrid)
       squareColor.value = promise.pixelGrid.encodedGrid;
   });
@@ -689,7 +702,7 @@ function FilterDeu(currentGrid: string): string {
   }
   return newGrid;
 }
-const DeuFilter = () => {
+async function DeuFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (Deu.value == false) {
@@ -707,9 +720,9 @@ const DeuFilter = () => {
         return;
       }
   });
-};
+}
 function ArtToGif(Paintings: Art[]): string[] {
-  let urls: string[] = [];
+  let url: string[] = [];
   Paintings.forEach((element) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -765,21 +778,17 @@ function ArtToGif(Paintings: Art[]): string[] {
     );
     let dataURL = upsizedCanvas.toDataURL("image/png");
     const strings = dataURL.split(",");
-    urls.push(strings[1]);
+    url.push(strings[1]);
   });
-  return urls;
+  return url;
 }
 
 const GifDisplay = () => {
-  var urls: string[] = [];
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    //console.log("id is: " + id);
-    //console.log("Gifid is: " + promise.gifID);
     ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-      urls = ArtToGif(promiseGif);
-      GIFCreationService.createGIFcode(urls, promiseGif[0].gifFps).then(
+      urls.value = ArtToGif(promiseGif);
+      GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
         (Blob) => {
-          console.log(Blob);
           GifURL.value = Blob;
         }
       );

@@ -295,7 +295,7 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 //if anyone has an easier way to set this lmk
-art.value.IsGif = layerStore.grids[0].isGif;
+art.value.isGif = layerStore.grids[0].isGif;
 art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
 let selectedFrame = ref(1);

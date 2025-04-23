@@ -62,18 +62,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             var painting = new Art
                             { //Art Table + NumLikes and NumComments
-                                id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6),
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6),
                                 IsGif = reader.GetBoolean(7),
-                                numLikes = reader.GetInt32(8),
-                                numComments = reader.GetInt32(9),
-                                gifID = reader.GetInt32(10),
-                                gifFrameNum = reader.GetInt32(11),
-                                pixelGrid = pixelGrid,
+                                NumLikes = reader.GetInt32(8),
+                                NumComments = reader.GetInt32(9),
+                                GifID = reader.GetInt32(10),
+                                GifFrameNum = reader.GetInt32(11),
+                                PixelGrid = pixelGrid,
                             };
-                            painting.SetArtists(GetArtists(painting.id));
+                            painting.SetArtists(GetArtists(painting.Id));
                             paintings.Add(painting);
                         }
                     }
@@ -162,17 +162,17 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             painting = new Art
                             { //ArtId, ArtName, Width, ArtLength, Encode, Date, IsPublic
-                                id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                pixelGrid = pixelGrid,
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(9),
-                                numComments = reader.GetInt32(10),
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                PixelGrid = pixelGrid,
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6),
+                                NumLikes = reader.GetInt32(9),
+                                NumComments = reader.GetInt32(10),
                                 IsGif = reader.GetBoolean(7),
-                                gifID = reader.GetInt32(8)
+                                GifID = reader.GetInt32(8)
                             };
-                            painting.SetArtists(GetArtists(painting.id));
+                            painting.SetArtists(GetArtists(painting.Id));
                             return painting;
                         }
                     }
@@ -218,11 +218,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             var painting = new Art
                             {   //ArtId, ArtName
-                                id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                pixelGrid = pixelGrid,
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6)
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                PixelGrid = pixelGrid,
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6)
                             };
                             paintings.Add(painting);
                         }
@@ -275,13 +275,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             var painting = new Art
                             {   //ArtId, ArtName
-                                id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                pixelGrid = pixelGrid,
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(7),
-                                numComments = reader.GetInt32(8)
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                PixelGrid = pixelGrid,
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6),
+                                NumLikes = reader.GetInt32(7),
+                                NumComments = reader.GetInt32(8)
                             };
                             paintings.Add(painting);
                         }
@@ -294,7 +294,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                art.creationDate = DateTime.UtcNow;
+                art.CreationDate = DateTime.UtcNow;
 
                 using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                 {
@@ -309,16 +309,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
                     using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Title", art.title);
-                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
-                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
-                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
-                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
-                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+                        command.Parameters.AddWithValue("@Title", art.Title);
+                        command.Parameters.AddWithValue("@Width", art.PixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.PixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.PixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.CreationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.IsPublic);
                         command.Parameters.AddWithValue("@ArtistId", artist.id);
 
                             var newArtId = await command.ExecuteScalarAsync();
-                            art.id = Convert.ToInt32(newArtId);
+                            art.Id = Convert.ToInt32(newArtId);
                         }
                     }
 
@@ -346,20 +346,20 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 ";
                     using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@FPS", art[0].gifFps);
+                        command.Parameters.AddWithValue("@FPS", art[0].GifFps);
                         var GifID = await command.ExecuteScalarAsync();
                         foreach (var item in art)
                         {
                             if (GifID != null)
-                            item.gifID = Convert.ToInt32(GifID);
+                            item.GifID = Convert.ToInt32(GifID);
                         }
 
                     }
                 }
                 foreach (var item in art)
                 {
-                    item.creationDate = DateTime.UtcNow;
-                    if(item.gifFrameNum == 1) {
+                    item.CreationDate = DateTime.UtcNow;
+                    if(item.GifFrameNum == 1) {
                         using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                         {
                             connection.Open();
@@ -371,18 +371,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);";
                             using (var command = new SqlCommand(query, connection))
                             {
-                                command.Parameters.AddWithValue("@Title", item.title);
+                                command.Parameters.AddWithValue("@Title", item.Title);
                                 command.Parameters.AddWithValue("@ArtistId", artist.id);
-                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
-                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
-                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
-                                command.Parameters.AddWithValue("@CreationDate", item.creationDate);
-                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
-                                command.Parameters.AddWithValue("@gifNum", item.gifID);
-                                command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
+                                command.Parameters.AddWithValue("@Width", item.PixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.PixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.PixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@CreationDate", item.CreationDate);
+                                command.Parameters.AddWithValue("@IsPublic", item.IsPublic);
+                                command.Parameters.AddWithValue("@gifNum", item.GifID);
+                                command.Parameters.AddWithValue("@frameNum", item.GifFrameNum);
 
                                 var newArtId = await command.ExecuteScalarAsync();
-                                item.id = Convert.ToInt32(newArtId);
+                                item.Id = Convert.ToInt32(newArtId);
                             }
                         }
 
@@ -399,18 +399,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     ;";
                             using (var command = new SqlCommand(query, connection))
                             {
-                                command.Parameters.AddWithValue("@Title", item.title);
+                                command.Parameters.AddWithValue("@Title", item.Title);
                                 command.Parameters.AddWithValue("@ArtistId", artist.id);
-                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
-                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
-                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
-                                command.Parameters.AddWithValue("@CreationDate", item.creationDate);
-                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
-                                command.Parameters.AddWithValue("@gifNum", item.gifID);
-                                command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
+                                command.Parameters.AddWithValue("@Width", item.PixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.PixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.PixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@CreationDate", item.CreationDate);
+                                command.Parameters.AddWithValue("@IsPublic", item.IsPublic);
+                                command.Parameters.AddWithValue("@gifNum", item.GifID);
+                                command.Parameters.AddWithValue("@frameNum", item.GifFrameNum);
 
                                 var newArtId = await command.ExecuteScalarAsync();
-                                item.id = Convert.ToInt32(newArtId);
+                                item.Id = Convert.ToInt32(newArtId);
                             }
                         }
                     }
@@ -452,14 +452,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             };
                             var Gifframes = new Art()
                             {
-                                id = reader.GetInt32(0),
-                                gifID = reader.GetInt32(2),
-                                gifFrameNum = reader.GetInt32(3),
-                                pixelGrid = pixelGrid,
-                                gifFps = await GetGifFps(id)
+                                Id = reader.GetInt32(0),
+                                GifID = reader.GetInt32(2),
+                                GifFrameNum = reader.GetInt32(3),
+                                PixelGrid = pixelGrid,
+                                GifFps = await GetGifFps(id)
 
                             };
-                            Gifframes.SetArtists(GetArtists(Gifframes.id));
+                            Gifframes.SetArtists(GetArtists(Gifframes.Id));
                             paintings.Add(Gifframes);
                         }
                         return paintings;
@@ -498,7 +498,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                art.creationDate = DateTime.UtcNow;
+                art.CreationDate = DateTime.UtcNow;
 
                 using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                 {
@@ -511,15 +511,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 ";
                     using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Title", art.title);
-                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
-                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
-                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
-                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
-                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+                        command.Parameters.AddWithValue("@Title", art.Title);
+                        command.Parameters.AddWithValue("@Width", art.PixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.PixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.PixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.CreationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.IsPublic);
 
                         var newArtId = await command.ExecuteScalarAsync();
-                        art.id = Convert.ToInt32(newArtId);
+                        art.Id = Convert.ToInt32(newArtId);
                     }
                 }
 
@@ -562,7 +562,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                var oldArt = GetArtById(art.id);
+                var oldArt = GetArtById(art.Id);
                 if (oldArt == null)
                 {
                     return null;
@@ -585,16 +585,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         ";
                         using (var command = new SqlCommand(query, connection))
                         {
-                            command.Parameters.AddWithValue("@Title", art.title);
-                            command.Parameters.AddWithValue("@IsPublic", art.isPublic);
-                            command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
-                            command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
-                            command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
-                            command.Parameters.AddWithValue("@Id", art.id);
+                            command.Parameters.AddWithValue("@Title", art.Title);
+                            command.Parameters.AddWithValue("@IsPublic", art.IsPublic);
+                            command.Parameters.AddWithValue("@Width", art.PixelGrid.width);
+                            command.Parameters.AddWithValue("@Height", art.PixelGrid.height);
+                            command.Parameters.AddWithValue("@Encode", art.PixelGrid.encodedGrid);
+                            command.Parameters.AddWithValue("@Id", art.Id);
 
                             await command.ExecuteScalarAsync();
 
-                            return GetArtById(Convert.ToInt32(art.id));
+                            return GetArtById(Convert.ToInt32(art.Id));
                         }
                     }
                 }
@@ -611,7 +611,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-                var gifNum = art[0].gifID;
+                var gifNum = art[0].GifID;
                 var oldArt = GetGif(gifNum);
                 if (oldArt == null)
                 {
@@ -637,11 +637,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         ";
                             using (var command = new SqlCommand(query, connection))
                             {
-                                command.Parameters.AddWithValue("@Title", item.title);
-                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
-                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
-                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
-                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@Title", item.Title);
+                                command.Parameters.AddWithValue("@IsPublic", item.IsPublic);
+                                command.Parameters.AddWithValue("@Width", item.PixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.PixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.PixelGrid.encodedGrid);
                                 command.Parameters.AddWithValue("@Id",gifNum);
 
                                 await command.ExecuteScalarAsync();
@@ -667,7 +667,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
                         }
                     }
-                        return GetArtById(Convert.ToInt32(art[0].id));
+                        return GetArtById(Convert.ToInt32(art[0].Id));
                 }
             }
             catch (Exception ex)
