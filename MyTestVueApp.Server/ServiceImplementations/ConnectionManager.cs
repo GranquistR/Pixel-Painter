@@ -7,7 +7,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
     {
         // groupName, Group
         Dictionary<string, Group> Groups = new();
+        // ConnectionID, Artist
         Dictionary<string, Artist> ArtistLookup = new();
+        //artistId, MembershipRecord
         Dictionary<int, MembershipRecord> Records = new();
 
         public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor)
