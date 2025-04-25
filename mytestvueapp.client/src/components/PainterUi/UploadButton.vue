@@ -55,15 +55,13 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
-import { HubConnection, HubConnectionState } from "@microsoft/signalr";
-import Artist from "@/entities/Artist";
 import { useLayerStore } from "@/store/LayerStore";
 const layerStore = useLayerStore();
 const toast = useToast();
@@ -84,12 +82,6 @@ const isEditing = computed(() => {
 
 const emit = defineEmits(["openModal", "disconnect"]);
 
-watch(visible, () => {
-  emit("openModal", visible.value);
-});
-
-// WHY CANT I JUST WATCH props.connection.state !!!!!!!
-// I even tried using computed and {deep: true}!!!!
 watch(visible, () => {
   emit("openModal", visible.value);
 });
