@@ -95,7 +95,8 @@
           <Button
             class="block m-2"
             label="Click to change page status"
-            :onclick="privateSwitchChange()"
+            icon="pi pi-eye"
+            @click="privateSwitchChange()"
           />
         </div>
       </div>
@@ -155,6 +156,7 @@ const newUsername = ref("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
 const pageStatus = ref("");
+const privateView = ref(false);
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
@@ -192,7 +194,7 @@ onMounted(() => {
   });
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
-
+    privateView.value = promise.privateProfile;
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
@@ -289,6 +291,7 @@ function ChangeHash(hash: string) {
   window.location.hash = hash;
 }
 async function privateSwitchChange() {
+  console.log("Function hit");
   await LoginService.privateSwitchChange(curArtist.value.id);
 }
 </script>

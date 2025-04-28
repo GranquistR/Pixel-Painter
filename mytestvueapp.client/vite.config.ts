@@ -61,7 +61,7 @@ export default defineConfig({
         target,
         secure: false
       },
-      "^/login/": {
+      "^/login": {
         target,
         secure: false
       },

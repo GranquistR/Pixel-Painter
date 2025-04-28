@@ -118,17 +118,14 @@ export default class LoginService {
   }
   public static async privateSwitchChange(artistId: Number): Promise<Boolean> {
     try {
-      //onsole.log(artist);
-      const response = await fetch(
-        `/login/privateSwitchChange?artistId=${artistId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      console.log(artistId);
+      const response = await fetch(`/login/privateSwitchChange`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(artistId)
+      });
       //const json = response.json();
       //const response = await fetch(`login/ChangeStatus?artist=${artist}`);
-      console.log(response);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
