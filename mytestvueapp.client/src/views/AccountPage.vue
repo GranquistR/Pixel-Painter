@@ -95,7 +95,7 @@
           <Button
             class="block m-2"
             label="Click to change page status"
-            :onclick="changeStatus()"
+            :onclick="privateSwitchChange()"
           />
         </div>
       </div>
@@ -192,6 +192,7 @@ onMounted(() => {
   });
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
+
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
@@ -200,6 +201,7 @@ onMounted(() => {
     });
   });
 });
+LoginService.GetArtistByName(name);
 
 function logout() {
   LoginService.logout().then(() => {
@@ -286,12 +288,7 @@ function ConfirmDelete() {
 function ChangeHash(hash: string) {
   window.location.hash = hash;
 }
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
-    user.value = promise;
-  });
-}
-async function changeStatus() {
-  await LoginService.ChangeStatus(curArtist.value);
+async function privateSwitchChange() {
+  await LoginService.privateSwitchChange(curArtist.value.id);
 }
 </script>

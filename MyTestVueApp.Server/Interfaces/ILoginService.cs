@@ -15,6 +15,7 @@ namespace MyTestVueApp.Server.Interfaces
 
         public Task<Artist> GetArtistByName(string name);
         public Task<IEnumerable<Artist>> GetAllArtists();
-        public Task<bool> ChangeStatus(Artist artist);
+        public Task<bool> privateSwitch(Artist artist);
+        public Task<bool> privateSwitchChange(int artistId);
     }
 }

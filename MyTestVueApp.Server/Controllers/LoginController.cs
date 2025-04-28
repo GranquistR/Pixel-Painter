@@ -100,20 +100,37 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpPost]
-        [Route("ChangeStatus")]
-        public async Task<IActionResult> ChangeStatus([FromBody, BindRequired]Artist artist) 
+        [Route("privateSwitch")]
+        public async Task<IActionResult> privateSwitch([FromBody, BindRequired]Artist artist) 
         {
             
             try
             {
-                var status = await LoginService.ChangeStatus(artist);
+                var status = await LoginService.privateSwitch(artist);
                 Console.WriteLine("Hit controller");
                 return Ok(status);
             } catch(Exception ex)
             {
                 return Problem(ex.Message);
             }
+        }
+
+        [HttpPut]
+        [Route("privateSwitchChange")]
+        public async Task<IActionResult> privateSwitchChange([FromBody, BindRequired]int artistId)
+        {
+
+            try
+            {
+                var status = await LoginService.privateSwitchChange(artistId);
+                Console.WriteLine("Hit controller");
+                return Ok(status);
+        }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
             }
+}
 
         [HttpGet]
         [Route("GetArtistByName")]

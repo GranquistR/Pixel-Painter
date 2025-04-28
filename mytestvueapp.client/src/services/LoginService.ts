@@ -100,7 +100,7 @@ export default class LoginService {
   public static async updateUsername(newUsername: any): Promise<boolean> {
     try {
       const response = await fetch(
-        `login/UpdateUsername?newUsername=${newUsername}`
+        `/login/UpdateUsername?newUsername=${newUsername}`
       );
 
       if (!response.ok) {
@@ -116,18 +116,25 @@ export default class LoginService {
       return false;
     }
   }
-  public static async ChangeStatus(artist: Artist): Promise<void> {
+  public static async privateSwitchChange(artistId: Number): Promise<Boolean> {
     try {
-      const response = await fetch(`login/ChangeStatus`, {
-        method: "POST",
-        body: JSON.stringify(artist),
-        headers: { "Content-Type": "application/json" }
-      });
+      //onsole.log(artist);
+      const response = await fetch(
+        `/login/privateSwitchChange?artistId=${artistId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+      //const json = response.json();
       //const response = await fetch(`login/ChangeStatus?artist=${artist}`);
       console.log(response);
+
       if (!response.ok) {
-        throw new Error("Error: Bad response");
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
+
+      return true;
     } catch (error) {
       console.error;
       throw error;

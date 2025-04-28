@@ -8,6 +8,7 @@ export default class ArtAccessService {
     try {
       const response = await fetch("/artaccess/GetAllArt");
       const json = await response.json();
+      console.log(response);
 
       const allArt: Art[] = [];
 
@@ -203,7 +204,7 @@ export default class ArtAccessService {
       const response = await fetch(request, {
         method: "POST",
         body: JSON.stringify(art),
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }
       });
       const json = await response.json();
 

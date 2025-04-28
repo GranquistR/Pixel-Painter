@@ -8,6 +8,6 @@
         public bool isAdmin { get; set; } = false;
         public bool privateProfile { get; set; } = false;
         public DateTime creationDate { get; set; }
-        public string email { get; set; }
+        public string email { get; set; } = "";
     }
 }
