@@ -276,24 +276,17 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     command1.Parameters.AddWithValue("@Id", artistId);
                     using (var reader = await command1.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        reader.Read();
+                        artist = new Artist
                         {
-                            Console.WriteLine(reader.GetInt32(0));
-                            Console.WriteLine(reader.GetString(1));
-                            Console.WriteLine(reader.GetString(2));
-                            Console.WriteLine(reader.GetBoolean(3));
-                            Console.WriteLine(reader.GetDateTime(4));
-                            Console.WriteLine(reader.GetBoolean(5));
-                            artist = new Artist
-                            {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
-                                privateProfile = reader.GetBoolean(5),
-                            };
-                        }
+                            id = reader.GetInt32(0),
+                            subId = reader.GetString(1),
+                            name = reader.GetString(2),
+                            isAdmin = reader.GetBoolean(3),
+                            creationDate = reader.GetDateTime(4),
+                            privateProfile = reader.GetBoolean(5),
+                        };
+                        
                     }
                 }
                 
