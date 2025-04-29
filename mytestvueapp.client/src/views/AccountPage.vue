@@ -155,14 +155,15 @@ const isEditing = ref<boolean>(false);
 const newUsername = ref("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
+const curUser = ref<Artist>(new Artist());
 const pageStatus = ref("");
-const privateView = ref(false);
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
 onMounted(() => {
   LoginService.GetCurrentUser().then((user: Artist) => {
+    curUser.value = user;
     if (user.id == 0) {
       router.push("/");
       toast.add({
@@ -171,30 +172,29 @@ onMounted(() => {
         detail: "User must be logged in to view account page",
         life: 3000
       });
-      if (
-        curArtist.value.privateProfile == false &&
-        user.id != curArtist.value.id
-      ) {
-        router.push("/");
+    }
+
+    newUsername.value = user.name;
+    artist.value = user;
+  });
+  LoginService.GetArtistByName(name).then((promise: Artist) => {
+    curArtist.value = promise;
+    if (curArtist.value.privateProfile == true) {
+      if (curUser.value.id != curArtist.value.id && !artist.value.isAdmin) {
+        router.push("/gallery");
         toast.add({
           severity: "error",
-          summary: "Warning",
+          summary: "Access Denied",
           detail: "Account page is declared as private",
           life: 3000
         });
       }
+      if (curArtist.value.privateProfile == true) {
+        pageStatus.value = "Private";
+      } else {
+        pageStatus.value = "Public";
+      }
     }
-    newUsername.value = user.name;
-    artist.value = user;
-    if (curArtist.value.privateProfile == true) {
-      pageStatus.value = "Private";
-    } else {
-      pageStatus.value = "Public";
-    }
-  });
-  LoginService.GetArtistByName(name).then((promise: Artist) => {
-    curArtist.value = promise;
-    privateView.value = promise.privateProfile;
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
