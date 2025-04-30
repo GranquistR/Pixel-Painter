@@ -177,11 +177,12 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
+  // && !artist.value.isAdmin
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
     if (curArtist.value.privateProfile == true) {
-      if (curUser.value.id != curArtist.value.id && !artist.value.isAdmin) {
-        router.push("/gallery");
+      if (curUser.value.id != curArtist.value.id) {
+        router.go(-1);
         toast.add({
           severity: "error",
           summary: "Access Denied",

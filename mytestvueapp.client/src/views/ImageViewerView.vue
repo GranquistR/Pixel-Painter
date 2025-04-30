@@ -21,7 +21,7 @@
           <div
             :style="{
               textDecoration: hover ? 'underline' : 'none',
-              cursor: hover ? 'pointer' : 'none',
+              cursor: hover ? 'pointer' : 'none'
             }"
             v-for="(artist, index) in art.artistName"
             :key="index"
