@@ -204,7 +204,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 subId = reader.GetString(1),
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
-                                privateProfile = reader.GetBoolean(4),
+                                PrivateProfile = reader.GetBoolean(4),
                                 creationDate = reader.GetDateTime(5)
                             };
                             artistList.Add(artist);
@@ -405,7 +405,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
-                                privateProfile = reader.GetBoolean(5),
+                                PrivateProfile = reader.GetBoolean(5),
 
                             };
                             
@@ -452,7 +452,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
-                                privateProfile = reader.GetBoolean(5),
+                                PrivateProfile = reader.GetBoolean(5),
                                 email = reader.GetString(6),
                             };
                             return artist;

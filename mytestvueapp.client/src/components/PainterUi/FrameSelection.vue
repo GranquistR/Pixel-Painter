@@ -1,98 +1,120 @@
 <template>
-    <FloatingCard position="bottom"
-                  header="Frames"
-                  button-icon="pi pi-images"
-                  button-label=""
-                  width=""
-                  :default-open="true">
+  <FloatingCard position="bottom"
+                header="Frames"
+                button-icon="pi pi-images"
+                button-label=""
+                width=""
+                :default-open="true">
 
-        <Button class="mr-1" icon="pi pi-minus" size="small" rounded @click="removeFrame()" />
+    <div>
+      <Button class="mr-1"
+              icon="pi pi-minus"
+              size="small"
+              rounded
+              @click="removeFrame()" />
 
-        <template v-for="(frame, index) in frames" :key="frame.id">
-            <Button :icon="frame.icon" 
-                    :class="frame.class" 
-                    :severity="frame.severity"
-                    @click="switchFrame(frame.id)" 
-                    />
-        </template>
+      <template v-for="frame in frames" :key="frame.id">
+        <Button :icon="frame.icon"
+                :class="frame.class"
+                :severity="frame.severity"
+                @click="switchFrame(frame.id)" />
+      </template>
 
-        <Button class="ml-1" icon="pi pi-plus" size="small" rounded @click="addFrame()" />
-    </FloatingCard>
+      <Button class="ml-1"
+              icon="pi pi-plus"
+              size="small"
+              rounded
+              @click="addFrame()" />
+    </div>
+    <div class="flex justify-center w-full">
+      <Button class="w-full"
+              :label="showPrevFrame ? 'Hide Previous Frame' : 'Show Previous Frame'"
+              :severity="buttonSeverity"
+              icon=""
+              size="small"
+              rounded
+              @click="showPrevFrame = !showPrevFrame; changeSeverity()" />
+    </div>
+  </FloatingCard>
 </template>
 
 <script setup lang="ts">
 import Button from "primevue/button";
-import Tag from "primevue/tag";
 import FloatingCard from "./FloatingCard.vue";
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount } from "vue";
+import { useLayerStore } from "@/store/LayerStore";
+import { PixelGrid } from "@/entities/PixelGrid";
 
-    let selectedFrame = defineModel<number>("selFrame", { default: 1 });
-    let oldFrame = defineModel<number>("lastFrame", { default: 1 });
-    let index = defineModel<number>("frameIndex", { default: 2 });
+const selectedFrame = defineModel<number>("selFrame", { default: 0 });
+const frameStore = useLayerStore();
+const frames = ref([
+  { id: 0, icon: "pi pi-image", class: "m-1", severity: "secondary" }
+]);
+const showPrevFrame = defineModel<boolean>("showLayers", { default: true });
+let buttonSeverity = "secondary";
 
-    let frameCount = 1;
-    const frames = ref([
-        { id: 1, icon: 'pi pi-image', class: 'm-1', severity: 'secondary' }
-    ]);
-
-    onBeforeMount(() => {
-        var count = 2;
-        while (localStorage.getItem(`frame${count}`) != null) {
-            frames.value.push({
-                id: count,
-                icon: 'pi pi-image',
-                class: 'mr-1',
-                severity: 'secondary'
-            });
-
-            frameCount++;
-            count++;
-            index.value++;
-        }
-        frames.value[0].severity = 'primary';
+onBeforeMount(() => {
+  for (let i = 1; i < frameStore.grids.length; i++) {
+    frames.value.push({
+      id: i,
+      icon: "pi pi-image",
+      class: "mr-1",
+      severity: "secondary"
     });
+  }
 
-    function addFrame() {
-        frameCount++;
-        index.value++;
-        frames.value.push({
-            id: frameCount,
-            icon: 'pi pi-image',
-            class: 'mr-1',
-            severity: 'secondary'
-        });
+  frames.value[0].severity = "primary";
+});
+
+  function changeSeverity() {
+    if (showPrevFrame.value) {
+      buttonSeverity = "primary";
+    } else {
+      buttonSeverity = "secondary";
     }
+  }
 
-    function removeFrame() {
-        if (frames.value.length > 1) {
-            frames.value.pop();
-            frameCount--;
-            index.value--;
+function addFrame() {
+  frames.value.push({
+    id: frameStore.grids.length,
+    icon: "pi pi-image",
+    class: "mr-1",
+    severity: "secondary"
+  });
+  frameStore.pushGrid(
+    new PixelGrid(
+      frameStore.grids[0].height,
+      frameStore.grids[0].height,
+      frameStore.grids[0].backgroundColor,
+      frameStore.grids[0].isGif
+    )
+  );
+}
 
-            if (selectedFrame.value == frameCount + 1) {
-                localStorage.getItem(`frame${frameCount}`)
-            }
-        }
+function removeFrame() {
+  if (frames.value.length > 1) {
+    frames.value.pop();
+    frameStore.popGrid();
 
-        if (localStorage.getItem(`frame${frameCount + 1}`) != null) {
-            localStorage.removeItem(`frame${frameCount + 1}`);
-        }
+    if (selectedFrame.value >= frames.value.length) {
+      switchFrame(selectedFrame.value - 1);
     }
+  }
+}
 
-    function switchFrame(frameID: number) {
-        frames.value.forEach((nFrame) => {
-            nFrame.severity = 'secondary';
-        });
-        frames.value[frameID - 1].severity = 'primary';
+function switchFrame(frameID: number) {
+  frames.value.forEach((nFrame) => {
+    nFrame.severity = "secondary";
+  });
+  frames.value[frameID].severity = "primary";
 
-        oldFrame.value = selectedFrame.value;
-        selectedFrame.value = frameID;
-    }
-
+  selectedFrame.value = frameID;
+  frameStore.layer = frameID;
+}
 </script>
 
 <style>
-    .p-dialog.p-component {
-        margin-bottom: 75px !important;
-    }
+.p-dialog.p-component {
+  margin-bottom: 75px !important;
+}
 </style>

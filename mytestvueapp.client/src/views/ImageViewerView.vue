@@ -196,7 +196,6 @@ const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
 const user = ref<boolean>(false);
-var numberTotalComments = Number(0);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
@@ -229,7 +228,6 @@ function editArt() {
 }
 
 function updateComments() {
-  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
