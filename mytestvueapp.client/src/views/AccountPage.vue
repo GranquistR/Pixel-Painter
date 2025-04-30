@@ -180,7 +180,7 @@ onMounted(() => {
   //
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
-    if (curArtist.value.privateProfile == true) {
+    if (curArtist.value.privateProfile) {
       if (curUser.value.id != curArtist.value.id && !artist.value.isAdmin) {
         router.go(-1);
         toast.add({
@@ -190,11 +190,9 @@ onMounted(() => {
           life: 3000
         });
       }
-      if (curArtist.value.privateProfile == true) {
-        pageStatus.value = "Private";
-      } else {
-        pageStatus.value = "Public";
-      }
+      pageStatus.value = "Private";
+    } else {
+      pageStatus.value = "Public";
     }
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
