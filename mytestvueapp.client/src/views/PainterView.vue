@@ -25,7 +25,7 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()"
+          @click="resetArt()"
         >
         </Button>
         <UploadButton
@@ -35,11 +35,11 @@
           :connected="connected"
           :group-name="groupName"
           @disconnect="disconnect"
-          @OpenModal="ToggleKeybinds"
+          @OpenModal="toggleKeybinds"
         />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton
-          @openModal="ToggleKeybinds"
+          @openModal="toggleKeybinds"
           @connect="connect"
           @disconnect="disconnect"
           :connected="connected"
@@ -153,7 +153,7 @@ import { useLayerStore } from "@/store/LayerStore";
 
 //variables
 const route = useRoute();
-const canvas = ref();
+const canvas = ref<any>();
 const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
@@ -212,7 +212,7 @@ connection.onclose((error) => {
 connection.on(
   "ReceivePixels",
   (layer: number, color: string, coords: Vector2[]) => {
-    DrawPixels(layer, color, coords);
+    drawPixels(layer, color, coords);
   }
 );
 
@@ -228,7 +228,7 @@ connection.on(
       canvasSize,
       canvasSize
     );
-    ReplaceCanvas(pixels);
+    replaceCanvas(pixels);
     updateLayers.value = layerStore.grids.length;
 
     canvas.value?.drawLayers(0);
@@ -272,7 +272,8 @@ const connect = (groupname: string) => {
 };
 
 const disconnect = () => {
-  connection.invoke("LeaveGroup", groupName.value, artist.value)
+  connection
+    .invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection
         .stop()
@@ -295,24 +296,20 @@ const endPix = ref<Vector2>(new Vector2(0, 0));
 let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
+const selectedFrame = ref<number>(1);
 //if anyone has an easier way to set this lmk
 art.value.isGif = layerStore.grids[0].isGif;
 art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
-let selectedFrame = ref(1);
-let lastFrame = ref(1);
-let index = ref(1);
 const fps = ref<number>(4);
-
-let currentPallet: string[];
+const currentPallet = ref<string[]>([]);
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
-  if (temp) currentPallet = JSON.parse(temp);
-  for (let i = 0; i < currentPallet.length; i++) {
-    if (currentPallet[i] === null || currentPallet[i] === "") {
-      currentPallet[i] = "000000";
+  if (temp) currentPallet.value = JSON.parse(temp);
+  for (let i = 0; i < currentPallet.value.length; i++)
+    if (currentPallet.value[i] === null || currentPallet.value[i] === "") {
+      currentPallet.value[i] = "000000";
     }
-  }
 }
 const cursorPositionComputed = computed(
   //default vue watchers can't watch deep properties
@@ -330,17 +327,16 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-    LocalSave();
+    layerStore.save();
   }
   next();
 });
 
 onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("beforeunload", handleBeforeUnload);
 
   //Get the current user
-  LoginService.GetCurrentUser().then((user: Artist) => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       artist.value.id = 0;
       artist.value.name = "Guest";
@@ -383,19 +379,14 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
-  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
-const ToggleKeybinds = (disable: boolean) => {
+function toggleKeybinds(disable: boolean) {
   if (disable) {
     document.removeEventListener("keydown", handleKeyDown);
   } else {
     document.addEventListener("keydown", handleKeyDown);
   }
-};
-
-function handleBeforeUnload(event: BeforeUnloadEvent) {
-  LocalSave();
 }
 
 watch(
@@ -404,28 +395,28 @@ watch(
     if (cursor.value.selectedTool.label === "Rectangle") {
       if (mouseButtonHeldDown.value) {
         setEndVector();
-        DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+        drawAtCoords(getRectanglePixels(startPix.value, endPix.value));
       }
     } else if (cursor.value.selectedTool.label === "Ellipse") {
       if (mouseButtonHeldDown.value) {
         setEndVector();
-        DrawAtCoords(GetEllipsePixels(startPix.value, endPix.value));
+        drawAtCoords(getEllipsePixels(startPix.value, endPix.value));
       }
     } else {
-      DrawAtCoords(GetLinePixels(start, end));
+      drawAtCoords(getLinePixels(start, end));
     }
   },
   { deep: true }
 );
 
 watch(mouseButtonHeldDown, async () => {
-  DrawAtCoords([cursor.value.position]);
+  drawAtCoords([cursor.value.position]);
 });
 
 watch(
   () => art.value.pixelGrid.backgroundColor,
-  (next, prev) => {
-    ChangeBackgroundColor(next);
+  (next) => {
+    changeBackgroundColor(next);
     for (let i = 0; i < layerStore.grids.length; i++) {
       layerStore.grids[i].backgroundColor = next;
     }
@@ -442,7 +433,7 @@ watch(selectedFrame, () => {
       art.value.pixelGrid.backgroundColor,
       art.value.pixelGrid.isGif
     );
-    layerStore.grids[0].DeepCopy(newGrid);
+    layerStore.grids[0].deepCopy(newGrid);
     canvas.value?.drawLayers(0);
 
     canvas.value?.recenter();
@@ -476,7 +467,7 @@ function runGravity() {
   }
 }
 
-function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
+function getLinePixels(start: Vector2, end: Vector2): Vector2[] {
   const pixels: Vector2[] = [];
 
   const dx = Math.abs(end.x - start.x);
@@ -513,7 +504,7 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   return pixels;
 }
 
-function ReplaceCanvas(pixels: Pixel[][]) {
+function replaceCanvas(pixels: Pixel[][]) {
   for (let l = 0; l < pixels.length; l++) {
     layerStore.pushGrid(
       new PixelGrid(
@@ -530,26 +521,26 @@ function ReplaceCanvas(pixels: Pixel[][]) {
   }
 }
 
-function DrawPixels(layer: number, color: string, coords: Vector2[]) {
+function drawPixels(layer: number, color: string, coords: Vector2[]) {
   for (const coord of coords) {
     layerStore.grids[layer].grid[coord.x][coord.y] = color;
     canvas.value?.updateCell(layer, coord.x, coord.y, color);
   }
 }
 
-function SendPixels(layer: number, color: string, coords: Vector2[]) {
+function sendPixels(layer: number, color: string, coords: Vector2[]) {
   if (connected.value) {
     connection.invoke("SendPixels", groupName.value, layer, color, coords);
   }
 }
 
-function ChangeBackgroundColor(color: string) {
+function changeBackgroundColor(color: string) {
   if (connected.value) {
     connection.invoke("ChangeBackgroundColor", groupName.value, color);
   }
 }
 
-function DrawAtCoords(coords: Vector2[]) {
+function drawAtCoords(coords: Vector2[]) {
   let coordinates: Vector2[] = [];
 
   if (
@@ -593,7 +584,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels(layerStore.layer, cursor.value.color, coordinates);
+        sendPixels(layerStore.layer, cursor.value.color, coordinates);
       } else if (cursor.value.selectedTool.label === "Eraser") {
         for (let i = 0; i < cursor.value.size; i++) {
           for (let j = 0; j < cursor.value.size; j++) {
@@ -618,7 +609,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels(layerStore.layer, "empty", coordinates);
+        sendPixels(layerStore.layer, "empty", coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < layerStore.grids[layerStore.layer].width &&
@@ -638,7 +629,7 @@ function DrawAtCoords(coords: Vector2[]) {
               cursor.value.position.x,
               cursor.value.position.y
             );
-            SendPixels(layerStore.layer, cursor.value.color, coordinates);
+            sendPixels(layerStore.layer, cursor.value.color, coordinates);
           }
         } else if (
           cursor.value.selectedTool.label === "Rectangle" ||
@@ -715,7 +706,7 @@ function randomizeGrid() {
       if (connected.value) {
         let coords: Vector2[] = [];
         coords.push(new Vector2(i, j));
-        SendPixels(layerStore.layer, color, coords);
+        sendPixels(layerStore.layer, color, coords);
       }
     }
   }
@@ -782,11 +773,11 @@ function clear(): void {
   }
 
   if (connected.value) {
-    SendPixels(layerStore.layer, "empty", coords);
+    sendPixels(layerStore.layer, "empty", coords);
   }
 }
 
-function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
+function getRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
   let leftBound = Math.min(start.x, end.x);
   let rightBound = Math.max(start.x, end.x);
@@ -801,7 +792,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
       lowerBound + i <= upperBound
     ) {
       coords = coords.concat(
-        CalculateRectangle(
+        calculateRectangle(
           new Vector2(leftBound + i, lowerBound + i),
           new Vector2(rightBound - i, upperBound - i)
         )
@@ -812,7 +803,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   return coords;
 }
 
-function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
+function calculateRectangle(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
   // generate x coordinates
@@ -838,7 +829,7 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
   coords.push(end);
   return coords;
 }
-function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
+function getEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
   let leftBound = Math.min(start.x, end.x);
@@ -854,7 +845,7 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
       lowerBound + i <= upperBound
     ) {
       coords = coords.concat(
-        CalculateEllipse(
+        calculateEllipse(
           new Vector2(leftBound + i, lowerBound + i),
           new Vector2(rightBound - i, upperBound - i)
         )
@@ -865,7 +856,7 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
   return coords;
 }
 
-function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
+function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
   if (start.x == end.x && start.y == end.y) {
     coords.push(start);
@@ -962,7 +953,7 @@ function setEndVector() {
   }
 }
 
-function ResetArt() {
+function resetArt() {
   layerStore.clearStorage();
   layerStore.empty();
 
@@ -979,18 +970,17 @@ function ResetArt() {
 
 function onMouseUp() {
   if (cursor.value.selectedTool.label == "Rectangle") {
-    SendPixels(
+    sendPixels(
       layerStore.layer,
       cursor.value.color,
-      GetRectanglePixels(startPix.value, endPix.value)
+      getRectanglePixels(startPix.value, endPix.value)
     );
   }
   if (cursor.value.selectedTool.label == "Ellipse") {
-    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {});
-    SendPixels(
+    sendPixels(
       layerStore.layer,
       cursor.value.color,
-      GetEllipsePixels(startPix.value, endPix.value)
+      getEllipsePixels(startPix.value, endPix.value)
     );
   }
 }
@@ -1032,56 +1022,53 @@ function handleKeyDown(event: KeyboardEvent) {
     } else if (event.key === "1") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[0];
+      cursor.value.color = currentPallet.value[0];
     } else if (event.key === "2") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[1];
+      cursor.value.color = currentPallet.value[1];
     } else if (event.key === "3") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[2];
+      cursor.value.color = currentPallet.value[2];
     } else if (event.key === "4") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[3];
+      cursor.value.color = currentPallet.value[3];
     } else if (event.key === "5") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[4];
+      cursor.value.color = currentPallet.value[4];
     } else if (event.key === "6") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[5];
+      cursor.value.color = currentPallet.value[5];
     } else if (event.key === "7") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[6];
+      cursor.value.color = currentPallet.value[6];
     } else if (event.key === "8") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[7];
+      cursor.value.color = currentPallet.value[7];
     } else if (event.key === "9") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[8];
+      cursor.value.color = currentPallet.value[8];
     } else if (event.key === "0") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[9];
+      cursor.value.color = currentPallet.value[9];
     } else if (event.key === "-") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[10];
+      cursor.value.color = currentPallet.value[10];
     } else if (event.key === "=") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[11];
+      cursor.value.color = currentPallet.value[11];
     }
   }
-}
-function LocalSave() {
-  layerStore.save();
 }
 </script>
 <style scoped>
