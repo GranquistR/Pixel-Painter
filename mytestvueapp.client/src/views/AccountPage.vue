@@ -7,20 +7,20 @@
           <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
+              label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#settings')"
-              >Account Settings</Button
-            >
+              @click="changeHash('#settings')"
+            />
             <Button
+              label="Creator's Art"
               :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#created_art')"
-              >Creator's Art</Button
-            >
+              @click="changeHash('#created_art')"
+            />
             <Button
+              label="Liked Art"
               :severity="route.hash == '#liked_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#liked_art')"
-              >Liked Art</Button
-            >
+              @click="changeHash('#liked_art')"
+            />
           </div>
         </template>
       </Card>
@@ -53,26 +53,26 @@
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="CancelEdit()"
+                    @click="cancelEdit()"
                   />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
-                    @click="UpdateUsername()"
+                    @click="updateUsername()"
                     :disabled="errorMessage != ''"
                   />
                 </span>
               </div>
               <Message
+                :label="errorMessage"
                 v-if="errorMessage != ''"
                 severity="error"
                 variant="simple"
                 size="small"
                 class="mt-2"
-                >{{ errorMessage }}</Message
-              >
+              />
             </div>
             <div class="align-items-stretch flex">
               <Button
@@ -85,7 +85,7 @@
                 class="block m-2"
                 label="Delete Artist"
                 severity="danger"
-                @click="ConfirmDelete()"
+                @click="confirmDelete()"
               />
             </div>
           </template>
@@ -128,7 +128,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import LoginService from "@/services/LoginService";
 import ArtAccessService from "@/services/ArtAccessService";
 import router from "@/router";
@@ -147,12 +147,11 @@ import { ToggleSwitch } from "primevue";
 
 const toast = useToast();
 const route = useRoute();
-const changeArtist = ref(false);
 
 const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
-const newUsername = ref("");
+const newUsername = ref<string>("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
 const curUser = ref<Artist>(new Artist());
@@ -162,7 +161,7 @@ var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
 onMounted(() => {
-  LoginService.GetCurrentUser().then((user: Artist) => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     curUser.value = user;
     if (user.id == 0) {
       router.push("/");
@@ -204,7 +203,7 @@ onMounted(() => {
 });
 LoginService.GetArtistByName(name);
 
-function logout() {
+async function logout() {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
@@ -216,7 +215,7 @@ function logout() {
   });
 }
 
-function CancelEdit() {
+function cancelEdit() {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -233,7 +232,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-function UpdateUsername() {
+async function updateUsername() {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -264,8 +263,8 @@ function UpdateUsername() {
     });
 }
 
-function ConfirmDelete() {
-  LoginService.DeleteCurrentArtist(curArtist.value.id)
+async function confirmDelete() {
+  LoginService.deleteArtist(curArtist.value.id)
     .then(() => {
       window.location.href = "/";
       toast.add({
@@ -286,7 +285,7 @@ function ConfirmDelete() {
     });
 }
 
-function ChangeHash(hash: string) {
+function changeHash(hash: string) {
   window.location.hash = hash;
 }
 async function privateSwitchChange() {

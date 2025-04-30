@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Configuration;
@@ -13,9 +14,9 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class ArtAccessController : ControllerBase
     {
-        private ILogger<ArtAccessController> Logger { get; }
-        private IArtAccessService ArtAccessService { get; }
-        private ILoginService LoginService { get; }
+        private readonly ILogger<ArtAccessController> Logger; 
+        private readonly IArtAccessService ArtAccessService;
+        private readonly ILoginService LoginService;
 
         public ArtAccessController(ILogger<ArtAccessController> logger, IArtAccessService artAccessService, ILoginService loginService)
         {
@@ -24,63 +25,76 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
+        /// <summary>
+        /// Gets All Art
+        /// </summary>
         [HttpGet]
         [Route("GetAllArt")]
-        public IEnumerable<Art> GetAllArt()
+        [ProducesResponseType(typeof(List<Art>), 200)]
+        public async Task<IActionResult> GetAllArt()
         {
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            try
+            {
+                var art = await ArtAccessService.GetAllArt();
+                var artList = art.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+                return Ok(artList);
+            } 
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
-        [HttpGet]
-        [Route("GetAllArtByUserID")]
-        public IEnumerable<Art> GetAllArtByUserID(int id)
-        {
-            return ArtAccessService.GetArtByArtist(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
-        }
-
+        /// <summary>
+        /// Obtains all art that a user has liked
+        /// </summary>
+        /// <param name="artistId">Id of the artist being checked</param>
+        /// <returns>A list of art objects</returns>
         [HttpGet]
         [Route("GetLikedArt")]
-
-        public async Task<IEnumerable<Art>> GetLikedArt(int artistId)
+        [ProducesResponseType(typeof(List<Art>), 200)]
+        public async Task<IActionResult> GetLikedArt([FromQuery] int artistId)
         {
-            return await ArtAccessService.GetLikedArt(artistId);
-        }
-
-        [HttpGet]
-        [Route("GetArtByLikes")]
-        public IEnumerable<Art> GetArtByLikes(bool isAscending)
-        {
-            if (isAscending)
+            try
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
+                var art = await ArtAccessService.GetLikedArt(artistId);
+                var artList = art.OrderByDescending(art => art.CreationDate);
+                return Ok(artList);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
-        }
-
-        [HttpGet]
-        [Route("GetArtByComments")]
-        public IEnumerable<Art> GetArtByComments(bool isAscending)
-        {
-            if (isAscending)
+            catch (Exception ex)
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
+                return Problem(ex.Message);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
         }
-
+        /// <summary>
+        /// Gets all art made by a user
+        /// </summary>
+        /// <param name="id">Id of user</param>
+        /// <returns>A list of art objects</returns>
         [HttpGet]
-        [Route("GetArtByDate")]
-        public IEnumerable<Art> GetArtByDate(bool isAscending)
+        [Route("GetAllArtByUserID")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
+        public async Task<IActionResult> GetAllArtByUserID([FromQuery] int id)
         {
-            if (isAscending)
+            try
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
+                var artistArt = await ArtAccessService.GetArtByArtist(id);
+                var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+                return Ok(artistArtList);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Gets the current user's art from the database
+        /// </summary>
+        /// <returns>A list of Art Objects</returns>
         [HttpGet]
         [Route("GetCurrentUsersArt")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
         public async Task<IActionResult> GetCurrentUsersArt()
         {
             try
@@ -91,45 +105,54 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        return BadRequest("User not logged in");
+                        throw new AuthenticationException("User does not have an account.");
                     }
 
-                    var result = ArtAccessService.GetAllArt();
-                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                    var result = await ArtAccessService.GetAllArt();
+                    return Ok(result.Where(art => art.ArtistId.Contains(artist.Id)).OrderByDescending(art => art.CreationDate));
                    
                 }
                 else
                 {
-                    return BadRequest("User not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Gets an artwork from the database
+        /// </summary>
+        /// <param name="id">Id of the artwork</param>
+        /// <returns>An art object</returns>
         [HttpGet]
         [Route("GetArtById")]
-        public async Task<IActionResult> GetArtById(int id)
+        [ProducesResponseType(typeof(Art), 200)]
+        public async Task<IActionResult> GetArtById([FromQuery] int id)
         {
             try
             {
-                var art = ArtAccessService.GetArtById(id);
+                var art = await ArtAccessService.GetArtById(id);
 
                 if (art == null)
                 {
-                    return BadRequest("Art not found");
+                    throw new ArgumentException("Art with id: " + id + " can not be found");
                 }
 
-                if (art.isPublic)
+                if (art.IsPublic)
                 {
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
                         if (artist != null)
                         {
-                            art.currentUserIsOwner = (art.artistId.Contains(artist.id));
+                            art.CurrentUserIsOwner = art.ArtistId.Contains(artist.Id);
                         }
                     }
                     return Ok(art);
@@ -139,22 +162,52 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
-                        if (art.currentUserIsOwner)
+                        art.CurrentUserIsOwner = art.ArtistId.Contains(artist.Id);
+                        if (art.CurrentUserIsOwner)
                         {
-
                             return Ok(art);
                         }
                         else
                         {
-                            return Unauthorized("User does not have permission for this action");
+                            throw new AuthenticationException("User does not have permission for this action");
                         }
                     }
                     else
                     {
-                        return Unauthorized("User does not have permission for this action");
+                        throw new AuthenticationException("User is not logged in");
                     }
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Gets a gif from the database
+        /// </summary>
+        /// <param name="id">Id of the gif to grab</param>
+        [HttpGet]
+        [Route("GetGifById")]
+        [ProducesResponseType(typeof(Art[]), 200)]
+        public async Task<IActionResult> GetGifById(int id)
+        {
+            try
+            {
+                var gif = await ArtAccessService.GetGif(id);
+                return Ok(gif);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            } 
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -162,16 +215,15 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetArtists")]
-        public IEnumerable<Artist> GetAllArtists(int artId)
-        {
-            return ArtAccessService.GetArtists(artId);
-        }
-
-        [HttpPost]
+        /// <summary>
+        /// Add/Update an art in the database
+        /// </summary>
+        /// <param name="art">New Art object</param>
+        /// <returns></returns>
+        [HttpPut]
         [Route("SaveArt")]
-        public async Task<IActionResult> SaveArt(Art art)
+        [ProducesResponseType(typeof(Art), 200)]
+        public async Task<IActionResult> SaveArt([FromBody, BindRequired]Art art)
         {
             try
             {
@@ -181,17 +233,25 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        return BadRequest("User not logged in");
+                        throw new AuthenticationException("User does not have an account.");
                     }
 
-                    if (art.id == 0) //New art
+                    if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArt(artist, art);
+                        foreach (int artistId in art.ArtistId)
+                        {
+                            if(artistId == artist.Id)
+                            {
+                                continue;
+                            }
+                            ArtAccessService.AddContributingArtist(art.Id, artistId);
+                        }
                         return Ok(result);
                     }
                     else //Update art
                     {
-                        var result = await ArtAccessService.UpdateArt(artist, art);
+                        var result = await ArtAccessService.UpdateArt(art);
                         if (result == null)
                         {
                             return BadRequest("Could not update this art");
@@ -201,119 +261,65 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
             }
-            catch (UnauthorizedAccessException ex)
+            catch (AuthenticationException ex)
             {
                 return Unauthorized(ex.Message);
-            }
+            } 
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
         }
-
-        [HttpPost]
-        [Route("SaveArtCollab")]
-        public async Task<IActionResult> SaveArtCollab(Art art)
-        {
-            try
-            {
-                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
-                {
-                    var artist = await LoginService.GetUserBySubId(userSubId);
-
-                    if (artist == null)
-                    {
-                        return BadRequest("User not logged in");
-                    }
-
-                    if (art.id == 0) //New art
-                    {
-                        var result = await ArtAccessService.SaveNewArtMulti(art);
-                        // If there are attatched contributing artists
-                        foreach (int artistId in art.artistId)
-                        {
-                            ArtAccessService.AddContributingArtist(art.id, artistId);
-                        }
-                        return Ok(result);
-                    }
-                    else //Update art
-                    {
-                        return BadRequest("Could not update this art");
-                    }
-                }
-                else
-                {
-                    return BadRequest("User not logged in");
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("IsMyArt")]
-        public async Task<bool> IsMyArt(int id)
-        {
-            var art = ArtAccessService.GetArtById(id);
-            bool ismine = false;
-
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-            {
-                var artist = await LoginService.GetUserBySubId(userId);
-
-                ismine = (art.artistId.Contains(artist.id));
-            }
-            return ismine;
-        }
-
-
-        [HttpGet]
+        /// <summary>
+        /// Removes an artwork from the database
+        /// </summary>
+        /// <param name="artId">Id of the art to be removed</param>
+        [HttpDelete]
         [Route("DeleteArt")]
-        public async Task<IActionResult> DeleteArt(int artId)
+        public async Task<IActionResult> DeleteArt([FromQuery] int artId)
         {
-
             try
             {
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var art = ArtAccessService.GetArtById(artId);
+                    var art = await ArtAccessService.GetArtById(artId);
 
-                    if (!(art.artistId.Contains(artist.id)) && !artist.isAdmin)
+                    if (!(art.ArtistId.Contains(artist.Id)) && !artist.IsAdmin)
                     {
-                        return Unauthorized("User is not authorized for this action");
+                        throw new AuthenticationException("User does not have permissions for this artwork.");
                     }
 
-                    await ArtAccessService.DeleteArt(artId);
+                    ArtAccessService.DeleteArt(artId);
 
                     return Ok();
-
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Removes an artist from an artworks contributers list
+        /// </summary>
+        /// <param name="artId">Id of the artwork to remove the user from</param>
+        [HttpDelete]
         [Route("DeleteContributingArtist")]
-        public async Task<IActionResult> DeleteContrbutingArtist(int artId)
+        public async Task<IActionResult> DeleteContrbutingArtist([FromQuery] int artId)
         {
 
             try
@@ -323,35 +329,37 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var artists = ArtAccessService.GetArtists(artId);
+                    var artists = await ArtAccessService.GetArtistsByArtId(artId);
 
                     foreach (var item in artists)
                     {
-                        if (item.id == artist.id || artist.isAdmin)
+                        if (item.Id == artist.Id || artist.IsAdmin)
                         {
                             isAnArtist = true;
                         }
                     }
-                    if ((!isAnArtist) && (!artist.isAdmin))
+                    if ((!isAnArtist) && (!artist.IsAdmin))
                     {
-                        return Unauthorized("User is not authorized for this action");
+                        throw new AuthenticationException("User does not have permission to remove user.");
                     }
 
-                    await ArtAccessService.DeleteContributingArtist(artId, artist.id);
+                    ArtAccessService.DeleteContributingArtist(artId, artist.Id);
 
                     return Ok();
 
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
+            } catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-
         }
     }
 }

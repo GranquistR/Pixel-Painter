@@ -33,11 +33,11 @@ namespace MyTestVueApp.Server.Entities
 
         public void AddMember(Artist member)
         {
-            if (!CurrentMembers.Any(cm => cm.id == member.id))
+            if (!CurrentMembers.Any(cm => cm.Id == member.Id))
             {
                 CurrentMembers.Add(member);
             }
-            if (!MemberRecord.Any(mr => mr.id == member.id))
+            if (!MemberRecord.Any(mr => mr.Id == member.Id))
             {
                 MemberRecord.Add(member);
             }
@@ -45,7 +45,7 @@ namespace MyTestVueApp.Server.Entities
 
         public void RemoveMember(Artist member)
         {
-            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.id == member.id);
+            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.Id == member.Id);
             if(itemToRemove != null)
                 CurrentMembers.Remove(itemToRemove);
         }
