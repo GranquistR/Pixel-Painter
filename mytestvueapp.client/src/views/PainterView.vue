@@ -321,14 +321,9 @@ const cursorPositionComputed = computed(
   () => new Vector2(cursor.value.position.x, cursor.value.position.y)
 );
 
-//lifecycle hooks
-onBeforeRouteLeave((to, from, next) => {
-  layerStore.save();  
-  next();
-});
-
 onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
   //Get the current user
   LoginService.getCurrentUser().then((user: Artist) => {
@@ -374,9 +369,15 @@ onMounted(async () => {
   }
 });
 
-onUnmounted(() => {
+onUnmounted(() => {  
   document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+
 });
+
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  layerStore.save();
+}
 
 function toggleKeybinds(disable: boolean) {
   if (disable) {
