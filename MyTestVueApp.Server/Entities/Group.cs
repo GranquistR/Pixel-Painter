@@ -15,7 +15,7 @@ namespace MyTestVueApp.Server.Entities
         public List<string[][]> Pixels { get; set; } = new List<string[][]>();
 
         
-        public Group(string groupName, string[][][] canvas, int canvasSize, string backgroundColor): this(groupName)
+        public Group(string groupName, List<Artist> contributors, string[][][] canvas, int canvasSize, string backgroundColor): this(groupName)
         {
             Name = groupName;
             foreach(string[][] grid in canvas){
@@ -24,6 +24,7 @@ namespace MyTestVueApp.Server.Entities
             CanvasSize = canvasSize;
             BackgroundColor = backgroundColor;
             CurrentMembers = new();
+            MemberRecord = contributors;
         }
 
         public bool IsEmpty()

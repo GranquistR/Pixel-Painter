@@ -12,23 +12,25 @@ namespace MyTestVueApp.Server.ServiceImplementations
         //artistId, MembershipRecord
         Dictionary<int, MembershipRecord> Records = new();
 
-        public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor)
+        public void AddGroup(string groupName, List<Artist> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
         {
-            Groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
+            Groups.Add(groupName, new Group(groupName, contributors, canvas, canvasSize, backgroundColor));
         }
         public void AddUser(string connectionId, Artist artist, string groupName)
         {
-            if (Groups.ContainsKey(groupName))
+            if (!Groups.ContainsKey(groupName))
             {
-                ArtistLookup.Add(connectionId, artist);
-                Groups[groupName].AddMember(artist);
-                if (Records.ContainsKey(artist.Id))
-                {
-                    Records[artist.Id].Connections.Add(new(connectionId, groupName));
-                } else
-                {
-                    Records.Add(artist.Id, new(connectionId, artist.Id, groupName));
-                }
+                throw new ArgumentException("This group does not exist, so we can not add a user to it!");
+            }
+         
+            ArtistLookup.Add(connectionId, artist);
+            Groups[groupName].AddMember(artist);
+            if (Records.ContainsKey(artist.Id))
+            {
+                Records[artist.Id].Connections.Add(new(connectionId, groupName));
+            } else
+            {
+                Records.Add(artist.Id, new(connectionId, artist.Id, groupName));
             }
         }
         public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName)
@@ -40,15 +42,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
             MembershipRecord record = Records[artist.Id];
-            List<ConnectionBinding> allUserConnections = new();
+            List<ConnectionBinding> allConnectionsToGroup = new();
             ConnectionBinding? connectionToDelete = null;
 
             foreach(ConnectionBinding binding in record.Connections)
             {
-
                 if (binding.groupName == groupName)
                 {
-                    allUserConnections.Add(binding);
+                    allConnectionsToGroup.Add(binding);
                     if (binding.connectionId == connectionId)
                     {
                         connectionToDelete = binding;
@@ -56,12 +57,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }    
             }
 
-            if (connectionToDelete == null || allUserConnections.Count == 0) 
+            if (connectionToDelete == null || allConnectionsToGroup.Count == 0) 
             { // Invalid request
                 throw new ArgumentException("RemoveUserFromGroup: Invalid ConnectionId!");
             }
             
-            if (allUserConnections.Count() == 1)
+            if (allConnectionsToGroup.Count() == 1)
             { // Remove member from group
                 Groups[groupName].RemoveMember(artist);
                 record.Connections.Remove(connectionToDelete);
@@ -95,7 +96,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
             MembershipRecord record = Records[artist.Id];
             HashSet<string> groups = new();
             foreach (ConnectionBinding cb in record.Connections) {
-                groups.Add(cb.groupName);
+                if (cb.connectionId == connectionId)
+                    groups.Add(cb.groupName);
             }
 
             foreach (string groupName in groups)
