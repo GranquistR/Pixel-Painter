@@ -228,7 +228,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// This Function changes the PrivateProfile value, making it the inverse of the initial value
+        /// </summary>
+        /// <param name="artistId"></param>
+        /// <returns>A true or false</returns>
         public async Task<bool> PrivateSwitchChange(int artistId)
         {
             var artist = new Artist();
