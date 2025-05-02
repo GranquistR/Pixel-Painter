@@ -7,6 +7,7 @@
           <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
+              :disabled="!canEdit"
               label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
               @click="changeHash('#settings')"
@@ -41,7 +42,9 @@
                   />
                 </div>
                 <Button
-                  v-if="!isEditing && (user || curArtist?.name == artist.name)"
+                  v-if="
+                    !isEditing && (isAdmin || curArtist?.name == artist.name)
+                  "
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
@@ -93,6 +96,7 @@
         <div class="flex flex-column gap-2">
           <h2>Current Page Status: {{ pageStatus }}</h2>
           <Button
+            v-if="canEdit"
             class="block m-2"
             label="Click to change page status"
             icon="pi pi-eye"
@@ -152,10 +156,11 @@ const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref<string>("");
-const user = ref<boolean>();
+const isAdmin = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
 const curUser = ref<Artist>(new Artist());
 const pageStatus = ref<string>("");
+const canEdit = ref<boolean>(false);
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
@@ -175,12 +180,13 @@ onMounted(async () => {
 
     newUsername.value = user.name;
     artist.value = user;
+    isAdmin.value = user.isAdmin;
   });
   //
   LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
     if (curArtist.value.privateProfile) {
-      if (curUser.value.id != curArtist.value.id && !artist.value.isAdmin) {
+      if (curUser.value.id != curArtist.value.id && !isAdmin) {
         router.go(-1);
         toast.add({
           severity: "error",
@@ -200,6 +206,7 @@ onMounted(async () => {
       likedArt.value = art;
     });
   });
+  canEdit.value = curUser.value.id != curArtist.value.id && !isAdmin;
 });
 
 async function logout() {
@@ -288,6 +295,14 @@ function changeHash(hash: string) {
   window.location.hash = hash;
 }
 async function privateSwitchChange() {
-  await LoginService.privateSwitchChange(curArtist.value.id);
+  await LoginService.privateSwitchChange(curArtist.value.id).then((promise) => {
+    if (promise) {
+      pageStatus.value = "Private";
+      curArtist.value.privateProfile = true;
+    } else {
+      pageStatus.value = "Public";
+      curArtist.value.privateProfile = false;
+    }
+  });
 }
 </script>
