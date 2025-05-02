@@ -228,47 +228,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        public async Task<bool> privateSwitch(Artist artist)
-        {
-            var connectionString = AppConfig.Value.ConnectionString;
-            await using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
 
-                if (artist.privateProfile == true)
-                {
-                    var query =
-                        @"update Artist
-                          set PrivateProfile = 0
-                          where Id = @Id";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Id", artist.id);
-                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
-                        command.ExecuteNonQuery();
-                        Console.WriteLine("Hit true");
-                        return true;
-                    }
-                }
-                else 
-                {
-                    var query =
-                        @"update Artist
-                          set PrivateProfile = 1
-                          where Id = @Id";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Id", artist.id);
-                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
-                        command.ExecuteNonQuery();
-                        Console.WriteLine("Hit false");
-                        return false;
-                    }
-                }
-            }
-        }
-
-        public async Task<bool> privateSwitchChange(int artistId)
+        public async Task<bool> PrivateSwitchChange(int artistId)
         {
             var artist = new Artist();
             var connectionString = AppConfig.Value.ConnectionString;
@@ -293,19 +254,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         reader.Read();
                         artist = new Artist
                         {
-                            id = reader.GetInt32(0),
-                            subId = reader.GetString(1),
-                            name = reader.GetString(2),
-                            isAdmin = reader.GetBoolean(3),
-                            creationDate = reader.GetDateTime(4),
-                            privateProfile = reader.GetBoolean(5),
+                            Id = reader.GetInt32(0),
+                            SubId = reader.GetString(1),
+                            Name = reader.GetString(2),
+                            IsAdmin = reader.GetBoolean(3),
+                            CreationDate = reader.GetDateTime(4),
+                            PrivateProfile = reader.GetBoolean(5),
                         };
                         
                     }
                 }
                 
 
-                if (artist.privateProfile == true)
+                if (artist.PrivateProfile)
                 {
                     var query =
                         @"update Artist
@@ -313,10 +274,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           where Id = @Id";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Id", artist.id);
-                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
-                        command.ExecuteNonQuery();
-                        Console.WriteLine("Hit true");
+                        command.Parameters.AddWithValue("@Id", artist.Id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.PrivateProfile);
+                        await command.ExecuteNonQueryAsync();
                         return true;
                     }
                 }
@@ -328,10 +288,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           where Id = @Id";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Id", artist.id);
-                        command.Parameters.AddWithValue("@PrivateProfile", artist.privateProfile);
-                        command.ExecuteNonQuery();
-                        Console.WriteLine("Hit false");
+                        command.Parameters.AddWithValue("@Id", artist.Id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.PrivateProfile);
+                        await command.ExecuteNonQueryAsync();
                         return false;
                     }
                 }

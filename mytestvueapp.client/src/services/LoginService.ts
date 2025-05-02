@@ -79,8 +79,7 @@ export default class LoginService {
       const response = await fetch("/login/GetIsAdmin");
 
       if (!response.ok) {
-        console.log("Response was not ok");
-        //throw new Error("Error: Bad response");
+        throw new Error("Error: Bad response");
       }
 
       const data = await response.json();
@@ -112,20 +111,17 @@ export default class LoginService {
 
       return success;
     } catch (error) {
-      console.error(error);
+      console.error;
       return false;
     }
   }
   public static async privateSwitchChange(artistId: Number): Promise<Boolean> {
     try {
-      console.log(artistId);
       const response = await fetch(`/login/privateSwitchChange`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(artistId)
       });
-      //const json = response.json();
-      //const response = await fetch(`login/ChangeStatus?artist=${artist}`);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);

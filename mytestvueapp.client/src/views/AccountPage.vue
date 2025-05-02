@@ -155,12 +155,12 @@ const newUsername = ref<string>("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
 const curUser = ref<Artist>(new Artist());
-const pageStatus = ref("");
+const pageStatus = ref<string>("");
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
-onMounted(() => {
+onMounted(async () => {
   LoginService.getCurrentUser().then((user: Artist) => {
     curUser.value = user;
     if (user.id == 0) {
@@ -201,7 +201,6 @@ onMounted(() => {
     });
   });
 });
-LoginService.GetArtistByName(name);
 
 async function logout() {
   LoginService.logout().then(() => {
@@ -289,7 +288,6 @@ function changeHash(hash: string) {
   window.location.hash = hash;
 }
 async function privateSwitchChange() {
-  console.log("Function hit");
   await LoginService.privateSwitchChange(curArtist.value.id);
 }
 </script>

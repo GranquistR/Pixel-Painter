@@ -143,31 +143,15 @@ namespace MyTestVueApp.Server.Controllers
         /// <param name="name">Name of the artist</param>
         /// <returns>An artist object</returns>
 
-        [HttpPost]
-        [Route("privateSwitch")]
-        public async Task<IActionResult> privateSwitch([FromBody, BindRequired]Artist artist) 
-        {
-            
-            try
-            {
-                var status = await LoginService.privateSwitch(artist);
-                Console.WriteLine("Hit controller");
-                return Ok(status);
-            } catch(Exception ex)
-            {
-                return Problem(ex.Message);
-            }
-        }
 
         [HttpPut]
         [Route("privateSwitchChange")]
-        public async Task<IActionResult> privateSwitchChange([FromBody, BindRequired]int artistId)
+        public async Task<IActionResult> PrivateSwitchChange([FromBody, BindRequired]int artistId)
         {
 
             try
             {
-                var status = await LoginService.privateSwitchChange(artistId);
-                Console.WriteLine("Hit controller");
+                var status = await LoginService.PrivateSwitchChange(artistId);
                 return Ok(status);
         }
             catch (Exception ex)
@@ -208,7 +192,7 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
                     if(artist == null) { return Ok(false); }
-                    if (artist.isAdmin)
+                    if (artist.IsAdmin)
                     {
                         return Ok(true);
                     }
@@ -273,15 +257,15 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.id == id)
+                    if(artist.Id == id)
                     {
-                        LoginService.DeleteArtist(artist.id);
+                        LoginService.DeleteArtist(artist.Id);
                         Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
-                    else if (artist.isAdmin)
+                    else if (artist.IsAdmin)
                     {
-                        LoginService.DeleteArtist(artist.id);
+                        LoginService.DeleteArtist(artist.Id);
                         return Ok();
                     }
                     else {
