@@ -96,7 +96,6 @@
         <div class="flex flex-column gap-2">
           <h2>Current Page Status: {{ pageStatus }}</h2>
           <Button
-            v-if="canEdit"
             class="block m-2"
             label="Click to change page status"
             icon="pi pi-eye"
@@ -156,7 +155,7 @@ const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref<string>("");
-const isAdmin = ref<boolean>();
+const isAdmin = ref<boolean>(false);
 const curArtist = ref<Artist>(new Artist());
 const curUser = ref<Artist>(new Artist());
 const pageStatus = ref<string>("");
@@ -166,7 +165,7 @@ var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
 onMounted(async () => {
-  LoginService.getCurrentUser().then((user: Artist) => {
+  await LoginService.getCurrentUser().then((user: Artist) => {
     curUser.value = user;
     if (user.id == 0) {
       router.push("/");
@@ -183,7 +182,7 @@ onMounted(async () => {
     isAdmin.value = user.isAdmin;
   });
   //
-  LoginService.GetArtistByName(name).then((promise: Artist) => {
+  await LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
     if (curArtist.value.privateProfile) {
       if (curUser.value.id != curArtist.value.id && !isAdmin) {
@@ -206,7 +205,7 @@ onMounted(async () => {
       likedArt.value = art;
     });
   });
-  canEdit.value = curUser.value.id != curArtist.value.id && !isAdmin;
+  canEdit.value = curUser.value.id == curArtist.value.id || isAdmin.value;
 });
 
 async function logout() {
