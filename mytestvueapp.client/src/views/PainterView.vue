@@ -25,7 +25,7 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="resetArt()"
+          @click="resetArt(); disconnect()"
         >
         </Button>
         <UploadButton
@@ -150,6 +150,7 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 //Other
 import * as SignalR from "@microsoft/signalr";
 import { useLayerStore } from "@/store/LayerStore";
+import { useArtistStore } from "@/store/ArtistStore";
 
 //variables
 const route = useRoute();
@@ -159,9 +160,11 @@ const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist());
 const layerStore = useLayerStore();
+const artistStore = useArtistStore();
 const updateLayers = ref<number>(0);
 const showLayers = ref<boolean>(true);
 const greyscale = ref<boolean>(false);
+const loggedIn = ref<boolean>(false);
 
 // Connection Information
 const connected = ref<boolean>(false);
@@ -178,23 +181,25 @@ connection.on("Send", (user: string, msg: string) => {
 });
 
 connection.on("NewMember", (newartist: Artist) => {
-  console.log("New Member: " + newartist.name);
   if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
+    artistStore.addArtist(newartist);
   }
-  console.log("NewMember-Members: " + art.value.artistName.join(" "));
 });
 
 connection.on("Members", (artists: Artist[]) => {
-  console.log("Recieved All Members");
+  art.value.artistId = [];
+  art.value.artistName = [];
+  artistStore.clearStorage();
+  artistStore.empty();
   artists.forEach((artist) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
+      artistStore.addArtist(artist);
     }
   });
-  console.log("Members-Members: " + art.value.artistName.join(" "));
 });
 
 connection.onclose((error) => {
@@ -240,40 +245,81 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
   art.value.pixelGrid.backgroundColor = backgroundColor;
 });
 
-const connect = (groupname: string) => {
-  if (artist.value.id != 0) {
-    connection
-      .start()
-      .then(() => {
-        let grids = layerStore.getGridArray();
-        console.log("Connected to SignalR!");
-        connection.invoke(
-          "CreateOrJoinGroup",
-          groupname,
-          artist.value,
-          grids,
-          layerStore.grids[0].width,
-          layerStore.grids[0].backgroundColor
-        );
-        groupName.value = groupname;
-        connected.value = !connected.value;
-        art.value.artistId = [artist.value.id];
-        art.value.artistName = [artist.value.name];
-      })
-      .catch((err) => console.error("Error connecting to Hub:", err));
-  } else {
+const createGroup = (groupName: string) => {
+  let grids = layerStore.getGridArray();
+  connection.invoke(
+            "CreateGroup",
+            groupName,
+            artist.value,
+            artistStore.artists,
+            grids,
+            layerStore.grids[0].width,
+            layerStore.grids[0].backgroundColor
+          ).then(() => {
+            connected.value = !connected.value;
+          }
+        )
+          .catch((err) => {toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: err.toString().slice(err.toString().indexOf("HubException:")),
+            life: 4000
+            })
+            connection.stop();
+          });
+
+}
+
+const joinGroup = (groupName: string) => {
+  connection.invoke(
+            "JoinGroup",
+            groupName,
+            artist.value
+          ).then(() => {
+            connected.value = !connected.value
+          })
+          .catch((err) => {toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: err.toString().slice(err.toString().indexOf("HubException:")),
+            life: 4000 
+            });
+            connection.stop();
+          });
+}
+
+const connect = (groupname: string, newGroup: boolean) => {
+  if (!loggedIn.value) {
     toast.add({
       severity: "error",
       summary: "Error",
       detail: "Please log in before collaborating!",
       life: 3000
     });
+    return;
   }
-};
+
+  groupName.value = groupname;
+  if (art.value.artistId[0] == 0 || art.value.artistId.length == 0) {
+    art.value.artistId = [artist.value.id];
+    art.value.artistName = [artist.value.name];
+    artistStore.addArtist(artist.value);
+  }
+
+  connection.start()
+    .then(() => {
+      if (newGroup) {
+        createGroup(groupname);
+      } else {
+        joinGroup(groupname);
+      }
+    })
+    .catch((err) => console.error("Error connecting to Hub:", err));
+} 
 
 const disconnect = () => {
-  connection
-    .invoke("LeaveGroup", groupName.value, artist.value)
+  if (connected.value) {
+  connection.invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection
         .stop()
@@ -283,7 +329,9 @@ const disconnect = () => {
         .catch((err) => console.error("Error Disconnecting:", err));
     })
     .catch((err) => console.error("Error Leaving Group:", err));
+  }
 };
+
 //End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
@@ -297,9 +345,6 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 const selectedFrame = ref<number>(1);
-//if anyone has an easier way to set this lmk
-art.value.isGif = layerStore.grids[0].isGif;
-art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
 const fps = ref<number>(4);
 const currentPallet = ref<string[]>([]);
@@ -324,25 +369,22 @@ const cursorPositionComputed = computed(
   () => new Vector2(cursor.value.position.x, cursor.value.position.y)
 );
 
-//lifecycle hooks
-onBeforeRouteLeave((to, from, next) => {
-  if (to.path != "/new" && !to.path.includes("/art")) {
-    layerStore.save();
-  }
-  next();
-});
-
 onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
-  //Get the current user
-  LoginService.getCurrentUser().then((user: Artist) => {
-    if (user.id == 0) {
-      artist.value.id = 0;
-      artist.value.name = "Guest";
-    }
-    artist.value = user;
-  });
+    //Get the current user
+    LoginService.isLoggedIn().then((isLoggedIn:boolean) => {
+      loggedIn.value = isLoggedIn;
+      if(isLoggedIn) {
+        LoginService.getCurrentUser().then((user: Artist) => {
+        artist.value = user;
+        });
+      } else {
+        artist.value.id = 0;
+        artist.value.name = "Guest";
+      }
+    }).catch((err) => console.log(err));
 
   if (route.params.id) {
     const id: number = parseInt(route.params.id as string);
@@ -351,6 +393,7 @@ onMounted(async () => {
         art.value.id = data.id;
         art.value.title = data.title;
         art.value.isPublic = data.isPublic;
+        art.value.isGif = layerStore.grids[0].isGif;
 
         canvas.value?.recenter();
         art.value.pixelGrid.backgroundColor =
@@ -369,17 +412,27 @@ onMounted(async () => {
     router.push("/new");
   } else {
     canvas.value?.recenter();
+    art.value.isGif = layerStore.grids[0].isGif;
     art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
     art.value.pixelGrid.backgroundColor = layerStore.grids[0].backgroundColor;
     art.value.pixelGrid.width = layerStore.grids[0].width;
     art.value.pixelGrid.height = layerStore.grids[0].height;
     tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
+    art.value.artistId = artistStore.artists.map(artist => artist.id);
+    art.value.artistName = artistStore.artists.map(artist => artist.name);
   }
 });
 
-onUnmounted(() => {
+onUnmounted(() => {  
   document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
+
 });
+
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  layerStore.save();
+  artistStore.save();
+}
 
 function toggleKeybinds(disable: boolean) {
   if (disable) {
@@ -445,10 +498,12 @@ watch(selectedFrame, () => {
 //functions
 watch(
   () => layerStore.layer,
-  (next, prev) => {
+  (next) => {
     layerStore.layer = Math.max(next, 0);
-    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
-    canvas.value?.drawLayers(layerStore.layer);
+    if (layerStore.grids.length > 0) {
+      tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
+      canvas.value?.drawLayers(layerStore.layer);
+    }
   }
 );
 
@@ -618,8 +673,11 @@ function drawAtCoords(coords: Vector2[]) {
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
           let tmp = layerStore.grids[layerStore.layer].grid[coord.x][coord.y];
-          if (tmp === "empty")
+          if (tmp === "empty") {
             cursor.value.color = art.value.pixelGrid.backgroundColor;
+          } else {
+            cursor.value.color = tmp;
+          }
         } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
             layerStore.grids[layerStore.layer].grid[coord.x][coord.y] !=
@@ -956,6 +1014,8 @@ function setEndVector() {
 function resetArt() {
   layerStore.clearStorage();
   layerStore.empty();
+  artistStore.clearStorage();
+  artistStore.empty();
 
   if (art.value.pixelGrid.isGif) {
     let tempCount = 0;
@@ -964,7 +1024,6 @@ function resetArt() {
       tempCount++;
     }
   }
-
   router.push("/new");
 }
 

@@ -63,7 +63,9 @@ import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore";
+import { useArtistStore } from "@/store/ArtistStore";
 const layerStore = useLayerStore();
+const artistStore = useArtistStore();
 const toast = useToast();
 const visible = ref<boolean>(false);
 const loading = ref<boolean>(false);
@@ -99,7 +101,7 @@ function flattenArtEncode(): string {
   let width = layerStore.grids[0].width;
   let height = layerStore.grids[0].height;
   let arr: string[][] = Array.from({ length: height }, () =>
-    Array(width).fill(layerStore.grids[0].backgroundColor)
+    Array(width).fill(layerStore.grids[0].backgroundColor.toLowerCase())
   );
 
   for (let length = 0; length < layerStore.grids.length; length++) {
@@ -151,10 +153,10 @@ function upload() {
           newArt.artistId = props.art.artistId;
           newArt.artistName = props.art.artistName;
           newArt.gifFps = props.fps;
-          paintings.value.push(newArt);
+          paintings.push(newArt);
         }
-        if (paintings.value)
-          ArtAccessService.SaveGif(paintings.value)
+        if (paintings)
+          ArtAccessService.SaveGif(paintings)
             .then((data: Art) => {
               if (data.id != undefined) {
                 toast.add({
@@ -164,6 +166,7 @@ function upload() {
                   life: 3000
                 });
                 layerStore.empty();
+                artistStore.empty();
                 localStorage.clear();
                 router.push("/art/" + data.id); //may need fix
               } else {
@@ -221,6 +224,7 @@ function upload() {
                 life: 3000
               });
               layerStore.empty();
+              artistStore.empty();
               localStorage.clear();
               router.push("/art/" + data.id);
             } else {
