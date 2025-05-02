@@ -88,7 +88,7 @@ import { useToast } from "primevue/usetoast";
 import NewComment from "./NewComment.vue";
 import LoginService from "../../services/LoginService";
 
-const emit = defineEmits(["deleteComment", "updateComments"]);
+const emit = defineEmits(["deleteComment"]);
 
 const editing = ref<boolean>(false);
 const newMessage = ref<string>("");
@@ -149,7 +149,7 @@ async function submitEdit() {
   if (props.comment.id != null) {
     CommentAccessService.editComment(props.comment, newMessage.value)
       .then(() => {
-        emit("updateComments");
+        emit("deleteComment");
         editing.value = false;
       })
       .catch(() => {
