@@ -64,7 +64,10 @@
               severity="secondary"
               @click="editArt()"
             ></Button>
-            <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
+            <DeleteArtButton
+              v-if="art.currentUserIsOwner || isAdmin"
+              :art="art"
+            >
             </DeleteArtButton>
           </div>
           <div v-if="showFilters == true" class="">
@@ -193,7 +196,7 @@ const allComments = ref<Comment[]>([]);
 const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
 const uploadDate = ref<Date>(new Date());
-const user = ref<boolean>(false);
+const isAdmin = ref<boolean>(false);
 const showFilters = ref(false);
 const showTones = ref(false);
 const names = ref<String[]>([]);
@@ -238,7 +241,7 @@ async function updateComments() {
 
 async function getIsAdmin() {
   LoginService.getIsAdmin().then((promise: boolean) => {
-    user.value = promise;
+    isAdmin.value = promise;
   });
 }
 
@@ -278,26 +281,18 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-//const changeColor = () => {
-//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
-//};
-//
-async function greyScaleFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.pixelGrid.encodedGrid) {
-      if (greyscale.value == false) {
-        squareColor.value = filterGreyScale(promise.pixelGrid.encodedGrid);
-        greyscale.value = true;
-        filtered.value = true;
-        return;
-      } else {
-        squareColor.value = promise.pixelGrid.encodedGrid;
-        greyscale.value = false;
-        filtered.value = false;
-        return;
-      }
-    }
-  });
+function greyScaleFilter() {
+  if (greyscale.value == false) {
+    squareColor.value = filterGreyScale(art.value.pixelGrid.encodedGrid!);
+    greyscale.value = true;
+    filtered.value = true;
+    return;
+  } else {
+    squareColor.value = art.value.pixelGrid.encodedGrid!;
+    greyscale.value = false;
+    filtered.value = false;
+    return;
+  }
 }
 
 function hexToRGB(hex: string): number[] {
@@ -399,25 +394,21 @@ function duoTone(
   return newGrid;
 }
 async function duoToneFilter(toneOne: string, toneTwo: string) {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.pixelGrid.encodedGrid) {
-      if (duotone.value == false) {
-        squareColor.value = duoTone(
-          promise.pixelGrid.encodedGrid,
-          toneOne,
-          toneTwo
-        );
-        duotone.value = true;
-        filtered.value = true;
-        return;
-      } else {
-        squareColor.value = promise.pixelGrid.encodedGrid;
-        duotone.value = false;
-        filtered.value = false;
-        return;
-      }
-    }
-  });
+  if (duotone.value == false) {
+    squareColor.value = duoTone(
+      art.value.pixelGrid.encodedGrid!,
+      toneOne,
+      toneTwo
+    );
+    duotone.value = true;
+    filtered.value = true;
+    return;
+  } else {
+    squareColor.value = art.value.pixelGrid.encodedGrid!;
+    duotone.value = false;
+    filtered.value = false;
+    return;
+  }
 }
 async function resetFilters() {
   filtered.value = false;
@@ -426,22 +417,16 @@ async function resetFilters() {
   prota.value = false;
   deu.value = false;
   sepia.value = false;
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.id).then((promiseGif: Art[]) => {
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            //console.log(Blob);
-            GifURL.value = Blob;
-          }
-        );
-      });
-    }
+  if (art.value.isGif) {
+    GIFCreationService.createGIFcode(urls.value, art.value.gifFps).then(
+      (Blob) => {
+        GifURL.value = Blob;
+      }
+    );
+  }
 
-    if (promise.pixelGrid.encodedGrid)
-      squareColor.value = promise.pixelGrid.encodedGrid;
-  });
+  if (art.value.pixelGrid.encodedGrid)
+    squareColor.value = art.value.pixelGrid.encodedGrid;
 }
 function sepiaTone(R: number, G: number, B: number): number[] {
   let newColors: number[] = [];
@@ -477,21 +462,17 @@ function filterSepia(currentGrid: string): string {
   return newGrid;
 }
 async function sepiaFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.pixelGrid.encodedGrid) {
-      if (sepia.value == false) {
-        squareColor.value = filterSepia(promise.pixelGrid.encodedGrid);
-        sepia.value = true;
-        filtered.value = true;
-        return;
-      } else {
-        squareColor.value = promise.pixelGrid.encodedGrid;
-        sepia.value = false;
-        filtered.value = false;
-        return;
-      }
-    }
-  });
+  if (sepia.value == false) {
+    squareColor.value = filterSepia(art.value.pixelGrid.encodedGrid!);
+    sepia.value = true;
+    filtered.value = true;
+    return;
+  } else {
+    squareColor.value = art.value.pixelGrid.encodedGrid!;
+    sepia.value = false;
+    filtered.value = false;
+    return;
+  }
 }
 function gammaCorrection(OldColor: number): number {
   let NewColor = (OldColor / 255) ** 2.2;
@@ -656,21 +637,17 @@ function filterProtanope(currentGrid: string): string {
   return newGrid;
 }
 async function protanopeFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.pixelGrid.encodedGrid) {
-      if (prota.value == false) {
-        squareColor.value = filterProtanope(promise.pixelGrid.encodedGrid);
-        prota.value = true;
-        filtered.value = true;
-        return;
-      } else {
-        squareColor.value = promise.pixelGrid.encodedGrid;
-        prota.value = false;
-        filtered.value = false;
-        return;
-      }
-    }
-  });
+  if (prota.value == false) {
+    squareColor.value = filterProtanope(art.value.pixelGrid.encodedGrid!);
+    prota.value = true;
+    filtered.value = true;
+    return;
+  } else {
+    squareColor.value = art.value.pixelGrid.encodedGrid!;
+    prota.value = false;
+    filtered.value = false;
+    return;
+  }
 }
 function filterDeu(currentGrid: string): string {
   let newGrid: string = "";
@@ -709,23 +686,17 @@ function filterDeu(currentGrid: string): string {
   return newGrid;
 }
 async function deuFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.pixelGrid.encodedGrid) {
-      if (deu.value == false) {
-        squareColor.value = filterDeu(promise.pixelGrid.encodedGrid);
-        deu.value = true;
-        filtered.value = true;
-        return;
-      }
-    }
-    if (promise.pixelGrid.encodedGrid)
-      if (deu.value == true) {
-        squareColor.value = promise.pixelGrid.encodedGrid;
-        deu.value = false;
-        filtered.value = false;
-        return;
-      }
-  });
+  if (deu.value == false) {
+    squareColor.value = filterDeu(art.value.pixelGrid.encodedGrid!);
+    deu.value = true;
+    filtered.value = true;
+    return;
+  } else {
+    squareColor.value = art.value.pixelGrid.encodedGrid!;
+    deu.value = false;
+    filtered.value = false;
+    return;
+  }
 }
 function ArtToGif(Paintings: Art[]): string[] {
   let url: string[] = [];
@@ -790,15 +761,13 @@ function ArtToGif(Paintings: Art[]): string[] {
 }
 
 async function GifDisplay() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-      urls.value = ArtToGif(promiseGif);
-      GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-        (Blob) => {
-          GifURL.value = Blob;
-        }
-      );
-    });
+  ArtAccessService.GetGif(art.value.gifID).then((promiseGif: Art[]) => {
+    urls.value = ArtToGif(promiseGif);
+    GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
+      (Blob) => {
+        GifURL.value = Blob;
+      }
+    );
   });
 }
 </script>
