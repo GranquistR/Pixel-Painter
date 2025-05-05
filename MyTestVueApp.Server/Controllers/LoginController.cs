@@ -151,15 +151,27 @@ namespace MyTestVueApp.Server.Controllers
 
             try
             {
-                var status = await LoginService.PrivateSwitchChange(artistId);
-                return Ok(status);
-        }
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var status = await LoginService.PrivateSwitchChange(artistId);
+                    return Ok(status);
+                }
+                throw new AuthenticationException("User is not logged in.");
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-}
-
+        }
+        /// <summary>
+        /// This function grabs the artist by intaking a name to see if they are there
+        /// </summary>
+        /// <param name="name">Name of the artist</param>
+        /// <returns>An artist</returns>
         [HttpGet]
         [Route("GetArtistByName")]
         [ProducesResponseType(typeof(Artist), 200)]

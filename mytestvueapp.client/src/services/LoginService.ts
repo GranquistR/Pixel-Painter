@@ -115,7 +115,7 @@ export default class LoginService {
       return false;
     }
   }
-  public static async privateSwitchChange(artistId: Number): Promise<Boolean> {
+  public static async privateSwitchChange(artistId: Number): Promise<void> {
     try {
       const response = await fetch(`/login/privateSwitchChange`, {
         method: "PUT",
@@ -126,7 +126,6 @@ export default class LoginService {
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
-      return true;
     } catch (error) {
       console.error;
       throw error;

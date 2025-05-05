@@ -231,44 +231,15 @@ namespace MyTestVueApp.Server.ServiceImplementations
         /// <summary>
         /// This Function changes the PrivateProfile value, making it the inverse of the initial value
         /// </summary>
-        /// <param name="artistId"></param>
-        /// <returns>A true or false</returns>
+        /// <param name="artistId"> ID of the artist</param>
+        /// <returns>A true when changing from public to private or false when changing from private to public</returns>
         public async Task<bool> PrivateSwitchChange(int artistId)
         {
-            var artist = new Artist();
+            var artist = await GetArtistById(artistId);
             var connectionString = AppConfig.Value.ConnectionString;
             await using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-
-                var query1 = @"
-                    SELECT [Id]
-                          ,[SubId]
-                          ,[Name]
-                          ,[IsAdmin]
-                          ,[CreationDate]
-                          ,[PrivateProfile]
-                      FROM [PixelPainter].[dbo].[Artist]
-                      WHERE Artist.Id = @Id";
-                using (SqlCommand command1 = new SqlCommand(query1, connection))
-                {
-                    command1.Parameters.AddWithValue("@Id", artistId);
-                    using (var reader = await command1.ExecuteReaderAsync())
-                    {
-                        reader.Read();
-                        artist = new Artist
-                        {
-                            Id = reader.GetInt32(0),
-                            SubId = reader.GetString(1),
-                            Name = reader.GetString(2),
-                            IsAdmin = reader.GetBoolean(3),
-                            CreationDate = reader.GetDateTime(4),
-                            PrivateProfile = reader.GetBoolean(5),
-                        };
-                        
-                    }
-                }
-                
 
                 if (artist.PrivateProfile)
                 {
@@ -300,7 +271,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// This function intakes a new username and SubID to identify user 
+        /// and changes their name on the backend in the database
+        /// </summary>
+        /// <param name="newUsername">New username being passed in</param>
+        /// <param name="subId"> SubID of user </param>
+        /// <returns>Returns true if the name is changed and false if the name is not changed</returns>
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try

@@ -43,7 +43,7 @@
                 </div>
                 <Button
                   v-if="
-                    !isEditing && (isAdmin || curArtist?.name == artist.name)
+                    !isEditing && (isAdmin || curArtist?.name == curUser.name)
                   "
                   severity="secondary"
                   rounded
@@ -168,7 +168,7 @@ onMounted(async () => {
   await LoginService.getCurrentUser().then((user: Artist) => {
     curUser.value = user;
     if (user.id == 0) {
-      router.push("/");
+      router.go(-1);
       toast.add({
         severity: "error",
         summary: "Warning",
@@ -178,7 +178,6 @@ onMounted(async () => {
     }
 
     newUsername.value = user.name;
-    artist.value = user;
     isAdmin.value = user.isAdmin;
   });
   //
@@ -222,7 +221,7 @@ async function logout() {
 
 function cancelEdit() {
   isEditing.value = false;
-  newUsername.value = artist.value.name;
+  newUsername.value = curUser.value.name;
 }
 
 const errorMessage = computed<string>(() => {

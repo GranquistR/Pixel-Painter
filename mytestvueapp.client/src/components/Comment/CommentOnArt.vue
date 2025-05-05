@@ -110,7 +110,7 @@ const showReply = ref<boolean>(false);
 const menu = ref<any>();
 const user = ref<boolean>(false);
 const dateFormatted = ref<string>("");
-const hover = ref(false);
+const hover = ref<boolean>(false);
 
 function openMenu() {
   menu.value.toggle(event);
