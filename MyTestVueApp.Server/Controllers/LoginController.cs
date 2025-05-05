@@ -144,6 +144,7 @@ namespace MyTestVueApp.Server.Controllers
         /// <returns>A true when changing from public to private or false when changing from private to public</returns>
         [HttpPut]
         [Route("privateSwitchChange")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> PrivateSwitchChange([FromBody, BindRequired]int artistId)
         {
 
