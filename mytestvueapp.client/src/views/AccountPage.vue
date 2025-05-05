@@ -185,7 +185,7 @@ onMounted(async () => {
   await LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
     if (curArtist.value.privateProfile) {
-      if (curUser.value.id != curArtist.value.id && !isAdmin) {
+      if (curUser.value.id != curArtist.value.id && !isAdmin.value) {
         router.go(-1);
         toast.add({
           severity: "error",
@@ -295,13 +295,12 @@ function changeHash(hash: string) {
 }
 async function privateSwitchChange() {
   await LoginService.privateSwitchChange(curArtist.value.id).then((promise) => {
-    if (promise) {
-      pageStatus.value = "Private";
-      curArtist.value.privateProfile = true;
-    } else {
+    if (pageStatus.value === "Private") {
       pageStatus.value = "Public";
-      curArtist.value.privateProfile = false;
+    } else {
+      pageStatus.value = "Private";
     }
+    curArtist.value.privateProfile = !curArtist.value.privateProfile;
   });
 }
 </script>
