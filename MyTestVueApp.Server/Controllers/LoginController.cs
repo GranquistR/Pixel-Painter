@@ -124,6 +124,9 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist == null) {
+                        throw new InvalidDataException("Artist is null.");
+                    }
                     return Ok(artist);
                 }
                 throw new AuthenticationException("User is not logged in.");
@@ -131,6 +134,10 @@ namespace MyTestVueApp.Server.Controllers
             catch (AuthenticationException ex)
             {
                 return Unauthorized(ex.Message);
+            }
+            catch (InvalidDataException ex)
+            {
+                return Forbid(ex.Message);
             }
             catch (Exception ex)
             {
