@@ -145,9 +145,6 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
-import { RefSymbol } from "@vue/reactivity";
-import { ToggleSwitch } from "primevue";
-
 const toast = useToast();
 const route = useRoute();
 

@@ -151,7 +151,7 @@ export default class ArtAccessService {
       throw error;
     }
   }
-  public static async GetGif(GifId: number): Promise<Art[]> {
+  public static async getGif(GifId: number): Promise<Art[]> {
     try {
       const response = await fetch(`/artaccess/GetGifById?id=${GifId}`);
 

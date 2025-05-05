@@ -138,12 +138,10 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
         /// <summary>
-        /// Get an artist by their name
+        /// This Function changes the PrivateProfile value, making it the inverse of the initial value
         /// </summary>
-        /// <param name="name">Name of the artist</param>
-        /// <returns>An artist object</returns>
-
-
+        /// <param name="artistId"> ID of the artist</param>
+        /// <returns>A true when changing from public to private or false when changing from private to public</returns>
         [HttpPut]
         [Route("privateSwitchChange")]
         public async Task<IActionResult> PrivateSwitchChange([FromBody, BindRequired]int artistId)
@@ -153,8 +151,13 @@ namespace MyTestVueApp.Server.Controllers
             {
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
-                    var status = await LoginService.PrivateSwitchChange(artistId);
-                    return Ok(status);
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.IsAdmin || artist.Id == artistId)
+                    {
+                        var status = await LoginService.PrivateSwitchChange(artistId);
+                        return Ok(status);
+                    }
+                    throw new AuthenticationException("User is not an admin or the orignal artist.");
                 }
                 throw new AuthenticationException("User is not logged in.");
             }
