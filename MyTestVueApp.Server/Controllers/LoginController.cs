@@ -158,13 +158,16 @@ namespace MyTestVueApp.Server.Controllers
                         var status = await LoginService.PrivateSwitchChange(artistId);
                         return Ok(status);
                     }
-                    throw new AuthenticationException("User is not an admin or the orignal artist.");
+                    throw new InvalidDataException("User is not an admin or the orignal artist.");
                 }
                 throw new AuthenticationException("User is not logged in.");
             }
             catch (AuthenticationException ex)
             {
                 return Unauthorized(ex.Message);
+            }
+            catch (InvalidDataException ex) { 
+                return Forbid(ex.Message);
             }
             catch (Exception ex)
             {
