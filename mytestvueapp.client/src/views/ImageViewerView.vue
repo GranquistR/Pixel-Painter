@@ -69,6 +69,7 @@
             <DeleteArtButton
               v-if="art.currentUserIsOwner || isAdmin"
               :art="art"
+              :isAdmin="isAdmin"
             />
           </div>
           <div v-if="showFilters == true" class="">
