@@ -52,6 +52,7 @@ import Message from "primevue/message";
 const toast = useToast();
 const props = defineProps<{
   art: Art;
+  isAdmin: boolean;
 }>();
 const visible = ref<boolean>(false);
 const confirmText = ref<string>("");
@@ -63,7 +64,8 @@ watch(visible, (newVal) => {
 });
 
 async function confirmDelete() {
-  ArtAccessService.deleteContributingArtist(props.art.id)
+  if (props.isAdmin) {
+    ArtAccessService.deleteArt(props.art.id)
     .then(() => {
       router.push("/account#art");
       toast.add({
@@ -81,6 +83,26 @@ async function confirmDelete() {
         life: 3000
       });
     });
+  } else {
+    ArtAccessService.deleteContributingArtist(props.art.id)
+      .then(() => {
+        router.push("/account#art");
+        toast.add({
+          severity: "success",
+          summary: "Art Deleted",
+          detail: "The art has been deleted successfully",
+          life: 3000
+        });
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "An error occurred while deleting the art",
+          life: 3000
+        });
+      });
+  }
 }
 </script>
 
