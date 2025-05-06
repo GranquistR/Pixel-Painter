@@ -242,7 +242,6 @@ async function editArt() {
       )
       layerStore.pushGrid(grid);
     }
-
   } else {
 		layerStore.pushGrid(art.value.pixelGrid);
   }

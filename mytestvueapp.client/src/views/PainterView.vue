@@ -393,8 +393,8 @@ onMounted(async () => {
         art.value.id = data.id;
         art.value.title = data.title;
         art.value.isPublic = data.isPublic;
-        art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
-
+        art.value.pixelGrid.isGif = data.isGif;
+        art.value.isGif = data.isGif;
         canvas.value?.recenter();
         art.value.pixelGrid.backgroundColor =
           layerStore.grids[0].backgroundColor;
@@ -706,7 +706,7 @@ function drawAtCoords(coords: Vector2[]) {
       }
     }
   });
-  if (layerStore.grids[0].isGif) {
+  if (layerStore.grids?.[0]?.isGif) {
     canvas.value?.drawLayers(layerStore.layer);
   }
 }

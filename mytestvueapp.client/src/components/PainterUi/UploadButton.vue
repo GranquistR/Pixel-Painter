@@ -136,7 +136,6 @@ function FlattenFrameEncode(index: number): string {
 function upload() {
   emit("disconnect");
   loading.value = true;
-
   if (props.art.isGif) {
     LoginService.isLoggedIn().then((isLoggedIn) => {
       if (isLoggedIn) {
