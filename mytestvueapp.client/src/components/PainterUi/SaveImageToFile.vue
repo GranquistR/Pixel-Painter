@@ -16,13 +16,13 @@ const props = defineProps<{
   filteredArt?: string;
 }>();
 
-function handleClick() {
-  if (props.art.isGif) {
-    saveGifFromImage();
+function handleClick(): void {
+	if (props.art.pixelGrid.isGif) {
+		saveGIFFromPainter();
   } else if (props.filtered) {
     saveFilteredImage();
-  } else if (props.art.pixelGrid.isGif) {
-    saveGIFFromPainter();
+  } else if (props.art.isGif) {
+		saveGifFromImage();
   } else {
     saveToFile();
   }
