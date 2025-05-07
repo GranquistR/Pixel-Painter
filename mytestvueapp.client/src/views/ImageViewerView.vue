@@ -243,7 +243,7 @@ async function editArt() {
 	layerStore.clearStorage();
   if (art.value.isGif) {
     const art = await ArtAccessService.getArtById(id);
-    const frames = await ArtAccessService.GetGif(art.gifID);
+    const frames = await ArtAccessService.getGif(art.gifID);
 
     for (const frame of frames) {
       const grid = new PixelGrid(

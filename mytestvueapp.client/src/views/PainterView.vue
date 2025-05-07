@@ -413,6 +413,7 @@ onMounted(async () => {
             art.value.id = data.id;
             art.value.title = data.title;
             art.value.isPublic = data.isPublic;
+            art.value.pixelGrid.isGif = data.isGif;
             art.value.isGif = data.isGif;
 
             canvas.value?.recenter();
